@@ -1,0 +1,53 @@
+# Gradle
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+
+# IDE
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+*.code-workspace
+.settings/
+.project
+.classpath
+out/
+bin/
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Runtime data (root level only)
+/data/
+/logs/
+
+# Environment
+.env
+.env.local
+
+# Compiled
+*.class
+*.jar
+!gradle/wrapper/gradle-wrapper.jar
+
+# Dependencies (large binary files)
+libs/
+
+# Logs
+*.log
+
+# Local config overrides
+config.local.json
+
+# AI Files
+CLAUDE.md
+.claude/
+.cursorrules
+.cursorignore
+.cursor/
+.github/copilot-instructions.md
+.aider*

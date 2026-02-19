@@ -1,0 +1,97 @@
+plugins {
+    id 'java'
+    id 'com.gradleup.shadow' version '9.3.1'
+}
+
+group = 'com.hyperessentials'
+version = '0.1.0'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(25)
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // Hytale Server API (resolved from maven.hytale.com)
+    compileOnly "com.hypixel.hytale:Server:${rootProject.hytaleVersion}"
+
+    // HyperPerms integration (soft dependency)
+    compileOnly project(':HyperPerms')
+
+    // JSON handling
+    implementation 'com.google.code.gson:gson:2.11.0'
+
+    // Null safety annotations
+    compileOnly 'org.jetbrains:annotations:24.1.0'
+
+    // Testing
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+// Generate BuildInfo.java with project version
+def generatedSrcDir = layout.buildDirectory.dir("generated/sources/buildinfo/java")
+sourceSets.main.java.srcDir(generatedSrcDir)
+
+tasks.register('generateBuildInfo') {
+    def outputDir = generatedSrcDir
+    def ver = version
+    inputs.property('version', ver)
+    outputs.dir(outputDir)
+    doLast {
+        def dir = outputDir.get().asFile.toPath().resolve("com/hyperessentials").toFile()
+        dir.mkdirs()
+        new File(dir, "BuildInfo.java").text = """\
+package com.hyperessentials;
+
+/**
+ * Auto-generated build information.
+ */
+public final class BuildInfo {
+    public static final String VERSION = "${ver}";
+    public static final String JAVA_VERSION = "${System.getProperty('java.version')}";
+    public static final long BUILD_TIMESTAMP = ${System.currentTimeMillis()}L;
+    private BuildInfo() {}
+}
+"""
+    }
+}
+
+processResources {
+    inputs.property('serverVersion', rootProject.hytaleVersion)
+    filesMatching('manifest.json') {
+        expand(version: version, serverVersion: rootProject.hytaleVersion)
+    }
+}
+
+jar {
+    archiveClassifier = 'plain'
+}
+
+shadowJar {
+    archiveClassifier.set('')
+    relocate 'com.google.gson', 'com.hyperessentials.lib.gson'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+build {
+    dependsOn shadowJar
+}
+
+tasks.named('compileJava') {
+    dependsOn 'generateBuildInfo'
+    dependsOn ':HyperPerms:shadowJar'
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+    options.compilerArgs.addAll(['-Xlint:all', '-Xlint:-processing'])
+}

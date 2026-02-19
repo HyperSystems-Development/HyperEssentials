@@ -1,0 +1,38 @@
+$C = "../../Common.ui";
+
+@ColorGold = #FFAA00;
+@ColorGreen = #55FF55;
+@ColorRed = #FF5555;
+@ColorAqua = #55FFFF;
+@ColorGray = #7c8b99;
+@ColorWhite = #FFFFFF;
+@ColorBgDark = #0a1119;
+@ColorBgLight = #141c26;
+
+@ButtonLabelStyle = LabelStyle {
+    FontSize: 14;
+    TextColor: @ColorWhite;
+};
+
+@GreenLabelStyle = LabelStyle {
+    FontSize: 14;
+    TextColor: @ColorGreen;
+};
+
+@GoldLabelStyle = LabelStyle {
+    FontSize: 14;
+    TextColor: @ColorGold;
+};
+
+@SmallLabelStyle = LabelStyle {
+    FontSize: 12;
+    TextColor: @ColorGray;
+};
+
+@ButtonStyle = ButtonStyle {
+    Default: $C.@TextButtonDefaultBackground;
+    Hovered: $C.@TextButtonHoveredBackground;
+    Pressed: $C.@TextButtonPressedBackground;
+    Disabled: $C.@TextButtonDisabledBackground;
+    LabelStyle: @ButtonLabelStyle;
+};

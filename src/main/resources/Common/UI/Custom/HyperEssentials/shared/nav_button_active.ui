@@ -1,0 +1,10 @@
+$C = "../../Common.ui";
+$S = "styles.ui";
+
+Group {
+    TextButton #NavActionButton {
+        Text: "Button";
+        Anchor: (Height: 28);
+        Style: $C.@DefaultTextButtonStyle;
+    };
+};

@@ -1,0 +1,38 @@
+$C = "../../Common.ui";
+$S = "styles.ui";
+
+@NavButton = MenuItem {
+    Text: "Button";
+    Anchor: (Height: 28);
+    Style: (
+        Default: (TextColor: $S.@ColorGray);
+        Hovered: (TextColor: $S.@ColorAqua);
+        Selected: (TextColor: $S.@ColorAqua);
+    );
+};
+
+@HyperEssentialsNavBar = Group {
+    Anchor: (Height: 40);
+    LayoutMode: Left;
+    Background: (Color: $S.@ColorBgDark);
+    Padding: (Left: 12, Right: 12);
+
+    Group #NavBarTitle {
+        Anchor: (Width: 160, Height: 40);
+
+        Label #NavBarTitleLabel {
+            Text: "HyperEssentials";
+            Anchor: (Height: 40);
+            Style: (
+                FontSize: 16;
+                TextColor: $S.@ColorGold;
+                VerticalAlignment: Center;
+            );
+        };
+    };
+
+    Group #NavBarButtons {
+        LayoutMode: Left;
+        Padding: (Left: 12);
+    };
+};

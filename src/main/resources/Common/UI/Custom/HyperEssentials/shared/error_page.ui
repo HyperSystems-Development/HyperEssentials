@@ -1,0 +1,33 @@
+$C = "../../Common.ui";
+$S = "styles.ui";
+
+$C.@Container #ErrorPage {
+    Anchor: (Width: 400, Height: 200);
+
+    $C.@PageOverlay {};
+
+    Group {
+        LayoutMode: Top;
+        Padding: (Full: 20);
+
+        Label #ErrorTitle {
+            Text: "Error";
+            Anchor: (Height: 30);
+            Style: (
+                FontSize: 18;
+                TextColor: $S.@ColorRed;
+                HorizontalAlignment: Center;
+            );
+        };
+
+        Label #ErrorMessage {
+            Text: "An error occurred.";
+            Anchor: (Height: 20);
+            Style: (
+                FontSize: 14;
+                TextColor: $S.@ColorGray;
+                HorizontalAlignment: Center;
+            );
+        };
+    };
+};
