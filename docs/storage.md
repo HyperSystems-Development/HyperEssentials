@@ -1,7 +1,5 @@
 # Storage
 
-> **Status:** Interfaces defined, JSON provider is a stub.
-
 ## Overview
 
 HyperEssentials uses a pluggable storage system. The `StorageProvider` interface provides access to domain-specific storage interfaces.
@@ -11,9 +9,9 @@ HyperEssentials uses a pluggable storage system. The `StorageProvider` interface
 | Interface | Domain | Key Operations |
 |-----------|--------|----------------|
 | `HomeStorage` | Homes | CRUD for player homes |
-| `WarpStorage` | Warps | CRUD for server warps |
-| `SpawnStorage` | Spawns | CRUD for spawn points |
-| `PlayerDataStorage` | Player data | TPA toggle, back history, preferences |
+| `WarpStorage` | Warps | Load/save all warps (bulk) |
+| `SpawnStorage` | Spawns | Load/save all spawns (bulk) |
+| `PlayerDataStorage` | Player data | Load/save/delete per-player TPA toggle, back history |
 
 All operations return `CompletableFuture` for async execution.
 
@@ -21,15 +19,24 @@ All operations return `CompletableFuture` for async execution.
 
 | Provider | Config Value | Status |
 |----------|-------------|--------|
-| `JsonStorageProvider` | `"json"` | Stub |
+| `JsonStorageProvider` | `"json"` | Implemented |
 
 ## Data Directory
 
 ```
 mods/com.hyperessentials_HyperEssentials/
   data/
-    homes/           Player home data (JSON per player)
-    warps/           Server warps
-    spawns/          Spawn points
-    players/         Per-player preferences
+    warps.json         Server warps
+    spawns.json        Spawn points
+    players/           Per-player teleport data (JSON per player)
+    homes/             Player home data (JSON per player)
 ```
+
+## Implementation Details
+
+The `JsonStorageProvider` uses:
+- **Atomic writes** - Data is written to a `.tmp` file first, then atomically moved to the target file using `Files.move` with `ATOMIC_MOVE` and `REPLACE_EXISTING`
+- **GSON** - All serialization/deserialization uses GSON 2.11.0
+- **Async** - All operations run on `CompletableFuture.supplyAsync()` / `runAsync()`
+- **Bulk storage** - Warps and spawns are stored as a single JSON file each (not per-entry)
+- **Per-player storage** - Player data is stored as individual JSON files keyed by UUID

@@ -46,6 +46,7 @@ public final class Permissions {
     public static final String BYPASS_WARMUP = BYPASS + ".warmup";
     public static final String BYPASS_COOLDOWN = BYPASS + ".cooldown";
     public static final String BYPASS_LIMIT = BYPASS + ".limit";
+    public static final String BYPASS_TOGGLE = BYPASS + ".toggle";
 
     // Admin
     public static final String ADMIN = ROOT + ".admin";

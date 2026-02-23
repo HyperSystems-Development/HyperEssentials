@@ -46,6 +46,12 @@ All permission nodes use the `hyperessentials` root prefix.
 | `hyperessentials.tptoggle` | Toggle TPA on/off |
 | `hyperessentials.back` | Use /back |
 
+## Random Teleport
+
+| Permission | Description |
+|------------|-------------|
+| `hyperessentials.rtp` | Use /rtp |
+
 ## Bypass
 
 | Permission | Description |
@@ -53,6 +59,7 @@ All permission nodes use the `hyperessentials` root prefix.
 | `hyperessentials.bypass.warmup` | Skip warmup timers |
 | `hyperessentials.bypass.cooldown` | Skip cooldowns |
 | `hyperessentials.bypass.limit` | Bypass home limits |
+| `hyperessentials.bypass.toggle` | Bypass TPA toggle (send requests to players with TPA disabled) |
 
 ## Admin
 
@@ -70,4 +77,3 @@ All permission nodes use the `hyperessentials` root prefix.
 | `hyperessentials.vanish` | Vanish |
 | `hyperessentials.freeze` | Moderation (freeze) |
 | `hyperessentials.mute` | Moderation (mute) |
-| `hyperessentials.rtp` | Random teleport |

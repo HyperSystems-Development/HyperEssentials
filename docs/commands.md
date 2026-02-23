@@ -1,7 +1,5 @@
 # Commands
 
-> **Status:** Only the admin command is implemented. Module commands will be added as modules are built.
-
 ## Admin
 
 | Command | Description | Permission |
@@ -19,32 +17,50 @@
 | `/delhome <name>` | Delete a home | `hyperessentials.home.delete` |
 | `/homes` | List homes / open GUI | `hyperessentials.home.list` |
 
-## Warps (Planned)
+## Warps
 
 | Command | Description | Permission |
 |---------|-------------|------------|
 | `/warp <name>` | Teleport to a warp | `hyperessentials.warp` |
-| `/setwarp <name>` | Create a warp | `hyperessentials.warp.set` |
+| `/setwarp <name> [category]` | Create or update a warp | `hyperessentials.warp.set` |
 | `/delwarp <name>` | Delete a warp | `hyperessentials.warp.delete` |
-| `/warps` | List warps / open GUI | `hyperessentials.warp.list` |
+| `/warps` | List all warps | `hyperessentials.warp.list` |
+| `/warpinfo <name>` | View detailed warp info | `hyperessentials.warp.info` |
 
-## Spawns (Planned)
+Aliases: `/delwarp` = `/deletewarp`, `/rmwarp`, `/removewarp`
+
+## Spawns
 
 | Command | Description | Permission |
 |---------|-------------|------------|
 | `/spawn [name]` | Teleport to spawn | `hyperessentials.spawn` |
-| `/setspawn [name]` | Set a spawn point | `hyperessentials.spawn.set` |
+| `/setspawn [name] [--default]` | Set a spawn point | `hyperessentials.spawn.set` |
 | `/delspawn <name>` | Delete a spawn | `hyperessentials.spawn.delete` |
-| `/spawns` | List spawns | `hyperessentials.spawn.list` |
+| `/spawns` | List all spawns | `hyperessentials.spawn.list` |
+| `/spawninfo <name>` | View detailed spawn info | `hyperessentials.spawn.info` |
 
-## Teleport (Planned)
+Aliases: `/delspawn` = `/deletespawn`, `/rmspawn`, `/removespawn`
+
+The `--default` flag on `/setspawn` marks the spawn as the server default.
+
+## Teleport
 
 | Command | Description | Permission |
 |---------|-------------|------------|
 | `/tpa <player>` | Request teleport to player | `hyperessentials.tpa` |
 | `/tpahere <player>` | Request player teleport to you | `hyperessentials.tpahere` |
-| `/tpaccept` | Accept teleport request | `hyperessentials.tpaccept` |
-| `/tpdeny` | Deny teleport request | `hyperessentials.tpdeny` |
+| `/tpaccept [player]` | Accept teleport request | `hyperessentials.tpaccept` |
+| `/tpdeny [player]` | Deny teleport request | `hyperessentials.tpdeny` |
 | `/tpcancel` | Cancel outgoing request | `hyperessentials.tpcancel` |
 | `/tptoggle` | Toggle TPA requests | `hyperessentials.tptoggle` |
 | `/back` | Return to previous location | `hyperessentials.back` |
+
+Aliases: `/tpaccept` = `/tpyes`, `/tpdeny` = `/tpno`
+
+## Random Teleport
+
+| Command | Description | Permission |
+|---------|-------------|------------|
+| `/rtp` | Teleport to a random location | `hyperessentials.rtp` |
+
+Aliases: `/rtp` = `/randomtp`, `/randomteleport`
