@@ -91,6 +91,9 @@ public class HyperEssentials {
         // Enable modules based on config
         moduleRegistry.enableAll();
 
+        // Initialize module managers with storage (post-enable)
+        initModuleManagers();
+
         Logger.info("HyperEssentials enabled with %d modules", moduleRegistry.getEnabledModules().size());
     }
 
@@ -133,6 +136,37 @@ public class HyperEssentials {
         ConfigManager.get().reloadAll();
         Logger.info("Configuration reloaded");
     }
+
+    /**
+     * Initializes module managers with storage after modules are enabled.
+     */
+    private void initModuleManagers() {
+        WarpsModule warps = getWarpsModule();
+        if (warps != null && warps.isEnabled()) {
+            warps.initManager(storageProvider.getWarpStorage());
+        }
+
+        SpawnsModule spawns = getSpawnsModule();
+        if (spawns != null && spawns.isEnabled()) {
+            spawns.initManager(storageProvider.getSpawnStorage());
+        }
+
+        TeleportModule teleport = getTeleportModule();
+        if (teleport != null && teleport.isEnabled()) {
+            teleport.initManagers(storageProvider.getPlayerDataStorage());
+        }
+    }
+
+    // Module getters
+
+    @Nullable
+    public WarpsModule getWarpsModule() { return moduleRegistry.getModule(WarpsModule.class); }
+    @Nullable
+    public SpawnsModule getSpawnsModule() { return moduleRegistry.getModule(SpawnsModule.class); }
+    @Nullable
+    public TeleportModule getTeleportModule() { return moduleRegistry.getModule(TeleportModule.class); }
+    @Nullable
+    public RtpModule getRtpModule() { return moduleRegistry.getModule(RtpModule.class); }
 
     // Getters
 
