@@ -2,7 +2,9 @@ package com.hyperessentials.module.rtp;
 
 import com.hyperessentials.config.ConfigManager;
 import com.hyperessentials.config.ModuleConfig;
+import com.hyperessentials.config.modules.RtpConfig;
 import com.hyperessentials.module.AbstractModule;
+import com.hyperessentials.util.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -10,6 +12,8 @@ import org.jetbrains.annotations.Nullable;
  * Random Teleport module for HyperEssentials.
  */
 public class RtpModule extends AbstractModule {
+
+    private RtpManager rtpManager;
 
     @Override
     @NotNull
@@ -26,13 +30,19 @@ public class RtpModule extends AbstractModule {
     @Override
     public void onEnable() {
         super.onEnable();
-        // TODO: Register commands, listeners, and storage
+        RtpConfig config = ConfigManager.get().rtp();
+        this.rtpManager = new RtpManager(config);
+        Logger.info("[RTP] RtpManager initialized");
     }
 
     @Override
     public void onDisable() {
-        // TODO: Unregister commands, save data, cleanup
         super.onDisable();
+    }
+
+    @Nullable
+    public RtpManager getRtpManager() {
+        return rtpManager;
     }
 
     @Override
