@@ -3,6 +3,8 @@ package com.hyperessentials.module.warps;
 import com.hyperessentials.config.ConfigManager;
 import com.hyperessentials.config.ModuleConfig;
 import com.hyperessentials.module.AbstractModule;
+import com.hyperessentials.storage.WarpStorage;
+import com.hyperessentials.util.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -10,6 +12,8 @@ import org.jetbrains.annotations.Nullable;
  * Warps module for HyperEssentials.
  */
 public class WarpsModule extends AbstractModule {
+
+    private WarpManager warpManager;
 
     @Override
     @NotNull
@@ -26,13 +30,31 @@ public class WarpsModule extends AbstractModule {
     @Override
     public void onEnable() {
         super.onEnable();
-        // TODO: Register commands, listeners, and storage
+        // Note: WarpStorage and WarpManager are initialized here but commands
+        // are registered at the platform layer (HyperEssentialsPlugin)
+    }
+
+    /**
+     * Initializes the warp manager with the given storage.
+     * Called by HyperEssentialsPlugin after module is enabled.
+     */
+    public void initManager(@NotNull WarpStorage storage) {
+        this.warpManager = new WarpManager(storage);
+        warpManager.loadWarps().join();
+        Logger.info("[Warps] WarpManager initialized");
     }
 
     @Override
     public void onDisable() {
-        // TODO: Unregister commands, save data, cleanup
+        if (warpManager != null) {
+            warpManager.saveWarps().join();
+        }
         super.onDisable();
+    }
+
+    @Nullable
+    public WarpManager getWarpManager() {
+        return warpManager;
     }
 
     @Override
