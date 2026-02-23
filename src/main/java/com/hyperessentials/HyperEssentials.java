@@ -15,7 +15,6 @@ import com.hyperessentials.module.rtp.RtpModule;
 import com.hyperessentials.module.spawns.SpawnsModule;
 import com.hyperessentials.module.teleport.TeleportModule;
 import com.hyperessentials.module.utility.UtilityModule;
-import com.hyperessentials.module.vanish.VanishModule;
 import com.hyperessentials.module.warmup.WarmupManager;
 import com.hyperessentials.module.warmup.WarmupModule;
 import com.hyperessentials.module.warps.WarpsModule;
@@ -26,6 +25,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.nio.file.Path;
+import java.util.UUID;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Consumer;
 
 /**
  * Core singleton for HyperEssentials.
@@ -41,6 +43,7 @@ public class HyperEssentials {
     private GuiManager guiManager;
     private WarmupManager warmupManager;
     private StorageProvider storageProvider;
+    private final CopyOnWriteArrayList<Consumer<UUID>> disconnectHandlers = new CopyOnWriteArrayList<>();
 
     public HyperEssentials(@NotNull Path dataDir, @NotNull java.util.logging.Logger javaLogger) {
         this.dataDir = dataDir;
@@ -83,7 +86,6 @@ public class HyperEssentials {
         moduleRegistry.register(new TeleportModule());
         moduleRegistry.register(new KitsModule());
         moduleRegistry.register(new ModerationModule());
-        moduleRegistry.register(new VanishModule());
         moduleRegistry.register(new UtilityModule());
         moduleRegistry.register(new AnnouncementsModule());
         moduleRegistry.register(new RtpModule());
@@ -156,5 +158,34 @@ public class HyperEssentials {
      */
     public boolean isModuleEnabled(@NotNull String name) {
         return ConfigManager.get().isModuleEnabled(name);
+    }
+
+    /**
+     * Registers a handler that is called when a player disconnects.
+     * Used by modules to clean up session state.
+     */
+    public void registerDisconnectHandler(@NotNull Consumer<UUID> handler) {
+        disconnectHandlers.add(handler);
+    }
+
+    /**
+     * Unregisters a disconnect handler.
+     */
+    public void unregisterDisconnectHandler(@NotNull Consumer<UUID> handler) {
+        disconnectHandlers.remove(handler);
+    }
+
+    /**
+     * Called by the plugin when a player disconnects.
+     * Notifies all registered disconnect handlers.
+     */
+    public void onPlayerDisconnect(@NotNull UUID uuid) {
+        for (Consumer<UUID> handler : disconnectHandlers) {
+            try {
+                handler.accept(uuid);
+            } catch (Exception e) {
+                Logger.severe("Error in disconnect handler: %s", e.getMessage());
+            }
+        }
     }
 }

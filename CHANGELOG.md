@@ -5,6 +5,59 @@ All notable changes to HyperEssentials will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+#### Infrastructure
+- `DurationParser` utility for parsing human-readable durations ("1h30m", "7d") and formatting
+- Categorized `Permissions` constants: KIT, MODERATION, UTILITY, ANNOUNCE, BYPASS, NOTIFY with wildcards
+- `CommandUtil.findOnlinePlayer()` for case-insensitive online player lookup
+- Disconnect handler system in `HyperEssentials` core for session cleanup callbacks
+
+#### Kits Module
+- `Kit` and `KitItem` data records for kit definitions
+- `KitStorage` for JSON persistence of kit definitions (`data/kits.json`)
+- `KitManager` with CRUD operations, cooldown tracking, one-time claim tracking, and inventory capture
+- `/kit <name>` — claim a kit with permission and cooldown checks
+- `/kits` — list available kits filtered by player permissions
+- `/createkit <name>` — capture current inventory as a new kit definition
+- `/deletekit <name>` — remove a kit definition
+- `KitsConfig` with `defaultCooldownSeconds` and `oneTimeDefault` settings
+
+#### Moderation Module
+- `Punishment` record with ban/mute/kick types, expiry, and revocation tracking
+- `ModerationStorage` for JSON persistence of punishment history (`data/punishments.json`)
+- `ModerationManager` for ban/mute/kick operations with broadcast and staff notifications
+- `FreezeManager` with position-locked movement checking via `ScheduledExecutorService`
+- `VanishManager` using `HiddenPlayersManager` with fake disconnect/connect messages
+- `ModerationListener` for ban enforcement on connect and mute enforcement on chat
+- `/ban`, `/tempban`, `/unban` — permanent and temporary bans with reason support
+- `/mute`, `/tempmute`, `/unmute` — permanent and temporary mutes
+- `/kick` — kick with custom reason, broadcast, and staff notifications
+- `/freeze` — toggle position freeze with movement prevention
+- `/vanish` — toggle vanish with configurable fake leave/join messages
+- `/punishments <player>` — view punishment history
+- `ModerationConfig` with default messages, broadcast toggles, freeze interval, history limits
+- `VanishConfig` with fake message toggles and vanish messages
+
+#### Utility Module
+- `UtilityManager` for session-only fly/god state tracking (cleared on disconnect)
+- `/heal [player]` — heal via `EntityStatsModule` stat maximization
+- `/fly [player]` — toggle Creative/Adventure mode as flight workaround
+- `/god [player]` — toggle `Invulnerable` ECS component
+- `/clearchat [player]` — clear chat with configurable line count
+- `/clearinventory [player]` (alias `/ci`) — clear inventory via `Player` component
+- `/repair` — repair held item durability via `withRestoredDurability()`
+- `/near [radius]` — list nearby players with configurable default/max radius
+- `UtilityConfig` with per-command enable flags, radius limits, and chat line settings
+
+#### Announcements Module
+- `AnnouncementScheduler` with configurable interval, sequential/random rotation
+- `/broadcast <message>` — send formatted announcement to all players
+- `/announce list|add|remove|reload` — manage announcement rotation
+- `AnnouncementsConfig` with interval, randomize, prefix/message colors, and message list
+
 ## [0.1.0] - 2026-02-18
 
 ### Added

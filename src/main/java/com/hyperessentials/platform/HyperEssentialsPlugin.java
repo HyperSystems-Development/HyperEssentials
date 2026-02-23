@@ -10,7 +10,10 @@ import com.hypixel.hytale.server.core.event.events.player.PlayerDisconnectEvent;
 import com.hypixel.hytale.server.core.plugin.JavaPlugin;
 import com.hypixel.hytale.server.core.plugin.JavaPluginInit;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -101,19 +104,50 @@ public class HyperEssentialsPlugin extends JavaPlugin {
 
     private void onPlayerDisconnect(PlayerDisconnectEvent event) {
         PlayerRef playerRef = event.getPlayerRef();
-        trackedPlayers.remove(playerRef.getUuid());
+        UUID uuid = playerRef.getUuid();
 
         // Cancel any active warmups
-        hyperEssentials.getWarmupManager().cancelWarmup(playerRef.getUuid());
+        hyperEssentials.getWarmupManager().cancelWarmup(uuid);
 
         // Unregister from page tracker
-        hyperEssentials.getGuiManager().getPageTracker().unregister(playerRef.getUuid());
+        hyperEssentials.getGuiManager().getPageTracker().unregister(uuid);
+
+        // Notify modules of disconnect for cleanup
+        hyperEssentials.onPlayerDisconnect(uuid);
+
+        // Remove from tracked players last
+        trackedPlayers.remove(uuid);
 
         Logger.debug("Player disconnected: %s", playerRef.getUsername());
     }
 
+    @Nullable
     public PlayerRef getTrackedPlayer(UUID uuid) {
         return trackedPlayers.get(uuid);
+    }
+
+    /**
+     * Returns an unmodifiable view of all tracked (online) players.
+     */
+    @NotNull
+    public Map<UUID, PlayerRef> getTrackedPlayers() {
+        return Collections.unmodifiableMap(trackedPlayers);
+    }
+
+    /**
+     * Finds an online player by name (case-insensitive).
+     *
+     * @param name the player name to search for
+     * @return the PlayerRef if found online, null otherwise
+     */
+    @Nullable
+    public PlayerRef findOnlinePlayer(@NotNull String name) {
+        for (PlayerRef ref : trackedPlayers.values()) {
+            if (ref.getUsername().equalsIgnoreCase(name)) {
+                return ref;
+            }
+        }
+        return null;
     }
 
     public HyperEssentials getHyperEssentials() {
