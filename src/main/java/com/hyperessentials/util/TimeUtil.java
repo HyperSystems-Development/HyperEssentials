@@ -40,4 +40,27 @@ public final class TimeUtil {
     public static String formatSeconds(int seconds) {
         return formatDuration(seconds * 1000L);
     }
+
+    @NotNull
+    public static String formatRelativeTime(long timestamp) {
+        if (timestamp == 0) {
+            return "Never";
+        }
+
+        long diff = System.currentTimeMillis() - timestamp;
+        long seconds = diff / 1000;
+        long minutes = seconds / 60;
+        long hours = minutes / 60;
+        long days = hours / 24;
+
+        if (days > 0) {
+            return days + (days == 1 ? " day ago" : " days ago");
+        } else if (hours > 0) {
+            return hours + (hours == 1 ? " hour ago" : " hours ago");
+        } else if (minutes > 0) {
+            return minutes + (minutes == 1 ? " minute ago" : " minutes ago");
+        } else {
+            return "Just now";
+        }
+    }
 }
