@@ -43,6 +43,10 @@ libs/
 # Local config overrides
 config.local.json
 
+# Local build setup (multi-project wiring is machine-specific)
+settings.gradle
+gradle.properties
+
 # AI Files
 CLAUDE.md
 .claude/

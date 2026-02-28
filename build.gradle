@@ -7,6 +7,20 @@ plugins {
 group = 'com.hyperessentials'
 version = '0.1.0'
 
+// ---------------------------------------------------------------------------
+// Hytale Maven version resolution
+// ---------------------------------------------------------------------------
+def resolveHytaleVersion(String channel) {
+    def url = "https://maven.hytale.com/${channel}/com/hypixel/hytale/Server/maven-metadata.xml"
+    def text = new URL(url).text
+    def matcher = text =~ /<release>(.+?)<\/release>/
+    if (!matcher.find()) throw new GradleException("Could not resolve Hytale server version from ${url}")
+    return matcher.group(1)
+}
+
+def hytaleChannel = project.findProperty('hytale_channel') ?: 'release'
+ext.hytaleVersion = resolveHytaleVersion(hytaleChannel)
+
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(25)
@@ -15,6 +29,10 @@ java {
 
 repositories {
     mavenCentral()
+    maven {
+        name = 'hytale'
+        url = "https://maven.hytale.com/${hytaleChannel}"
+    }
 }
 
 dependencies {
