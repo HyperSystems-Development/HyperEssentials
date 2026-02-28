@@ -156,6 +156,11 @@ public class HyperEssentials {
    * Initializes module managers with storage after modules are enabled.
    */
   private void initModuleManagers() {
+    HomesModule homes = getHomesModule();
+    if (homes != null && homes.isEnabled()) {
+      homes.initManager(storageProvider.getHomeStorage());
+    }
+
     WarpsModule warps = getWarpsModule();
     if (warps != null && warps.isEnabled()) {
       warps.initManager(storageProvider.getWarpStorage());
@@ -200,6 +205,8 @@ public class HyperEssentials {
   public WarpsModule getWarpsModule() { return moduleRegistry.getModule(WarpsModule.class); }
   @Nullable
   public SpawnsModule getSpawnsModule() { return moduleRegistry.getModule(SpawnsModule.class); }
+  @Nullable
+  public HomesModule getHomesModule() { return moduleRegistry.getModule(HomesModule.class); }
   @Nullable
   public TeleportModule getTeleportModule() { return moduleRegistry.getModule(TeleportModule.class); }
 

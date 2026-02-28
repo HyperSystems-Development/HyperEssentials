@@ -9,6 +9,12 @@ import com.hyperessentials.config.modules.SpawnsConfig;
 import com.hyperessentials.config.modules.TeleportConfig;
 import com.hyperessentials.config.modules.WarpsConfig;
 import com.hyperessentials.listener.DeathListener;
+import com.hyperessentials.module.homes.HomeManager;
+import com.hyperessentials.module.homes.HomesModule;
+import com.hyperessentials.module.homes.command.DelHomeCommand;
+import com.hyperessentials.module.homes.command.HomeCommand;
+import com.hyperessentials.module.homes.command.HomesCommand;
+import com.hyperessentials.module.homes.command.SetHomeCommand;
 import com.hyperessentials.module.teleport.RtpManager;
 import com.hyperessentials.module.teleport.command.RtpCommand;
 import com.hyperessentials.module.spawns.SpawnManager;
@@ -112,6 +118,20 @@ public class HyperEssentialsPlugin extends JavaPlugin {
       getCommandRegistry().registerCommand(new AdminCommand());
       registered.add("/hessentials");
 
+      // Homes
+      HomesModule homesModule = hyperEssentials.getHomesModule();
+      if (homesModule != null && homesModule.isEnabled() && homesModule.getHomeManager() != null) {
+        HomeManager hm = homesModule.getHomeManager();
+        getCommandRegistry().registerCommand(new SetHomeCommand(hm));
+        getCommandRegistry().registerCommand(new HomeCommand(hm, hyperEssentials.getWarmupManager()));
+        getCommandRegistry().registerCommand(new DelHomeCommand(hm));
+        getCommandRegistry().registerCommand(new HomesCommand(hm));
+        registered.add("/sethome");
+        registered.add("/home");
+        registered.add("/delhome");
+        registered.add("/homes");
+      }
+
       // Warps
       WarpsModule warps = hyperEssentials.getWarpsModule();
       if (warps != null && warps.isEnabled() && warps.getWarpManager() != null) {
@@ -191,6 +211,12 @@ public class HyperEssentialsPlugin extends JavaPlugin {
     PlayerRef playerRef = event.getPlayerRef();
     trackedPlayers.put(playerRef.getUuid(), playerRef);
 
+    // Load home data
+    HomesModule homesModule = hyperEssentials.getHomesModule();
+    if (homesModule != null && homesModule.isEnabled() && homesModule.getHomeManager() != null) {
+      homesModule.getHomeManager().loadPlayer(playerRef.getUuid(), playerRef.getUsername());
+    }
+
     // Load teleport data
     TeleportModule tm = hyperEssentials.getTeleportModule();
     if (tm != null && tm.isEnabled() && tm.getTpaManager() != null) {
@@ -212,6 +238,12 @@ public class HyperEssentialsPlugin extends JavaPlugin {
 
     // Notify modules of disconnect for cleanup
     hyperEssentials.onPlayerDisconnect(uuid);
+
+    // Unload home data
+    HomesModule hmModule = hyperEssentials.getHomesModule();
+    if (hmModule != null && hmModule.isEnabled() && hmModule.getHomeManager() != null) {
+      hmModule.getHomeManager().unloadPlayer(uuid);
+    }
 
     // Remove from tracked players last
     trackedPlayers.remove(uuid);
