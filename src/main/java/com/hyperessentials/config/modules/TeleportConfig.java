@@ -27,7 +27,18 @@ public class TeleportConfig extends ModuleConfig {
   private int rtpMinRadius = 100;
   private int rtpMaxRadius = 5000;
   private int rtpMaxAttempts = 10;
+  private boolean rtpPlayerRelative = true;
   private List<String> rtpBlacklistedWorlds = new ArrayList<>();
+
+  // RTP faction avoidance
+  private boolean rtpFactionAvoidanceEnabled = true;
+  private int rtpFactionAvoidanceBufferRadius = 2;
+
+  // RTP safety
+  private boolean rtpSafetyAvoidWater = true;
+  private boolean rtpSafetyAvoidDangerousFluids = true;
+  private int rtpSafetyMinY = 5;
+  private int rtpSafetyMaxY = 300;
 
   public TeleportConfig(@NotNull Path filePath) {
     super(filePath);
@@ -59,6 +70,7 @@ public class TeleportConfig extends ModuleConfig {
       rtpMinRadius = getInt(rtp, "minRadius", rtpMinRadius);
       rtpMaxRadius = getInt(rtp, "maxRadius", rtpMaxRadius);
       rtpMaxAttempts = getInt(rtp, "maxAttempts", rtpMaxAttempts);
+      rtpPlayerRelative = getBool(rtp, "playerRelative", rtpPlayerRelative);
 
       rtpBlacklistedWorlds = new ArrayList<>();
       if (rtp.has("blacklistedWorlds") && rtp.get("blacklistedWorlds").isJsonArray()) {
@@ -66,6 +78,22 @@ public class TeleportConfig extends ModuleConfig {
         for (int i = 0; i < arr.size(); i++) {
           rtpBlacklistedWorlds.add(arr.get(i).getAsString().toLowerCase());
         }
+      }
+
+      // Faction avoidance subsection
+      if (hasSection(rtp, "factionAvoidance")) {
+        JsonObject fa = rtp.getAsJsonObject("factionAvoidance");
+        rtpFactionAvoidanceEnabled = getBool(fa, "enabled", rtpFactionAvoidanceEnabled);
+        rtpFactionAvoidanceBufferRadius = getInt(fa, "bufferRadius", rtpFactionAvoidanceBufferRadius);
+      }
+
+      // Safety subsection
+      if (hasSection(rtp, "safety")) {
+        JsonObject safety = rtp.getAsJsonObject("safety");
+        rtpSafetyAvoidWater = getBool(safety, "avoidWater", rtpSafetyAvoidWater);
+        rtpSafetyAvoidDangerousFluids = getBool(safety, "avoidDangerousFluids", rtpSafetyAvoidDangerousFluids);
+        rtpSafetyMinY = getInt(safety, "minY", rtpSafetyMinY);
+        rtpSafetyMaxY = getInt(safety, "maxY", rtpSafetyMaxY);
       }
     }
   }
@@ -86,11 +114,27 @@ public class TeleportConfig extends ModuleConfig {
     rtp.addProperty("minRadius", rtpMinRadius);
     rtp.addProperty("maxRadius", rtpMaxRadius);
     rtp.addProperty("maxAttempts", rtpMaxAttempts);
+    rtp.addProperty("playerRelative", rtpPlayerRelative);
     JsonArray arr = new JsonArray();
     for (String world : rtpBlacklistedWorlds) {
       arr.add(world);
     }
     rtp.add("blacklistedWorlds", arr);
+
+    // Faction avoidance
+    JsonObject fa = new JsonObject();
+    fa.addProperty("enabled", rtpFactionAvoidanceEnabled);
+    fa.addProperty("bufferRadius", rtpFactionAvoidanceBufferRadius);
+    rtp.add("factionAvoidance", fa);
+
+    // Safety
+    JsonObject safety = new JsonObject();
+    safety.addProperty("avoidWater", rtpSafetyAvoidWater);
+    safety.addProperty("avoidDangerousFluids", rtpSafetyAvoidDangerousFluids);
+    safety.addProperty("minY", rtpSafetyMinY);
+    safety.addProperty("maxY", rtpSafetyMaxY);
+    rtp.add("safety", safety);
+
     root.add("rtp", rtp);
   }
 
@@ -108,5 +152,16 @@ public class TeleportConfig extends ModuleConfig {
   public int getRtpMinRadius() { return rtpMinRadius; }
   public int getRtpMaxRadius() { return rtpMaxRadius; }
   public int getRtpMaxAttempts() { return rtpMaxAttempts; }
+  public boolean isRtpPlayerRelative() { return rtpPlayerRelative; }
   public List<String> getRtpBlacklistedWorlds() { return rtpBlacklistedWorlds; }
+
+  // RTP faction avoidance getters
+  public boolean isRtpFactionAvoidanceEnabled() { return rtpFactionAvoidanceEnabled; }
+  public int getRtpFactionAvoidanceBufferRadius() { return rtpFactionAvoidanceBufferRadius; }
+
+  // RTP safety getters
+  public boolean isRtpSafetyAvoidWater() { return rtpSafetyAvoidWater; }
+  public boolean isRtpSafetyAvoidDangerousFluids() { return rtpSafetyAvoidDangerousFluids; }
+  public int getRtpSafetyMinY() { return rtpSafetyMinY; }
+  public int getRtpSafetyMaxY() { return rtpSafetyMaxY; }
 }

@@ -9,6 +9,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+#### RTP Overhaul
+- Chunk-based random location selection with multi-attempt safety verification
+- `findSafeY()` heightmap scan with `BlockMaterial` + fluid-aware safety checks (avoidWater, avoidDangerousFluids)
+- Faction claim avoidance with configurable chunk buffer radius via `HyperFactionsIntegration`
+- `BorderHook` interface for future HyperBorder world border enforcement
+- `RtpChunkUtil` utility for 32-block chunk coordinate math
+- `RtpResult` sealed interface with `Success(Location)` and `Failure(String)` records
+- `playerRelative` config option — center RTP ring on player position (default) or fixed `centerX/Z`
+- `rtp.factionAvoidance` config subsection (`enabled`, `bufferRadius`)
+- `rtp.safety` config subsection (`avoidWater`, `avoidDangerousFluids`, `minY`, `maxY`)
+- `hyperessentials.rtp.bypass.factions` permission node
+- "Searching for a safe random location..." feedback message before search begins
+- Found coordinates shown in warmup message: "Found location at (X, Y, Z). Teleporting in Ns..."
+
+### Changed
+
+#### RTP Overhaul
+- RTP search now runs on world thread via `currentWorld.execute()` for chunk/block access
+- Player position obtained via `TransformComponent` (matches HyperFactions stuck pattern)
+- Replaced `java.util.Random` with `ThreadLocalRandom`
+- `maxAttempts` config now actually used (was previously ignored)
+- Y coordinate resolved from heightmap scan instead of hardcoded 64
+
+### Removed
+
+#### RTP Overhaul
+- `findRandomLocation(String worldName)` method (replaced by `findSafeRandomLocation()`)
+
+### Added (prior work)
+
 #### Homes Module
 - `Home` immutable record with timestamps, `create()` factory, `withLastUsed()` and `withLocation()` update methods
 - `PlayerHomes` collection with case-insensitive lookup (lowercase keys, original casing preserved)

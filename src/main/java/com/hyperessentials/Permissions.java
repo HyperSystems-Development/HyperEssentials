@@ -111,4 +111,5 @@ public final class Permissions {
 
   // === RTP ===
   public static final String RTP = ROOT + ".rtp";
+  public static final String RTP_BYPASS_FACTIONS = RTP + ".bypass.factions";
 }

@@ -4,6 +4,7 @@ import com.hyperessentials.Permissions;
 import com.hyperessentials.command.util.CommandUtil;
 import com.hyperessentials.data.Location;
 import com.hyperessentials.module.teleport.RtpManager;
+import com.hyperessentials.module.teleport.RtpManager.RtpResult;
 import com.hyperessentials.module.warmup.WarmupManager;
 import com.hyperessentials.module.warmup.WarmupTask;
 import com.hypixel.hytale.component.Ref;
@@ -12,6 +13,7 @@ import com.hypixel.hytale.math.vector.Vector3d;
 import com.hypixel.hytale.math.vector.Vector3f;
 import com.hypixel.hytale.server.core.command.system.CommandContext;
 import com.hypixel.hytale.server.core.command.system.basecommands.AbstractPlayerCommand;
+import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
 import com.hypixel.hytale.server.core.modules.entity.teleport.Teleport;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.Universe;
@@ -63,21 +65,45 @@ public class RtpCommand extends AbstractPlayerCommand {
       return;
     }
 
-    Location destination = rtpManager.findRandomLocation(worldName);
-    if (destination == null) {
-      ctx.sendMessage(CommandUtil.error("Could not find a random location."));
+    // Get player position for player-relative RTP
+    TransformComponent transform = store.getComponent(ref, TransformComponent.getComponentType());
+    if (transform == null) {
+      ctx.sendMessage(CommandUtil.error("Could not determine your position."));
       return;
     }
 
-    WarmupTask task = warmupManager.startWarmup(uuid, "rtp", "rtp", () -> {
-      executeTeleport(store, ref, destination);
-      ctx.sendMessage(CommandUtil.success(String.format("Teleported to random location! (%.0f, %.0f, %.0f)",
-        destination.x(), destination.y(), destination.z())));
-    });
+    Vector3d pos = transform.getPosition();
+    double playerX = pos.x;
+    double playerZ = pos.z;
 
-    if (task != null) {
-      ctx.sendMessage(CommandUtil.info("Teleporting in " + task.warmupSeconds() + "s... Don't move!"));
-    }
+    boolean bypassFactions = CommandUtil.hasPermission(uuid, Permissions.RTP_BYPASS_FACTIONS);
+
+    ctx.sendMessage(CommandUtil.info("Searching for a safe random location..."));
+
+    // Run search on world thread (chunk/block access required)
+    currentWorld.execute(() -> {
+      RtpResult result = rtpManager.findSafeRandomLocation(
+        currentWorld, worldName, playerX, playerZ, bypassFactions);
+
+      if (result instanceof RtpResult.Failure failure) {
+        ctx.sendMessage(CommandUtil.error(failure.reason()));
+        return;
+      }
+
+      Location destination = ((RtpResult.Success) result).location();
+
+      WarmupTask task = warmupManager.startWarmup(uuid, "rtp", "rtp", () -> {
+        executeTeleport(store, ref, destination);
+        ctx.sendMessage(CommandUtil.success(String.format("Teleported to random location! (%.0f, %.0f, %.0f)",
+          destination.x(), destination.y(), destination.z())));
+      });
+
+      if (task != null) {
+        ctx.sendMessage(CommandUtil.info(String.format(
+          "Found location at (%.0f, %.0f, %.0f). Teleporting in %ds... Don't move!",
+          destination.x(), destination.y(), destination.z(), task.warmupSeconds())));
+      }
+    });
   }
 
   private void executeTeleport(Store<EntityStore> store, Ref<EntityStore> ref, Location dest) {
