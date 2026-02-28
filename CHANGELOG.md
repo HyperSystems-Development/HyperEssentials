@@ -9,6 +9,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+#### Homes Module
+- `Home` immutable record with timestamps, `create()` factory, `withLastUsed()` and `withLocation()` update methods
+- `PlayerHomes` collection with case-insensitive lookup (lowercase keys, original casing preserved)
+- `HomeManager` with CRUD operations, player cache lifecycle (load on connect, flush on disconnect), permission-based limit resolution (unlimited → limit.N → config default), and bed sync
+- `Location.fromHome()` factory method for consistency with existing `fromWarp()` and `fromSpawn()`
+- `HomeStorage` interface with `loadPlayerHomes()` and `savePlayerHomes()` methods
+- `JsonHomeStorage` implementation with per-player JSON files in `data/players/homes/`, atomic writes
+- `/sethome [name]` — set a home with name validation (`[a-zA-Z0-9_-]{1,32}`), faction territory check, and limit enforcement
+- `/home [name]` — teleport to a home with faction territory check on destination, warmup/cooldown via WarmupManager
+- `/delhome <name>` — delete a home with available homes listed on error
+- `/homes` — list all homes with count/limit display (e.g. "Your homes (2/3)")
+
+#### HyperFactions Integration
+- HyperFactions added to `manifest.json` SoftDependencies for load ordering
+- `FactionTerritoryChecker` with `Result` enum (ALLOWED, BLOCKED_OWN/ALLY/ENEMY/NEUTRAL/WILDERNESS) and `canUseHome()` static method
+- `HomesConfig` factions subsection with per-relationship toggles: `enabled` (master toggle), `allowInOwnTerritory`, `allowInAllyTerritory`, `allowInNeutralTerritory`, `allowInEnemyTerritory`, `allowInWilderness`
+- Faction bypass permissions: `bypass.factions` (wildcard), `bypass.factions.sethome`, `bypass.factions.home`
+- `HOME_TELEPORT` and `HOME_LIMIT_PREFIX` permission constants
+
 #### Infrastructure
 - Checkstyle linting (10.26.1) with 2-space indent, 120-char lines, relaxed Javadoc rules
 - Category-based debug logging via `Logger.DebugCategory` (12 categories: homes, warps, spawns, teleport, kits, moderation, utility, rtp, announcements, integration, economy, storage)
