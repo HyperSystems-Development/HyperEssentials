@@ -8,17 +8,22 @@ HyperEssentials uses a modular architecture where each feature area is a self-co
 
 | Module | Config File | Default | Status |
 |--------|-------------|---------|--------|
-| **warmup** | `warmup.json` | Enabled | Implemented |
-| **homes** | `homes.json` | Enabled | Stub (TODO) |
-| **warps** | `warps.json` | Enabled | Implemented |
-| **spawns** | `spawns.json` | Enabled | Implemented |
-| **teleport** | `teleport.json` | Enabled | Implemented |
-| **kits** | `kits.json` | Disabled | Stub (TODO) |
-| **moderation** | `moderation.json` | Disabled | Stub (TODO) |
-| **vanish** | `vanish.json` | Disabled | Stub (TODO) |
-| **utility** | `utility.json` | Disabled | Stub (TODO) |
-| **announcements** | `announcements.json` | Disabled | Stub (TODO) |
-| **rtp** | `rtp.json` | Disabled | Implemented |
+| **warmup** | `config/warmup.json` | Enabled | Implemented |
+| **homes** | `config/homes.json` | Enabled | Implemented |
+| **warps** | `config/warps.json` | Enabled | Implemented |
+| **spawns** | `config/spawns.json` | Enabled | Implemented |
+| **teleport** | `config/teleport.json` | Enabled | Implemented |
+| **kits** | `config/kits.json` | Disabled | Implemented |
+| **moderation** | `config/moderation.json` | Disabled | Implemented |
+| **vanish** | `config/vanish.json` | Enabled | Stub |
+| **utility** | `config/utility.json` | Disabled | Implemented |
+| **announcements** | `config/announcements.json` | Disabled | Implemented |
+
+**Note:** RTP (random teleport) is part of the **teleport** module, not a standalone module. The vanish module is a standalone stub — vanish functionality is fully implemented within the **moderation** module via `VanishManager` and `/vanish`.
+
+## Debug Configuration
+
+A separate `config/debug.json` controls per-category debug logging with 12 categories: homes, warps, spawns, teleport, kits, moderation, utility, rtp, announcements, integration, economy, storage.
 
 ## Enabling/Disabling
 
@@ -36,7 +41,7 @@ Set to `false` and reload (`/hessentials reload`) to disable a module. Its comma
 
 1. **Registration** - Module instances are created and registered in `ModuleRegistry` during startup
 2. **Enable** - If `enabled = true` in config, `onEnable()` is called (registers commands, listeners, GUI pages)
-3. **Manager Init** - Modules with storage needs (warps, spawns, teleport) have their managers initialized post-enable
+3. **Manager Init** - Modules with storage needs (warps, spawns, teleport, homes, kits, moderation) have their managers initialized post-enable
 4. **Disable** - On shutdown or config change, `onDisable()` is called (saves data, cleanup)
 
 Modules are enabled in registration order (warmup first) and disabled in reverse order.

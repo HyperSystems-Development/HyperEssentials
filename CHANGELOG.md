@@ -23,6 +23,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - "Searching for a safe random location..." feedback message before search begins
 - Found coordinates shown in warmup message: "Found location at (X, Y, Z). Teleporting in Ns..."
 
+#### Documentation
+- Updated README with complete module table (status, default state), optional dependencies, command quick reference, and docs index
+- Updated architecture docs with full package tree including all data records, modules, managers, commands, listeners, and migration framework
+- Updated commands docs with all 46 commands across 9 modules (kits, moderation, utility, announcements)
+- Updated integrations docs with HyperFactions territory checker, VaultUnlocked economy, LuckPerms, and current Ecotale/Werchat status
+- Updated modules docs with correct config file paths, implementation status, and debug configuration section
+- Updated storage docs with kits/punishments storage, complete data directory layout, and migration system
+- Updated docs index (readme.md) with completion status for all documentation pages
+
 ### Changed
 
 #### RTP Overhaul
@@ -36,6 +45,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 #### RTP Overhaul
 - `findRandomLocation(String worldName)` method (replaced by `findSafeRandomLocation()`)
+
+#### Documentation
+- `docs/plans/2026-02-22-core-modules-design.md` — completed design plan (implemented)
+- `docs/plans/2026-02-22-core-modules-implementation.md` — completed implementation plan (implemented)
 
 ### Added (prior work)
 

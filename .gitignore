@@ -50,6 +50,7 @@ gradle.properties
 # AI Files
 CLAUDE.md
 .claude/
+.serena/
 .cursorrules
 .cursorignore
 .cursor/

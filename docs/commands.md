@@ -1,5 +1,7 @@
 # Commands
 
+HyperEssentials provides 46 commands across 9 modules. All commands require their respective module to be enabled.
+
 ## Admin
 
 | Command | Description | Permission |
@@ -8,14 +10,16 @@
 | `/hessentials reload` | Reload configuration | `hyperessentials.admin.reload` |
 | `/hessentials version` | Show version | - |
 
-## Homes (Planned)
+## Homes
 
 | Command | Description | Permission |
 |---------|-------------|------------|
-| `/home [name]` | Teleport to a home | `hyperessentials.home` |
-| `/sethome [name]` | Set a home | `hyperessentials.home.set` |
+| `/sethome [name]` | Set a home at current location | `hyperessentials.home.set` |
+| `/home [name]` | Teleport to a home | `hyperessentials.home.teleport` |
 | `/delhome <name>` | Delete a home | `hyperessentials.home.delete` |
-| `/homes` | List homes / open GUI | `hyperessentials.home.list` |
+| `/homes` | List all homes with count/limit | `hyperessentials.home.list` |
+
+Home names are validated against `[a-zA-Z0-9_-]{1,32}`. Faction territory restrictions apply if HyperFactions is installed and configured.
 
 ## Warps
 
@@ -54,13 +58,61 @@ The `--default` flag on `/setspawn` marks the spawn as the server default.
 | `/tpcancel` | Cancel outgoing request | `hyperessentials.tpcancel` |
 | `/tptoggle` | Toggle TPA requests | `hyperessentials.tptoggle` |
 | `/back` | Return to previous location | `hyperessentials.back` |
+| `/rtp` | Teleport to a random location | `hyperessentials.rtp` |
 
-Aliases: `/tpaccept` = `/tpyes`, `/tpdeny` = `/tpno`
+Aliases: `/tpaccept` = `/tpyes`, `/tpdeny` = `/tpno`, `/rtp` = `/randomtp`, `/randomteleport`
 
-## Random Teleport
+RTP generates a random location within a configurable ring radius from a center point.
+
+## Kits
 
 | Command | Description | Permission |
 |---------|-------------|------------|
-| `/rtp` | Teleport to a random location | `hyperessentials.rtp` |
+| `/kit <name>` | Claim a kit | `hyperessentials.kit.use.<name>` |
+| `/kits` | List available kits | `hyperessentials.kit.list` |
+| `/createkit <name>` | Create a kit from current inventory | `hyperessentials.kit.create` |
+| `/deletekit <name>` | Delete a kit definition | `hyperessentials.kit.delete` |
 
-Aliases: `/rtp` = `/randomtp`, `/randomteleport`
+Kits support per-kit cooldowns, one-time claims, and custom permission overrides.
+
+## Moderation
+
+| Command | Description | Permission |
+|---------|-------------|------------|
+| `/ban <player> [reason]` | Permanently ban a player | `hyperessentials.moderation.ban` |
+| `/tempban <player> <duration> [reason]` | Temporarily ban a player | `hyperessentials.moderation.ban` |
+| `/unban <player>` | Unban a player | `hyperessentials.moderation.ban` |
+| `/mute <player> [reason]` | Permanently mute a player | `hyperessentials.moderation.mute` |
+| `/tempmute <player> <duration> [reason]` | Temporarily mute a player | `hyperessentials.moderation.mute` |
+| `/unmute <player>` | Unmute a player | `hyperessentials.moderation.mute` |
+| `/kick <player> [reason]` | Kick a player | `hyperessentials.moderation.kick` |
+| `/freeze <player>` | Toggle position freeze | `hyperessentials.moderation.freeze` |
+| `/vanish` | Toggle vanish (fake leave/join) | `hyperessentials.moderation.vanish` |
+| `/punishments <player>` | View punishment history | `hyperessentials.moderation.history` |
+
+Duration format: `1h`, `30m`, `7d`, `1h30m` (parsed by `DurationParser`).
+
+## Utility
+
+| Command | Description | Permission |
+|---------|-------------|------------|
+| `/heal [player]` | Heal self or another player | `hyperessentials.utility.heal` / `.heal.others` |
+| `/fly [player]` | Toggle flight for self or another | `hyperessentials.utility.fly` / `.fly.others` |
+| `/god [player]` | Toggle god mode (invulnerability) | `hyperessentials.utility.god` / `.god.others` |
+| `/clearchat` | Clear chat history | `hyperessentials.utility.clearchat` / `.clearchat.others` |
+| `/clearinventory [player]` | Clear inventory | `hyperessentials.utility.clearinventory` / `.clearinventory.others` |
+| `/repair` | Repair held item | `hyperessentials.utility.repair` |
+| `/near [radius]` | List nearby players | `hyperessentials.utility.near` |
+
+Aliases: `/clearinventory` = `/ci`
+
+Each utility command can be individually enabled/disabled in `config/utility.json`.
+
+## Announcements
+
+| Command | Description | Permission |
+|---------|-------------|------------|
+| `/broadcast <message>` | Send a formatted broadcast | `hyperessentials.announce.broadcast` |
+| `/announce list\|add\|remove\|reload` | Manage announcement rotation | `hyperessentials.announce.manage` |
+
+Announcements can also run automatically on a configurable interval with sequential or random rotation.
