@@ -19,6 +19,8 @@ public final class Permissions {
   public static final String HOME_GUI = HOME + ".gui";
   public static final String HOME_SHARE = HOME + ".share";
   public static final String HOME_UNLIMITED = HOME + ".unlimited";
+  public static final String HOME_TELEPORT = HOME + ".teleport";
+  public static final String HOME_LIMIT_PREFIX = HOME + ".limit.";
 
   // === Warps ===
   public static final String WARP = ROOT + ".warp";
@@ -91,6 +93,9 @@ public final class Permissions {
   public static final String BYPASS_MUTE = BYPASS + ".mute";
   public static final String BYPASS_FREEZE = BYPASS + ".freeze";
   public static final String BYPASS_KIT_COOLDOWN = BYPASS + ".kit.cooldown";
+  public static final String BYPASS_FACTIONS = BYPASS + ".factions";
+  public static final String BYPASS_FACTIONS_SETHOME = BYPASS_FACTIONS + ".sethome";
+  public static final String BYPASS_FACTIONS_HOME = BYPASS_FACTIONS + ".home";
 
   // === Notify ===
   public static final String NOTIFY_WILDCARD = ROOT + ".notify.*";

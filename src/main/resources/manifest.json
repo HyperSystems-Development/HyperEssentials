@@ -6,6 +6,6 @@
   "Website": "https://github.com/HyperSystemsDev/HyperEssentials",
   "Main": "com.hyperessentials.platform.HyperEssentialsPlugin",
   "ServerVersion": "${serverVersion}",
-  "SoftDependencies": ["HyperPerms", "VaultUnlocked", "LuckPerms"],
+  "SoftDependencies": ["HyperPerms", "VaultUnlocked", "LuckPerms", "HyperFactions"],
   "IncludesAssetPack": true
 }
