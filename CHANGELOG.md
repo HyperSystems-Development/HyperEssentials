@@ -46,10 +46,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 #### RTP Overhaul
 - `findRandomLocation(String worldName)` method (replaced by `findSafeRandomLocation()`)
 
-#### Documentation
-- `docs/plans/2026-02-22-core-modules-design.md` — completed design plan (implemented)
-- `docs/plans/2026-02-22-core-modules-implementation.md` — completed implementation plan (implemented)
-
 ### Added (prior work)
 
 #### Homes Module
