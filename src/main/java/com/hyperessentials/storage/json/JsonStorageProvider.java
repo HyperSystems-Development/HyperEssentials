@@ -5,7 +5,9 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.hyperessentials.data.Home;
 import com.hyperessentials.data.Location;
+import com.hyperessentials.data.PlayerHomes;
 import com.hyperessentials.data.PlayerTeleportData;
 import com.hyperessentials.data.Spawn;
 import com.hyperessentials.data.Warp;
@@ -34,18 +36,22 @@ public class JsonStorageProvider implements StorageProvider {
   private final Path dataRoot;
   private final Path playersDir;
   private final Gson gson;
+  private final Path homesDir;
   private final JsonWarpStorage warpStorage;
   private final JsonSpawnStorage spawnStorage;
   private final JsonPlayerDataStorage playerDataStorage;
+  private final JsonHomeStorage jsonHomeStorage;
 
   public JsonStorageProvider(@NotNull Path dataDir) {
     this.dataDir = dataDir;
     this.dataRoot = dataDir.resolve("data");
     this.playersDir = dataRoot.resolve("players");
+    this.homesDir = playersDir.resolve("homes");
     this.gson = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
     this.warpStorage = new JsonWarpStorage();
     this.spawnStorage = new JsonSpawnStorage();
     this.playerDataStorage = new JsonPlayerDataStorage();
+    this.jsonHomeStorage = new JsonHomeStorage();
   }
 
   @Override
@@ -54,6 +60,7 @@ public class JsonStorageProvider implements StorageProvider {
       try {
         Files.createDirectories(dataRoot);
         Files.createDirectories(playersDir);
+        Files.createDirectories(homesDir);
         Logger.info("[Storage] JSON storage initialized at %s", dataRoot);
       } catch (IOException e) {
         throw new RuntimeException("Failed to create storage directories", e);
@@ -70,11 +77,7 @@ public class JsonStorageProvider implements StorageProvider {
   @Override
   @NotNull
   public HomeStorage getHomeStorage() {
-    // TODO: Return actual implementation when homes module is built
-    return new HomeStorage() {
-      @Override public CompletableFuture<Void> init() { return CompletableFuture.completedFuture(null); }
-      @Override public CompletableFuture<Void> shutdown() { return CompletableFuture.completedFuture(null); }
-    };
+    return jsonHomeStorage;
   }
 
   @Override
@@ -437,5 +440,106 @@ public class JsonStorageProvider implements StorageProvider {
         }
       });
     }
+  }
+
+  // ========== Home Storage ==========
+
+  private class JsonHomeStorage implements HomeStorage {
+
+    @Override
+    public CompletableFuture<Void> init() {
+      return CompletableFuture.completedFuture(null);
+    }
+
+    @Override
+    public CompletableFuture<Void> shutdown() {
+      return CompletableFuture.completedFuture(null);
+    }
+
+    @Override
+    public CompletableFuture<Optional<PlayerHomes>> loadPlayerHomes(@NotNull UUID uuid) {
+      return CompletableFuture.supplyAsync(() -> {
+        Path file = homesDir.resolve(uuid + ".json");
+        if (!Files.exists(file)) {
+          return Optional.empty();
+        }
+
+        try {
+          String json = Files.readString(file);
+          JsonObject root = JsonParser.parseString(json).getAsJsonObject();
+
+          String username = root.has("username") ? root.get("username").getAsString() : "unknown";
+          PlayerHomes playerHomes = new PlayerHomes(uuid, username);
+
+          if (root.has("homes") && root.get("homes").isJsonObject()) {
+            JsonObject homesObj = root.getAsJsonObject("homes");
+            for (String key : homesObj.keySet()) {
+              JsonObject homeObj = homesObj.getAsJsonObject(key);
+              Home home = deserializeHome(homeObj);
+              playerHomes.setHome(home);
+            }
+          }
+
+          Logger.debug("[Storage] Loaded %d homes for %s", playerHomes.count(), uuid);
+          return Optional.of(playerHomes);
+        } catch (Exception e) {
+          Logger.severe("[Storage] Failed to load homes for %s: %s", uuid, e.getMessage());
+          return Optional.empty();
+        }
+      });
+    }
+
+    @Override
+    public CompletableFuture<Void> savePlayerHomes(@NotNull PlayerHomes playerHomes) {
+      return CompletableFuture.runAsync(() -> {
+        try {
+          JsonObject root = new JsonObject();
+          root.addProperty("uuid", playerHomes.getUuid().toString());
+          root.addProperty("username", playerHomes.getUsername());
+
+          JsonObject homesObj = new JsonObject();
+          for (Home home : playerHomes.getHomes()) {
+            homesObj.add(home.name().toLowerCase(), serializeHome(home));
+          }
+          root.add("homes", homesObj);
+
+          atomicWrite(homesDir.resolve(playerHomes.getUuid() + ".json"), gson.toJson(root));
+          Logger.debug("[Storage] Saved %d homes for %s", playerHomes.count(), playerHomes.getUuid());
+        } catch (Exception e) {
+          Logger.severe("[Storage] Failed to save homes for %s: %s",
+              playerHomes.getUuid(), e.getMessage());
+        }
+      });
+    }
+  }
+
+  // ========== Home serialization ==========
+
+  private JsonObject serializeHome(Home home) {
+    JsonObject obj = new JsonObject();
+    obj.addProperty("name", home.name());
+    obj.addProperty("world", home.world());
+    obj.addProperty("x", home.x());
+    obj.addProperty("y", home.y());
+    obj.addProperty("z", home.z());
+    obj.addProperty("yaw", home.yaw());
+    obj.addProperty("pitch", home.pitch());
+    obj.addProperty("createdAt", home.createdAt());
+    obj.addProperty("lastUsed", home.lastUsed());
+    return obj;
+  }
+
+  private Home deserializeHome(JsonObject obj) {
+    return new Home(
+        obj.get("name").getAsString(),
+        obj.get("world").getAsString(),
+        obj.get("x").getAsDouble(),
+        obj.get("y").getAsDouble(),
+        obj.get("z").getAsDouble(),
+        obj.get("yaw").getAsFloat(),
+        obj.get("pitch").getAsFloat(),
+        obj.has("createdAt") ? obj.get("createdAt").getAsLong() : System.currentTimeMillis(),
+        obj.has("lastUsed") ? obj.get("lastUsed").getAsLong() : System.currentTimeMillis()
+    );
   }
 }

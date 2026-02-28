@@ -1,6 +1,9 @@
 package com.hyperessentials.storage;
 
-import java.util.List;
+import com.hyperessentials.data.PlayerHomes;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
@@ -9,7 +12,16 @@ import java.util.concurrent.CompletableFuture;
  */
 public interface HomeStorage {
 
-  // TODO: Define home CRUD operations when homes module is implemented
   CompletableFuture<Void> init();
   CompletableFuture<Void> shutdown();
+
+  /**
+   * Loads a player's homes from storage.
+   */
+  CompletableFuture<Optional<PlayerHomes>> loadPlayerHomes(@NotNull UUID uuid);
+
+  /**
+   * Saves a player's homes to storage.
+   */
+  CompletableFuture<Void> savePlayerHomes(@NotNull PlayerHomes playerHomes);
 }
