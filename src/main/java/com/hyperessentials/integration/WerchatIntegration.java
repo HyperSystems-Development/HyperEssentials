@@ -7,14 +7,14 @@ import com.hyperessentials.util.Logger;
  */
 public final class WerchatIntegration {
 
-    private static boolean available = false;
+  private static boolean available = false;
 
-    private WerchatIntegration() {}
+  private WerchatIntegration() {}
 
-    public static void init() {
-        // TODO: Detect and initialize Werchat integration
-        Logger.debug("[Integration] Werchat integration not yet implemented");
-    }
+  public static void init() {
+    // TODO: Detect and initialize Werchat integration
+    Logger.debug("[Integration] Werchat integration not yet implemented");
+  }
 
-    public static boolean isAvailable() { return available; }
+  public static boolean isAvailable() { return available; }
 }

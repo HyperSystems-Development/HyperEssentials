@@ -21,74 +21,74 @@ import org.jetbrains.annotations.Nullable;
  * @param createdBy   UUID string of the player who created the warp
  */
 public record Warp(
-    @NotNull String name,
-    @NotNull String displayName,
-    @NotNull String category,
-    @NotNull String world,
-    double x,
-    double y,
-    double z,
-    float yaw,
-    float pitch,
-    @Nullable String permission,
-    @Nullable String description,
-    long createdAt,
-    @Nullable String createdBy
+  @NotNull String name,
+  @NotNull String displayName,
+  @NotNull String category,
+  @NotNull String world,
+  double x,
+  double y,
+  double z,
+  float yaw,
+  float pitch,
+  @Nullable String permission,
+  @Nullable String description,
+  long createdAt,
+  @Nullable String createdBy
 ) {
-    public Warp {
-        name = name.toLowerCase();
-        if (displayName == null || displayName.isEmpty()) {
-            displayName = name;
-        }
-        if (category == null || category.isEmpty()) {
-            category = "general";
-        }
+  public Warp {
+    name = name.toLowerCase();
+    if (displayName == null || displayName.isEmpty()) {
+      displayName = name;
     }
+    if (category == null || category.isEmpty()) {
+      category = "general";
+    }
+  }
 
-    public static Warp create(@NotNull String name, @NotNull String world,
-                              double x, double y, double z, float yaw, float pitch,
-                              @Nullable String createdBy) {
-        return new Warp(
-            name.toLowerCase(),
-            name,
-            "general",
-            world,
-            x, y, z,
-            yaw, pitch,
-            null,
-            null,
-            System.currentTimeMillis(),
-            createdBy
-        );
-    }
+  public static Warp create(@NotNull String name, @NotNull String world,
+                double x, double y, double z, float yaw, float pitch,
+                @Nullable String createdBy) {
+    return new Warp(
+      name.toLowerCase(),
+      name,
+      "general",
+      world,
+      x, y, z,
+      yaw, pitch,
+      null,
+      null,
+      System.currentTimeMillis(),
+      createdBy
+    );
+  }
 
-    public Warp withDisplayName(@NotNull String newDisplayName) {
-        return new Warp(name, newDisplayName, category, world, x, y, z, yaw, pitch,
-                       permission, description, createdAt, createdBy);
-    }
+  public Warp withDisplayName(@NotNull String newDisplayName) {
+    return new Warp(name, newDisplayName, category, world, x, y, z, yaw, pitch,
+             permission, description, createdAt, createdBy);
+  }
 
-    public Warp withCategory(@NotNull String newCategory) {
-        return new Warp(name, displayName, newCategory, world, x, y, z, yaw, pitch,
-                       permission, description, createdAt, createdBy);
-    }
+  public Warp withCategory(@NotNull String newCategory) {
+    return new Warp(name, displayName, newCategory, world, x, y, z, yaw, pitch,
+             permission, description, createdAt, createdBy);
+  }
 
-    public Warp withPermission(@Nullable String newPermission) {
-        return new Warp(name, displayName, category, world, x, y, z, yaw, pitch,
-                       newPermission, description, createdAt, createdBy);
-    }
+  public Warp withPermission(@Nullable String newPermission) {
+    return new Warp(name, displayName, category, world, x, y, z, yaw, pitch,
+             newPermission, description, createdAt, createdBy);
+  }
 
-    public Warp withDescription(@Nullable String newDescription) {
-        return new Warp(name, displayName, category, world, x, y, z, yaw, pitch,
-                       permission, newDescription, createdAt, createdBy);
-    }
+  public Warp withDescription(@Nullable String newDescription) {
+    return new Warp(name, displayName, category, world, x, y, z, yaw, pitch,
+             permission, newDescription, createdAt, createdBy);
+  }
 
-    public Warp withLocation(@NotNull String newWorld, double newX, double newY, double newZ,
-                             float newYaw, float newPitch) {
-        return new Warp(name, displayName, category, newWorld, newX, newY, newZ, newYaw, newPitch,
-                       permission, description, createdAt, createdBy);
-    }
+  public Warp withLocation(@NotNull String newWorld, double newX, double newY, double newZ,
+               float newYaw, float newPitch) {
+    return new Warp(name, displayName, category, newWorld, newX, newY, newZ, newYaw, newPitch,
+             permission, description, createdAt, createdBy);
+  }
 
-    public boolean requiresPermission() {
-        return permission != null && !permission.isEmpty();
-    }
+  public boolean requiresPermission() {
+    return permission != null && !permission.isEmpty();
+  }
 }

@@ -20,65 +20,65 @@ import org.jetbrains.annotations.Nullable;
  * @param createdBy       UUID string of the player who created the spawn
  */
 public record Spawn(
-    @NotNull String name,
-    @NotNull String world,
-    double x,
-    double y,
-    double z,
-    float yaw,
-    float pitch,
-    @Nullable String permission,
-    @Nullable String groupPermission,
-    boolean isDefault,
-    long createdAt,
-    @Nullable String createdBy
+  @NotNull String name,
+  @NotNull String world,
+  double x,
+  double y,
+  double z,
+  float yaw,
+  float pitch,
+  @Nullable String permission,
+  @Nullable String groupPermission,
+  boolean isDefault,
+  long createdAt,
+  @Nullable String createdBy
 ) {
-    public Spawn {
-        name = name.toLowerCase();
-    }
+  public Spawn {
+    name = name.toLowerCase();
+  }
 
-    public static Spawn create(@NotNull String name, @NotNull String world,
-                               double x, double y, double z, float yaw, float pitch,
-                               @Nullable String createdBy) {
-        return new Spawn(
-            name.toLowerCase(),
-            world,
-            x, y, z,
-            yaw, pitch,
-            null,
-            null,
-            false,
-            System.currentTimeMillis(),
-            createdBy
-        );
-    }
+  public static Spawn create(@NotNull String name, @NotNull String world,
+                 double x, double y, double z, float yaw, float pitch,
+                 @Nullable String createdBy) {
+    return new Spawn(
+      name.toLowerCase(),
+      world,
+      x, y, z,
+      yaw, pitch,
+      null,
+      null,
+      false,
+      System.currentTimeMillis(),
+      createdBy
+    );
+  }
 
-    public Spawn withDefault(boolean isDefault) {
-        return new Spawn(name, world, x, y, z, yaw, pitch, permission, groupPermission,
-                        isDefault, createdAt, createdBy);
-    }
+  public Spawn withDefault(boolean isDefault) {
+    return new Spawn(name, world, x, y, z, yaw, pitch, permission, groupPermission,
+            isDefault, createdAt, createdBy);
+  }
 
-    public Spawn withPermission(@Nullable String newPermission) {
-        return new Spawn(name, world, x, y, z, yaw, pitch, newPermission, groupPermission,
-                        isDefault, createdAt, createdBy);
-    }
+  public Spawn withPermission(@Nullable String newPermission) {
+    return new Spawn(name, world, x, y, z, yaw, pitch, newPermission, groupPermission,
+            isDefault, createdAt, createdBy);
+  }
 
-    public Spawn withGroupPermission(@Nullable String newGroupPermission) {
-        return new Spawn(name, world, x, y, z, yaw, pitch, permission, newGroupPermission,
-                        isDefault, createdAt, createdBy);
-    }
+  public Spawn withGroupPermission(@Nullable String newGroupPermission) {
+    return new Spawn(name, world, x, y, z, yaw, pitch, permission, newGroupPermission,
+            isDefault, createdAt, createdBy);
+  }
 
-    public Spawn withLocation(@NotNull String newWorld, double newX, double newY, double newZ,
-                              float newYaw, float newPitch) {
-        return new Spawn(name, newWorld, newX, newY, newZ, newYaw, newPitch, permission, groupPermission,
-                        isDefault, createdAt, createdBy);
-    }
+  public Spawn withLocation(@NotNull String newWorld, double newX, double newY, double newZ,
+                float newYaw, float newPitch) {
+    return new Spawn(name, newWorld, newX, newY, newZ, newYaw, newPitch, permission, groupPermission,
+            isDefault, createdAt, createdBy);
+  }
 
-    public boolean requiresPermission() {
-        return permission != null && !permission.isEmpty();
-    }
+  public boolean requiresPermission() {
+    return permission != null && !permission.isEmpty();
+  }
 
-    public boolean isGroupRestricted() {
-        return groupPermission != null && !groupPermission.isEmpty();
-    }
+  public boolean isGroupRestricted() {
+    return groupPermission != null && !groupPermission.isEmpty();
+  }
 }

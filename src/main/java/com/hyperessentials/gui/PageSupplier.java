@@ -14,22 +14,22 @@ import org.jetbrains.annotations.Nullable;
 @FunctionalInterface
 public interface PageSupplier {
 
-    /**
-     * Creates a new page instance.
-     *
-     * @param player    The player entity
-     * @param ref       Entity reference
-     * @param store     Entity store
-     * @param playerRef Player reference
-     * @param guiManager The GUI manager
-     * @return The created page, or null if page cannot be created
-     */
-    @Nullable
-    InteractiveCustomUIPage<?> create(
-            Player player,
-            Ref<EntityStore> ref,
-            Store<EntityStore> store,
-            PlayerRef playerRef,
-            GuiManager guiManager
-    );
+  /**
+   * Creates a new page instance.
+   *
+   * @param player    The player entity
+   * @param ref       Entity reference
+   * @param store     Entity store
+   * @param playerRef Player reference
+   * @param guiManager The GUI manager
+   * @return The created page, or null if page cannot be created
+   */
+  @Nullable
+  InteractiveCustomUIPage<?> create(
+      Player player,
+      Ref<EntityStore> ref,
+      Store<EntityStore> store,
+      PlayerRef playerRef,
+      GuiManager guiManager
+  );
 }

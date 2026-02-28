@@ -21,56 +21,56 @@ import java.util.UUID;
  */
 public class SpawnsCommand extends AbstractPlayerCommand {
 
-    private final SpawnManager spawnManager;
+  private final SpawnManager spawnManager;
 
-    public SpawnsCommand(@NotNull SpawnManager spawnManager) {
-        super("spawns", "List server spawns");
-        this.spawnManager = spawnManager;
+  public SpawnsCommand(@NotNull SpawnManager spawnManager) {
+    super("spawns", "List server spawns");
+    this.spawnManager = spawnManager;
+  }
+
+  @Override
+  protected void execute(@NotNull CommandContext ctx,
+              @NotNull Store<EntityStore> store,
+              @NotNull Ref<EntityStore> ref,
+              @NotNull PlayerRef playerRef,
+              @NotNull World currentWorld) {
+
+    UUID uuid = playerRef.getUuid();
+
+    if (!CommandUtil.hasPermission(uuid, Permissions.SPAWN_LIST)) {
+      ctx.sendMessage(CommandUtil.error("You don't have permission to list spawns."));
+      return;
     }
 
-    @Override
-    protected void execute(@NotNull CommandContext ctx,
-                          @NotNull Store<EntityStore> store,
-                          @NotNull Ref<EntityStore> ref,
-                          @NotNull PlayerRef playerRef,
-                          @NotNull World currentWorld) {
+    Collection<Spawn> spawns = spawnManager.getAllSpawns();
 
-        UUID uuid = playerRef.getUuid();
-
-        if (!CommandUtil.hasPermission(uuid, Permissions.SPAWN_LIST)) {
-            ctx.sendMessage(CommandUtil.error("You don't have permission to list spawns."));
-            return;
-        }
-
-        Collection<Spawn> spawns = spawnManager.getAllSpawns();
-
-        if (spawns.isEmpty()) {
-            ctx.sendMessage(CommandUtil.info("No spawns have been set."));
-            ctx.sendMessage(CommandUtil.msg("Use /setspawn [name] to create one.", CommandUtil.COLOR_GRAY));
-            return;
-        }
-
-        ctx.sendMessage(CommandUtil.msg("--- Server Spawns ---", CommandUtil.COLOR_GOLD));
-
-        for (Spawn spawn : spawns) {
-            StringBuilder sb = new StringBuilder();
-            sb.append(spawn.name());
-            if (spawn.isDefault()) {
-                sb.append(" (default)");
-            }
-            sb.append(" - ").append(spawn.world());
-            sb.append(String.format(" (%.0f, %.0f, %.0f)", spawn.x(), spawn.y(), spawn.z()));
-
-            if (spawn.requiresPermission()) {
-                boolean hasAccess = spawnManager.canAccess(uuid, spawn);
-                if (!hasAccess) {
-                    sb.append(" [no access]");
-                }
-            }
-
-            ctx.sendMessage(CommandUtil.msg("  " + sb, CommandUtil.COLOR_GRAY));
-        }
-
-        ctx.sendMessage(CommandUtil.msg("Use /spawn [name] to teleport.", CommandUtil.COLOR_GRAY));
+    if (spawns.isEmpty()) {
+      ctx.sendMessage(CommandUtil.info("No spawns have been set."));
+      ctx.sendMessage(CommandUtil.msg("Use /setspawn [name] to create one.", CommandUtil.COLOR_GRAY));
+      return;
     }
+
+    ctx.sendMessage(CommandUtil.msg("--- Server Spawns ---", CommandUtil.COLOR_GOLD));
+
+    for (Spawn spawn : spawns) {
+      StringBuilder sb = new StringBuilder();
+      sb.append(spawn.name());
+      if (spawn.isDefault()) {
+        sb.append(" (default)");
+      }
+      sb.append(" - ").append(spawn.world());
+      sb.append(String.format(" (%.0f, %.0f, %.0f)", spawn.x(), spawn.y(), spawn.z()));
+
+      if (spawn.requiresPermission()) {
+        boolean hasAccess = spawnManager.canAccess(uuid, spawn);
+        if (!hasAccess) {
+          sb.append(" [no access]");
+        }
+      }
+
+      ctx.sendMessage(CommandUtil.msg("  " + sb, CommandUtil.COLOR_GRAY));
+    }
+
+    ctx.sendMessage(CommandUtil.msg("Use /spawn [name] to teleport.", CommandUtil.COLOR_GRAY));
+  }
 }

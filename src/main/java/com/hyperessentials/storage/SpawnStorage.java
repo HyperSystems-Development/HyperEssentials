@@ -11,8 +11,8 @@ import java.util.concurrent.CompletableFuture;
  */
 public interface SpawnStorage {
 
-    CompletableFuture<Void> init();
-    CompletableFuture<Void> shutdown();
-    CompletableFuture<Map<String, Spawn>> loadSpawns();
-    CompletableFuture<Void> saveSpawns(@NotNull Map<String, Spawn> spawns);
+  CompletableFuture<Void> init();
+  CompletableFuture<Void> shutdown();
+  CompletableFuture<Map<String, Spawn>> loadSpawns();
+  CompletableFuture<Void> saveSpawns(@NotNull Map<String, Spawn> spawns);
 }

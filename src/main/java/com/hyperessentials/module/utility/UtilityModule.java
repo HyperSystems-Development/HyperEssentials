@@ -21,86 +21,86 @@ import java.util.function.Consumer;
  */
 public class UtilityModule extends AbstractModule {
 
-    private UtilityManager utilityManager;
-    private Consumer<UUID> disconnectHandler;
+  private UtilityManager utilityManager;
+  private Consumer<UUID> disconnectHandler;
 
-    @Override
-    @NotNull
-    public String getName() {
-        return "utility";
+  @Override
+  @NotNull
+  public String getName() {
+    return "utility";
+  }
+
+  @Override
+  @NotNull
+  public String getDisplayName() {
+    return "Utility";
+  }
+
+  @Override
+  public void onEnable() {
+    super.onEnable();
+
+    HyperEssentials core = HyperEssentialsAPI.getInstance();
+    if (core == null) return;
+
+    utilityManager = new UtilityManager();
+
+    // Register disconnect handler for state cleanup
+    disconnectHandler = utilityManager::onPlayerDisconnect;
+    core.registerDisconnectHandler(disconnectHandler);
+
+    // Register commands based on config toggles
+    HyperEssentialsPlugin plugin = HyperEssentialsPlugin.getInstance();
+    if (plugin != null) {
+      UtilityConfig config = ConfigManager.get().utility();
+
+      try {
+        if (config.isHealEnabled())
+          plugin.getCommandRegistry().registerCommand(new HealCommand());
+        if (config.isFlyEnabled())
+          plugin.getCommandRegistry().registerCommand(new FlyCommand(this));
+        if (config.isGodEnabled())
+          plugin.getCommandRegistry().registerCommand(new GodCommand(this));
+        if (config.isClearChatEnabled())
+          plugin.getCommandRegistry().registerCommand(new ClearChatCommand());
+        if (config.isClearInventoryEnabled())
+          plugin.getCommandRegistry().registerCommand(new ClearInventoryCommand());
+        if (config.isRepairEnabled())
+          plugin.getCommandRegistry().registerCommand(new RepairCommand());
+        if (config.isNearEnabled())
+          plugin.getCommandRegistry().registerCommand(new NearCommand());
+
+        Logger.info("[Utility] Registered utility commands");
+      } catch (Exception e) {
+        Logger.severe("[Utility] Failed to register commands: %s", e.getMessage());
+      }
+    }
+  }
+
+  @Override
+  public void onDisable() {
+    if (utilityManager != null) {
+      utilityManager.shutdown();
     }
 
-    @Override
-    @NotNull
-    public String getDisplayName() {
-        return "Utility";
+    if (disconnectHandler != null) {
+      HyperEssentials core = HyperEssentialsAPI.getInstance();
+      if (core != null) {
+        core.unregisterDisconnectHandler(disconnectHandler);
+      }
     }
 
-    @Override
-    public void onEnable() {
-        super.onEnable();
+    super.onDisable();
+  }
 
-        HyperEssentials core = HyperEssentialsAPI.getInstance();
-        if (core == null) return;
+  @NotNull
+  public UtilityManager getUtilityManager() {
+    return utilityManager;
+  }
 
-        utilityManager = new UtilityManager();
-
-        // Register disconnect handler for state cleanup
-        disconnectHandler = utilityManager::onPlayerDisconnect;
-        core.registerDisconnectHandler(disconnectHandler);
-
-        // Register commands based on config toggles
-        HyperEssentialsPlugin plugin = HyperEssentialsPlugin.getInstance();
-        if (plugin != null) {
-            UtilityConfig config = ConfigManager.get().utility();
-
-            try {
-                if (config.isHealEnabled())
-                    plugin.getCommandRegistry().registerCommand(new HealCommand());
-                if (config.isFlyEnabled())
-                    plugin.getCommandRegistry().registerCommand(new FlyCommand(this));
-                if (config.isGodEnabled())
-                    plugin.getCommandRegistry().registerCommand(new GodCommand(this));
-                if (config.isClearChatEnabled())
-                    plugin.getCommandRegistry().registerCommand(new ClearChatCommand());
-                if (config.isClearInventoryEnabled())
-                    plugin.getCommandRegistry().registerCommand(new ClearInventoryCommand());
-                if (config.isRepairEnabled())
-                    plugin.getCommandRegistry().registerCommand(new RepairCommand());
-                if (config.isNearEnabled())
-                    plugin.getCommandRegistry().registerCommand(new NearCommand());
-
-                Logger.info("[Utility] Registered utility commands");
-            } catch (Exception e) {
-                Logger.severe("[Utility] Failed to register commands: %s", e.getMessage());
-            }
-        }
-    }
-
-    @Override
-    public void onDisable() {
-        if (utilityManager != null) {
-            utilityManager.shutdown();
-        }
-
-        if (disconnectHandler != null) {
-            HyperEssentials core = HyperEssentialsAPI.getInstance();
-            if (core != null) {
-                core.unregisterDisconnectHandler(disconnectHandler);
-            }
-        }
-
-        super.onDisable();
-    }
-
-    @NotNull
-    public UtilityManager getUtilityManager() {
-        return utilityManager;
-    }
-
-    @Override
-    @Nullable
-    public ModuleConfig getModuleConfig() {
-        return ConfigManager.get().utility();
-    }
+  @Override
+  @Nullable
+  public ModuleConfig getModuleConfig() {
+    return ConfigManager.get().utility();
+  }
 }

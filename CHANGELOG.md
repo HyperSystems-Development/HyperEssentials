@@ -10,6 +10,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 #### Infrastructure
+- Checkstyle linting (10.26.1) with 2-space indent, 120-char lines, relaxed Javadoc rules
+- Category-based debug logging via `Logger.DebugCategory` (12 categories: homes, warps, spawns, teleport, kits, moderation, utility, rtp, announcements, integration, economy, storage)
+- `DebugConfig` module config with per-category toggle and `applyToLogger()`
+- Migration framework: `Migration` interface, `MigrationType` enum, `MigrationOptions`, `MigrationResult`, `MigrationRegistry`, `MigrationRunner` with ZIP backup and rollback
+- VaultUnlocked economy integration via `VaultEconomyProvider` (reflection-based lazy init)
+- Standard directory structure: `config/`, `data/`, `data/players/`, `backups/`, `data/.version` marker
+- `ConfigFile.hasNewKeys()` auto-detection for missing config keys on load
+
+### Changed
+
+#### Infrastructure
+- Reformatted all Java files to 2-space indentation (aligned with HyperFactions code style)
+- Logger upgraded from `java.util.logging.Logger` to HytaleLogger (Flogger) with `logger.at(Level).log()` pattern
+- RTP module merged into Teleport module (RtpManager, RtpCommand moved to `module.teleport` package)
+- RTP config merged into `TeleportConfig` under `"rtp"` subsection
+- `EcotaleIntegration` now uses reflection detection instead of stub
+- `manifest.json` soft dependencies expanded: HyperPerms, VaultUnlocked, LuckPerms
+
+### Removed
+- Standalone RTP module (`module.rtp` package, `RtpConfig`)
+
+### Added (continued)
+
+#### Infrastructure (from prior work)
 - `DurationParser` utility for parsing human-readable durations ("1h30m", "7d") and formatting
 - Categorized `Permissions` constants: KIT, MODERATION, UTILITY, ANNOUNCE, BYPASS, NOTIFY with wildcards
 - `CommandUtil.findOnlinePlayer()` for case-insensitive online player lookup

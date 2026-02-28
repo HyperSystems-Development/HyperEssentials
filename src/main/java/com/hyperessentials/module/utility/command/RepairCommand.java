@@ -21,52 +21,52 @@ import org.jetbrains.annotations.NotNull;
  */
 public class RepairCommand extends AbstractPlayerCommand {
 
-    public RepairCommand() {
-        super("repair", "Repair held item");
+  public RepairCommand() {
+    super("repair", "Repair held item");
+  }
+
+  @Override
+  protected void execute(@NotNull CommandContext ctx,
+              @NotNull Store<EntityStore> store,
+              @NotNull Ref<EntityStore> ref,
+              @NotNull PlayerRef playerRef,
+              @NotNull World world) {
+    if (!CommandUtil.hasPermission(playerRef.getUuid(), Permissions.UTILITY_REPAIR)) {
+      ctx.sendMessage(CommandUtil.error("You don't have permission to repair items."));
+      return;
     }
 
-    @Override
-    protected void execute(@NotNull CommandContext ctx,
-                          @NotNull Store<EntityStore> store,
-                          @NotNull Ref<EntityStore> ref,
-                          @NotNull PlayerRef playerRef,
-                          @NotNull World world) {
-        if (!CommandUtil.hasPermission(playerRef.getUuid(), Permissions.UTILITY_REPAIR)) {
-            ctx.sendMessage(CommandUtil.error("You don't have permission to repair items."));
-            return;
-        }
+    try {
+      Player playerComponent = store.getComponent(ref, Player.getComponentType());
+      if (playerComponent == null) {
+        ctx.sendMessage(CommandUtil.error("Cannot access player data."));
+        return;
+      }
 
-        try {
-            Player playerComponent = store.getComponent(ref, Player.getComponentType());
-            if (playerComponent == null) {
-                ctx.sendMessage(CommandUtil.error("Cannot access player data."));
-                return;
-            }
+      Inventory inventory = playerComponent.getInventory();
+      ItemStack heldItem = inventory.getItemInHand();
 
-            Inventory inventory = playerComponent.getInventory();
-            ItemStack heldItem = inventory.getItemInHand();
+      if (heldItem == null || heldItem.isEmpty()) {
+        ctx.sendMessage(CommandUtil.error("You are not holding an item."));
+        return;
+      }
 
-            if (heldItem == null || heldItem.isEmpty()) {
-                ctx.sendMessage(CommandUtil.error("You are not holding an item."));
-                return;
-            }
+      double maxDurability = heldItem.getMaxDurability();
+      if (maxDurability <= 0) {
+        ctx.sendMessage(CommandUtil.error("This item cannot be repaired."));
+        return;
+      }
 
-            double maxDurability = heldItem.getMaxDurability();
-            if (maxDurability <= 0) {
-                ctx.sendMessage(CommandUtil.error("This item cannot be repaired."));
-                return;
-            }
+      // Use withRestoredDurability to set both current and max durability
+      ItemStack repaired = heldItem.withRestoredDurability(maxDurability);
 
-            // Use withRestoredDurability to set both current and max durability
-            ItemStack repaired = heldItem.withRestoredDurability(maxDurability);
-
-            // Replace in the active hotbar slot
-            byte activeSlot = inventory.getActiveHotbarSlot();
-            inventory.getHotbar().setItemStackForSlot(activeSlot, repaired);
-            ctx.sendMessage(CommandUtil.success("Item repaired."));
-        } catch (Exception e) {
-            Logger.warn("[Utility] Failed to repair item: %s", e.getMessage());
-            ctx.sendMessage(CommandUtil.error("Failed to repair item."));
-        }
+      // Replace in the active hotbar slot
+      byte activeSlot = inventory.getActiveHotbarSlot();
+      inventory.getHotbar().setItemStackForSlot(activeSlot, repaired);
+      ctx.sendMessage(CommandUtil.success("Item repaired."));
+    } catch (Exception e) {
+      Logger.warn("[Utility] Failed to repair item: %s", e.getMessage());
+      ctx.sendMessage(CommandUtil.error("Failed to repair item."));
     }
+  }
 }

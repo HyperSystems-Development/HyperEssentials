@@ -18,30 +18,30 @@ import org.jetbrains.annotations.NotNull;
  */
 public class VanishCommand extends AbstractPlayerCommand {
 
-    private final ModerationModule module;
+  private final ModerationModule module;
 
-    public VanishCommand(@NotNull ModerationModule module) {
-        super("vanish", "Toggle vanish mode");
-        this.module = module;
+  public VanishCommand(@NotNull ModerationModule module) {
+    super("vanish", "Toggle vanish mode");
+    this.module = module;
+  }
+
+  @Override
+  protected void execute(@NotNull CommandContext ctx,
+              @NotNull Store<EntityStore> store,
+              @NotNull Ref<EntityStore> ref,
+              @NotNull PlayerRef playerRef,
+              @NotNull World world) {
+    if (!CommandUtil.hasPermission(playerRef.getUuid(), Permissions.MODERATION_VANISH)) {
+      ctx.sendMessage(CommandUtil.error("You don't have permission to vanish."));
+      return;
     }
 
-    @Override
-    protected void execute(@NotNull CommandContext ctx,
-                          @NotNull Store<EntityStore> store,
-                          @NotNull Ref<EntityStore> ref,
-                          @NotNull PlayerRef playerRef,
-                          @NotNull World world) {
-        if (!CommandUtil.hasPermission(playerRef.getUuid(), Permissions.MODERATION_VANISH)) {
-            ctx.sendMessage(CommandUtil.error("You don't have permission to vanish."));
-            return;
-        }
+    boolean nowVanished = module.getVanishManager().toggleVanish(playerRef.getUuid(), playerRef);
 
-        boolean nowVanished = module.getVanishManager().toggleVanish(playerRef.getUuid(), playerRef);
-
-        if (nowVanished) {
-            ctx.sendMessage(CommandUtil.success(ConfigManager.get().vanish().getVanishEnableMessage()));
-        } else {
-            ctx.sendMessage(CommandUtil.success(ConfigManager.get().vanish().getVanishDisableMessage()));
-        }
+    if (nowVanished) {
+      ctx.sendMessage(CommandUtil.success(ConfigManager.get().vanish().getVanishEnableMessage()));
+    } else {
+      ctx.sendMessage(CommandUtil.success(ConfigManager.get().vanish().getVanishDisableMessage()));
     }
+  }
 }

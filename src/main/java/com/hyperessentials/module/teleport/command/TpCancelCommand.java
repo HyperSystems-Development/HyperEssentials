@@ -21,44 +21,44 @@ import java.util.UUID;
  */
 public class TpCancelCommand extends AbstractPlayerCommand {
 
-    private final TpaManager tpaManager;
+  private final TpaManager tpaManager;
 
-    public TpCancelCommand(@NotNull TpaManager tpaManager) {
-        super("tpcancel", "Cancel your teleport request");
-        this.tpaManager = tpaManager;
+  public TpCancelCommand(@NotNull TpaManager tpaManager) {
+    super("tpcancel", "Cancel your teleport request");
+    this.tpaManager = tpaManager;
+  }
+
+  @Override
+  protected void execute(@NotNull CommandContext ctx,
+              @NotNull Store<EntityStore> store,
+              @NotNull Ref<EntityStore> ref,
+              @NotNull PlayerRef playerRef,
+              @NotNull World currentWorld) {
+
+    UUID uuid = playerRef.getUuid();
+
+    if (!CommandUtil.hasPermission(uuid, Permissions.TPCANCEL)) {
+      ctx.sendMessage(CommandUtil.error("You don't have permission to cancel requests."));
+      return;
     }
 
-    @Override
-    protected void execute(@NotNull CommandContext ctx,
-                          @NotNull Store<EntityStore> store,
-                          @NotNull Ref<EntityStore> ref,
-                          @NotNull PlayerRef playerRef,
-                          @NotNull World currentWorld) {
+    TeleportRequest request = tpaManager.cancelOutgoingRequest(uuid);
 
-        UUID uuid = playerRef.getUuid();
-
-        if (!CommandUtil.hasPermission(uuid, Permissions.TPCANCEL)) {
-            ctx.sendMessage(CommandUtil.error("You don't have permission to cancel requests."));
-            return;
-        }
-
-        TeleportRequest request = tpaManager.cancelOutgoingRequest(uuid);
-
-        if (request == null) {
-            ctx.sendMessage(CommandUtil.error("You have no pending teleport request to cancel."));
-            return;
-        }
-
-        ctx.sendMessage(CommandUtil.success("Teleport request cancelled."));
-
-        PlayerRef targetRef = findPlayerByUuid(request.target());
-        if (targetRef != null) {
-            targetRef.sendMessage(CommandUtil.info(playerRef.getUsername() + " cancelled their teleport request."));
-        }
+    if (request == null) {
+      ctx.sendMessage(CommandUtil.error("You have no pending teleport request to cancel."));
+      return;
     }
 
-    private PlayerRef findPlayerByUuid(UUID uuid) {
-        HyperEssentialsPlugin plugin = HyperEssentialsPlugin.getInstance();
-        return plugin != null ? plugin.getTrackedPlayer(uuid) : null;
+    ctx.sendMessage(CommandUtil.success("Teleport request cancelled."));
+
+    PlayerRef targetRef = findPlayerByUuid(request.target());
+    if (targetRef != null) {
+      targetRef.sendMessage(CommandUtil.info(playerRef.getUsername() + " cancelled their teleport request."));
     }
+  }
+
+  private PlayerRef findPlayerByUuid(UUID uuid) {
+    HyperEssentialsPlugin plugin = HyperEssentialsPlugin.getInstance();
+    return plugin != null ? plugin.getTrackedPlayer(uuid) : null;
+  }
 }

@@ -12,9 +12,9 @@ import java.util.concurrent.CompletableFuture;
  */
 public interface PlayerDataStorage {
 
-    CompletableFuture<Void> init();
-    CompletableFuture<Void> shutdown();
-    CompletableFuture<Optional<PlayerTeleportData>> loadPlayerData(@NotNull UUID uuid);
-    CompletableFuture<Void> savePlayerData(@NotNull PlayerTeleportData data);
-    CompletableFuture<Void> deletePlayerData(@NotNull UUID uuid);
+  CompletableFuture<Void> init();
+  CompletableFuture<Void> shutdown();
+  CompletableFuture<Optional<PlayerTeleportData>> loadPlayerData(@NotNull UUID uuid);
+  CompletableFuture<Void> savePlayerData(@NotNull PlayerTeleportData data);
+  CompletableFuture<Void> deletePlayerData(@NotNull UUID uuid);
 }

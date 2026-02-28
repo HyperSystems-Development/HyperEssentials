@@ -11,33 +11,33 @@ import org.jetbrains.annotations.Nullable;
  */
 public class WarmupModule extends AbstractModule {
 
-    @Override
-    @NotNull
-    public String getName() {
-        return "warmup";
-    }
+  @Override
+  @NotNull
+  public String getName() {
+    return "warmup";
+  }
 
-    @Override
-    @NotNull
-    public String getDisplayName() {
-        return "Warmup";
-    }
+  @Override
+  @NotNull
+  public String getDisplayName() {
+    return "Warmup";
+  }
 
-    @Override
-    public void onEnable() {
-        super.onEnable();
-        // TODO: Register commands, listeners, and storage
-    }
+  @Override
+  public void onEnable() {
+    super.onEnable();
+    // TODO: Register commands, listeners, and storage
+  }
 
-    @Override
-    public void onDisable() {
-        // TODO: Unregister commands, save data, cleanup
-        super.onDisable();
-    }
+  @Override
+  public void onDisable() {
+    // TODO: Unregister commands, save data, cleanup
+    super.onDisable();
+  }
 
-    @Override
-    @Nullable
-    public ModuleConfig getModuleConfig() {
-        return ConfigManager.get().warmup();
-    }
+  @Override
+  @Nullable
+  public ModuleConfig getModuleConfig() {
+    return ConfigManager.get().warmup();
+  }
 }

@@ -19,61 +19,61 @@ import org.jetbrains.annotations.NotNull;
  */
 public class ModerationListener {
 
-    private final ModerationModule module;
+  private final ModerationModule module;
 
-    public ModerationListener(@NotNull ModerationModule module) {
-        this.module = module;
+  public ModerationListener(@NotNull ModerationModule module) {
+    this.module = module;
+  }
+
+  /**
+   * Called on player connect. Checks ban status and applies vanish hiding.
+   */
+  public void onPlayerConnect(@NotNull PlayerConnectEvent event) {
+    PlayerRef playerRef = event.getPlayerRef();
+
+    // Check for active ban
+    ModerationManager modManager = module.getModerationManager();
+    Punishment ban = modManager.getActiveBan(playerRef.getUuid());
+    if (ban != null && ban.isEffective()) {
+      // Player is banned - disconnect them
+      StringBuilder message = new StringBuilder("You are banned from this server.");
+      if (ban.reason() != null) {
+        message.append("\nReason: ").append(ban.reason());
+      }
+      if (!ban.isPermanent()) {
+        message.append("\nExpires in: ").append(DurationParser.formatHuman(ban.getRemainingMillis()));
+      }
+
+      try {
+        playerRef.getPacketHandler().disconnect(message.toString());
+      } catch (Exception e) {
+        Logger.warn("[Moderation] Failed to disconnect banned player: %s", e.getMessage());
+      }
+      return;
     }
 
-    /**
-     * Called on player connect. Checks ban status and applies vanish hiding.
-     */
-    public void onPlayerConnect(@NotNull PlayerConnectEvent event) {
-        PlayerRef playerRef = event.getPlayerRef();
+    // Hide vanished players from the new player
+    VanishManager vanishManager = module.getVanishManager();
+    vanishManager.onPlayerConnect(playerRef.getUuid(), playerRef);
+  }
 
-        // Check for active ban
-        ModerationManager modManager = module.getModerationManager();
-        Punishment ban = modManager.getActiveBan(playerRef.getUuid());
-        if (ban != null && ban.isEffective()) {
-            // Player is banned - disconnect them
-            StringBuilder message = new StringBuilder("You are banned from this server.");
-            if (ban.reason() != null) {
-                message.append("\nReason: ").append(ban.reason());
-            }
-            if (!ban.isPermanent()) {
-                message.append("\nExpires in: ").append(DurationParser.formatHuman(ban.getRemainingMillis()));
-            }
+  /**
+   * Called on player chat. Checks mute status.
+   */
+  public void onPlayerChat(@NotNull PlayerChatEvent event) {
+    PlayerRef playerRef = event.getSender();
 
-            try {
-                playerRef.getPacketHandler().disconnect(message.toString());
-            } catch (Exception e) {
-                Logger.warn("[Moderation] Failed to disconnect banned player: %s", e.getMessage());
-            }
-            return;
-        }
-
-        // Hide vanished players from the new player
-        VanishManager vanishManager = module.getVanishManager();
-        vanishManager.onPlayerConnect(playerRef.getUuid(), playerRef);
+    // Check bypass
+    if (CommandUtil.hasPermission(playerRef.getUuid(), Permissions.BYPASS_MUTE)) {
+      return;
     }
 
-    /**
-     * Called on player chat. Checks mute status.
-     */
-    public void onPlayerChat(@NotNull PlayerChatEvent event) {
-        PlayerRef playerRef = event.getSender();
-
-        // Check bypass
-        if (CommandUtil.hasPermission(playerRef.getUuid(), Permissions.BYPASS_MUTE)) {
-            return;
-        }
-
-        // Check mute
-        ModerationManager modManager = module.getModerationManager();
-        if (modManager.isMuted(playerRef.getUuid())) {
-            event.setCancelled(true);
-            String muteMsg = ConfigManager.get().moderation().getMutedChatMessage();
-            playerRef.sendMessage(CommandUtil.error(muteMsg));
-        }
+    // Check mute
+    ModerationManager modManager = module.getModerationManager();
+    if (modManager.isMuted(playerRef.getUuid())) {
+      event.setCancelled(true);
+      String muteMsg = ConfigManager.get().moderation().getMutedChatMessage();
+      playerRef.sendMessage(CommandUtil.error(muteMsg));
     }
+  }
 }

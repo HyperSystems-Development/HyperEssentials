@@ -22,79 +22,79 @@ import java.util.UUID;
  */
 public class TpaCommand extends AbstractPlayerCommand {
 
-    private final TpaManager tpaManager;
-    private final TeleportConfig config;
+  private final TpaManager tpaManager;
+  private final TeleportConfig config;
 
-    public TpaCommand(@NotNull TpaManager tpaManager, @NotNull TeleportConfig config) {
-        super("tpa", "Request to teleport to a player");
-        this.tpaManager = tpaManager;
-        this.config = config;
-        setAllowsExtraArguments(true);
+  public TpaCommand(@NotNull TpaManager tpaManager, @NotNull TeleportConfig config) {
+    super("tpa", "Request to teleport to a player");
+    this.tpaManager = tpaManager;
+    this.config = config;
+    setAllowsExtraArguments(true);
+  }
+
+  @Override
+  protected void execute(@NotNull CommandContext ctx,
+              @NotNull Store<EntityStore> store,
+              @NotNull Ref<EntityStore> ref,
+              @NotNull PlayerRef playerRef,
+              @NotNull World currentWorld) {
+
+    UUID uuid = playerRef.getUuid();
+
+    if (!CommandUtil.hasPermission(uuid, Permissions.TPA)) {
+      ctx.sendMessage(CommandUtil.error("You don't have permission to use TPA."));
+      return;
     }
 
-    @Override
-    protected void execute(@NotNull CommandContext ctx,
-                          @NotNull Store<EntityStore> store,
-                          @NotNull Ref<EntityStore> ref,
-                          @NotNull PlayerRef playerRef,
-                          @NotNull World currentWorld) {
+    String input = ctx.getInputString();
+    String[] parts = input != null ? input.trim().split("\\s+") : new String[0];
 
-        UUID uuid = playerRef.getUuid();
-
-        if (!CommandUtil.hasPermission(uuid, Permissions.TPA)) {
-            ctx.sendMessage(CommandUtil.error("You don't have permission to use TPA."));
-            return;
-        }
-
-        String input = ctx.getInputString();
-        String[] parts = input != null ? input.trim().split("\\s+") : new String[0];
-
-        if (parts.length < 2) {
-            ctx.sendMessage(CommandUtil.error("Usage: /tpa <player>"));
-            return;
-        }
-
-        String targetName = parts[1];
-
-        PlayerRef targetRef = findPlayer(targetName);
-        if (targetRef == null) {
-            ctx.sendMessage(CommandUtil.error("Player '" + targetName + "' not found or offline."));
-            return;
-        }
-
-        UUID targetUuid = targetRef.getUuid();
-
-        if (uuid.equals(targetUuid)) {
-            ctx.sendMessage(CommandUtil.error("You cannot teleport to yourself."));
-            return;
-        }
-
-        long cooldown = tpaManager.getRemainingTpaCooldown(uuid);
-        if (cooldown > 0) {
-            ctx.sendMessage(CommandUtil.error("You must wait " + CommandUtil.formatTime(cooldown) + " before sending another request."));
-            return;
-        }
-
-        TeleportRequest request = tpaManager.createRequest(uuid, targetUuid, TeleportRequest.Type.TPA);
-
-        if (request == null) {
-            if (!tpaManager.isAcceptingRequests(targetUuid)) {
-                ctx.sendMessage(CommandUtil.error(targetRef.getUsername() + " is not accepting teleport requests."));
-            } else {
-                ctx.sendMessage(CommandUtil.error("Could not send request. Target may have too many pending requests."));
-            }
-            return;
-        }
-
-        ctx.sendMessage(CommandUtil.success("Teleport request sent to " + targetRef.getUsername() + "."));
-        ctx.sendMessage(CommandUtil.info("Request expires in " + config.getTpaTimeout() + " seconds."));
-
-        targetRef.sendMessage(CommandUtil.info(playerRef.getUsername() + " has requested to teleport to you."));
-        targetRef.sendMessage(CommandUtil.info("Type /tpaccept or /tpdeny to respond."));
+    if (parts.length < 2) {
+      ctx.sendMessage(CommandUtil.error("Usage: /tpa <player>"));
+      return;
     }
 
-    private PlayerRef findPlayer(String name) {
-        HyperEssentialsPlugin plugin = HyperEssentialsPlugin.getInstance();
-        return plugin != null ? plugin.findOnlinePlayer(name) : null;
+    String targetName = parts[1];
+
+    PlayerRef targetRef = findPlayer(targetName);
+    if (targetRef == null) {
+      ctx.sendMessage(CommandUtil.error("Player '" + targetName + "' not found or offline."));
+      return;
     }
+
+    UUID targetUuid = targetRef.getUuid();
+
+    if (uuid.equals(targetUuid)) {
+      ctx.sendMessage(CommandUtil.error("You cannot teleport to yourself."));
+      return;
+    }
+
+    long cooldown = tpaManager.getRemainingTpaCooldown(uuid);
+    if (cooldown > 0) {
+      ctx.sendMessage(CommandUtil.error("You must wait " + CommandUtil.formatTime(cooldown) + " before sending another request."));
+      return;
+    }
+
+    TeleportRequest request = tpaManager.createRequest(uuid, targetUuid, TeleportRequest.Type.TPA);
+
+    if (request == null) {
+      if (!tpaManager.isAcceptingRequests(targetUuid)) {
+        ctx.sendMessage(CommandUtil.error(targetRef.getUsername() + " is not accepting teleport requests."));
+      } else {
+        ctx.sendMessage(CommandUtil.error("Could not send request. Target may have too many pending requests."));
+      }
+      return;
+    }
+
+    ctx.sendMessage(CommandUtil.success("Teleport request sent to " + targetRef.getUsername() + "."));
+    ctx.sendMessage(CommandUtil.info("Request expires in " + config.getTpaTimeout() + " seconds."));
+
+    targetRef.sendMessage(CommandUtil.info(playerRef.getUsername() + " has requested to teleport to you."));
+    targetRef.sendMessage(CommandUtil.info("Type /tpaccept or /tpdeny to respond."));
+  }
+
+  private PlayerRef findPlayer(String name) {
+    HyperEssentialsPlugin plugin = HyperEssentialsPlugin.getInstance();
+    return plugin != null ? plugin.findOnlinePlayer(name) : null;
+  }
 }

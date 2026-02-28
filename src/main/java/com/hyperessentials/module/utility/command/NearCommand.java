@@ -25,75 +25,75 @@ import java.util.UUID;
  */
 public class NearCommand extends AbstractPlayerCommand {
 
-    public NearCommand() {
-        super("near", "List nearby players");
-        setAllowsExtraArguments(true);
+  public NearCommand() {
+    super("near", "List nearby players");
+    setAllowsExtraArguments(true);
+  }
+
+  @Override
+  protected void execute(@NotNull CommandContext ctx,
+              @NotNull Store<EntityStore> store,
+              @NotNull Ref<EntityStore> ref,
+              @NotNull PlayerRef playerRef,
+              @NotNull World world) {
+    if (!CommandUtil.hasPermission(playerRef.getUuid(), Permissions.UTILITY_NEAR)) {
+      ctx.sendMessage(CommandUtil.error("You don't have permission to use /near."));
+      return;
     }
 
-    @Override
-    protected void execute(@NotNull CommandContext ctx,
-                          @NotNull Store<EntityStore> store,
-                          @NotNull Ref<EntityStore> ref,
-                          @NotNull PlayerRef playerRef,
-                          @NotNull World world) {
-        if (!CommandUtil.hasPermission(playerRef.getUuid(), Permissions.UTILITY_NEAR)) {
-            ctx.sendMessage(CommandUtil.error("You don't have permission to use /near."));
-            return;
-        }
+    int defaultRadius = ConfigManager.get().utility().getDefaultNearRadius();
+    int maxRadius = ConfigManager.get().utility().getMaxNearRadius();
 
-        int defaultRadius = ConfigManager.get().utility().getDefaultNearRadius();
-        int maxRadius = ConfigManager.get().utility().getMaxNearRadius();
+    String input = ctx.getInputString();
+    String[] parts = input != null ? input.trim().split("\\s+") : new String[0];
 
-        String input = ctx.getInputString();
-        String[] parts = input != null ? input.trim().split("\\s+") : new String[0];
-
-        int radius = defaultRadius;
-        if (parts.length >= 2) {
-            try {
-                radius = Integer.parseInt(parts[1]);
-                if (radius < 1) radius = defaultRadius;
-                if (radius > maxRadius) radius = maxRadius;
-            } catch (NumberFormatException e) {
-                ctx.sendMessage(CommandUtil.error("Invalid radius. Using default: " + defaultRadius));
-            }
-        }
-
-        Transform myTransform = playerRef.getTransform();
-        Vector3d myPos = myTransform.getPosition();
-        double px = myPos.getX();
-        double py = myPos.getY();
-        double pz = myPos.getZ();
-
-        HyperEssentialsPlugin plugin = HyperEssentialsPlugin.getInstance();
-        if (plugin == null) return;
-
-        List<String> nearby = new ArrayList<>();
-        double radiusSq = (double) radius * radius;
-
-        for (Map.Entry<UUID, PlayerRef> entry : plugin.getTrackedPlayers().entrySet()) {
-            if (entry.getKey().equals(playerRef.getUuid())) continue;
-
-            PlayerRef other = entry.getValue();
-            Transform otherTransform = other.getTransform();
-            Vector3d otherPos = otherTransform.getPosition();
-            double dx = otherPos.getX() - px;
-            double dy = otherPos.getY() - py;
-            double dz = otherPos.getZ() - pz;
-            double distSq = dx * dx + dy * dy + dz * dz;
-
-            if (distSq <= radiusSq) {
-                int dist = (int) Math.sqrt(distSq);
-                nearby.add(other.getUsername() + " (" + dist + "m)");
-            }
-        }
-
-        if (nearby.isEmpty()) {
-            ctx.sendMessage(CommandUtil.info("No players within " + radius + " blocks."));
-        } else {
-            ctx.sendMessage(CommandUtil.info("Nearby Players (" + nearby.size() + " within " + radius + "m):"));
-            for (String entry : nearby) {
-                ctx.sendMessage(CommandUtil.msg("  " + entry, CommandUtil.COLOR_GREEN));
-            }
-        }
+    int radius = defaultRadius;
+    if (parts.length >= 2) {
+      try {
+        radius = Integer.parseInt(parts[1]);
+        if (radius < 1) radius = defaultRadius;
+        if (radius > maxRadius) radius = maxRadius;
+      } catch (NumberFormatException e) {
+        ctx.sendMessage(CommandUtil.error("Invalid radius. Using default: " + defaultRadius));
+      }
     }
+
+    Transform myTransform = playerRef.getTransform();
+    Vector3d myPos = myTransform.getPosition();
+    double px = myPos.getX();
+    double py = myPos.getY();
+    double pz = myPos.getZ();
+
+    HyperEssentialsPlugin plugin = HyperEssentialsPlugin.getInstance();
+    if (plugin == null) return;
+
+    List<String> nearby = new ArrayList<>();
+    double radiusSq = (double) radius * radius;
+
+    for (Map.Entry<UUID, PlayerRef> entry : plugin.getTrackedPlayers().entrySet()) {
+      if (entry.getKey().equals(playerRef.getUuid())) continue;
+
+      PlayerRef other = entry.getValue();
+      Transform otherTransform = other.getTransform();
+      Vector3d otherPos = otherTransform.getPosition();
+      double dx = otherPos.getX() - px;
+      double dy = otherPos.getY() - py;
+      double dz = otherPos.getZ() - pz;
+      double distSq = dx * dx + dy * dy + dz * dz;
+
+      if (distSq <= radiusSq) {
+        int dist = (int) Math.sqrt(distSq);
+        nearby.add(other.getUsername() + " (" + dist + "m)");
+      }
+    }
+
+    if (nearby.isEmpty()) {
+      ctx.sendMessage(CommandUtil.info("No players within " + radius + " blocks."));
+    } else {
+      ctx.sendMessage(CommandUtil.info("Nearby Players (" + nearby.size() + " within " + radius + "m):"));
+      for (String entry : nearby) {
+        ctx.sendMessage(CommandUtil.msg("  " + entry, CommandUtil.COLOR_GREEN));
+      }
+    }
+  }
 }

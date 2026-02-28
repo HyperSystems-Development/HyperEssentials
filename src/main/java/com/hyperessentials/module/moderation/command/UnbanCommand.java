@@ -19,44 +19,44 @@ import java.util.UUID;
  */
 public class UnbanCommand extends AbstractPlayerCommand {
 
-    private final ModerationModule module;
+  private final ModerationModule module;
 
-    public UnbanCommand(@NotNull ModerationModule module) {
-        super("unban", "Unban a player");
-        this.module = module;
-        setAllowsExtraArguments(true);
+  public UnbanCommand(@NotNull ModerationModule module) {
+    super("unban", "Unban a player");
+    this.module = module;
+    setAllowsExtraArguments(true);
+  }
+
+  @Override
+  protected void execute(@NotNull CommandContext ctx,
+              @NotNull Store<EntityStore> store,
+              @NotNull Ref<EntityStore> ref,
+              @NotNull PlayerRef playerRef,
+              @NotNull World world) {
+    if (!CommandUtil.hasPermission(playerRef.getUuid(), Permissions.MODERATION_BAN)) {
+      ctx.sendMessage(CommandUtil.error("You don't have permission to unban players."));
+      return;
     }
 
-    @Override
-    protected void execute(@NotNull CommandContext ctx,
-                          @NotNull Store<EntityStore> store,
-                          @NotNull Ref<EntityStore> ref,
-                          @NotNull PlayerRef playerRef,
-                          @NotNull World world) {
-        if (!CommandUtil.hasPermission(playerRef.getUuid(), Permissions.MODERATION_BAN)) {
-            ctx.sendMessage(CommandUtil.error("You don't have permission to unban players."));
-            return;
-        }
+    String input = ctx.getInputString();
+    String[] parts = input != null ? input.trim().split("\\s+") : new String[0];
 
-        String input = ctx.getInputString();
-        String[] parts = input != null ? input.trim().split("\\s+") : new String[0];
-
-        if (parts.length < 2) {
-            ctx.sendMessage(CommandUtil.error("Usage: /unban <player>"));
-            return;
-        }
-
-        String targetName = parts[1];
-        UUID targetUuid = module.getModerationManager().findPlayerUuid(targetName);
-        if (targetUuid == null) {
-            ctx.sendMessage(CommandUtil.error("Player '" + targetName + "' not found."));
-            return;
-        }
-
-        if (module.getModerationManager().unban(targetUuid, playerRef.getUuid(), playerRef.getUsername())) {
-            ctx.sendMessage(CommandUtil.success("Unbanned " + targetName + "."));
-        } else {
-            ctx.sendMessage(CommandUtil.error(targetName + " is not banned."));
-        }
+    if (parts.length < 2) {
+      ctx.sendMessage(CommandUtil.error("Usage: /unban <player>"));
+      return;
     }
+
+    String targetName = parts[1];
+    UUID targetUuid = module.getModerationManager().findPlayerUuid(targetName);
+    if (targetUuid == null) {
+      ctx.sendMessage(CommandUtil.error("Player '" + targetName + "' not found."));
+      return;
+    }
+
+    if (module.getModerationManager().unban(targetUuid, playerRef.getUuid(), playerRef.getUsername())) {
+      ctx.sendMessage(CommandUtil.success("Unbanned " + targetName + "."));
+    } else {
+      ctx.sendMessage(CommandUtil.error(targetName + " is not banned."));
+    }
+  }
 }

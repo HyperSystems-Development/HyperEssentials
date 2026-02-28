@@ -25,111 +25,111 @@ import java.util.UUID;
  */
 public final class HyperEssentialsAPI {
 
-    private static HyperEssentials instance;
+  private static HyperEssentials instance;
 
-    private HyperEssentialsAPI() {}
+  private HyperEssentialsAPI() {}
 
-    public static void setInstance(@Nullable HyperEssentials instance) {
-        HyperEssentialsAPI.instance = instance;
+  public static void setInstance(@Nullable HyperEssentials instance) {
+    HyperEssentialsAPI.instance = instance;
+  }
+
+  @Nullable
+  public static HyperEssentials getInstance() {
+    return instance;
+  }
+
+  public static boolean isAvailable() {
+    return instance != null;
+  }
+
+  // ========== Warp API ==========
+
+  @Nullable
+  public static Warp getWarp(@NotNull String name) {
+    WarpManager wm = getWarpManager();
+    return wm != null ? wm.getWarp(name) : null;
+  }
+
+  @NotNull
+  public static Collection<Warp> getAllWarps() {
+    WarpManager wm = getWarpManager();
+    return wm != null ? wm.getAllWarps() : Collections.emptyList();
+  }
+
+  @NotNull
+  public static List<Warp> getAccessibleWarps(@NotNull UUID uuid) {
+    WarpManager wm = getWarpManager();
+    return wm != null ? wm.getAccessibleWarps(uuid) : Collections.emptyList();
+  }
+
+  // ========== Spawn API ==========
+
+  @Nullable
+  public static Spawn getSpawn(@NotNull String name) {
+    SpawnManager sm = getSpawnManager();
+    return sm != null ? sm.getSpawn(name) : null;
+  }
+
+  @Nullable
+  public static Spawn getDefaultSpawn() {
+    SpawnManager sm = getSpawnManager();
+    return sm != null ? sm.getDefaultSpawn() : null;
+  }
+
+  @Nullable
+  public static Spawn getSpawnForPlayer(@NotNull UUID uuid) {
+    SpawnManager sm = getSpawnManager();
+    return sm != null ? sm.getSpawnForPlayer(uuid) : null;
+  }
+
+  // ========== Back API ==========
+
+  public static void saveBackLocation(@NotNull UUID uuid, @NotNull Location location) {
+    BackManager bm = getBackManager();
+    if (bm != null) {
+      bm.saveBackLocation(uuid, location);
     }
+  }
 
-    @Nullable
-    public static HyperEssentials getInstance() {
-        return instance;
-    }
+  public static boolean hasBackHistory(@NotNull UUID uuid) {
+    BackManager bm = getBackManager();
+    return bm != null && bm.hasBackHistory(uuid);
+  }
 
-    public static boolean isAvailable() {
-        return instance != null;
-    }
+  // ========== TPA API ==========
 
-    // ========== Warp API ==========
+  public static boolean isAcceptingTpa(@NotNull UUID uuid) {
+    TpaManager tm = getTpaManager();
+    return tm == null || tm.isAcceptingRequests(uuid);
+  }
 
-    @Nullable
-    public static Warp getWarp(@NotNull String name) {
-        WarpManager wm = getWarpManager();
-        return wm != null ? wm.getWarp(name) : null;
-    }
+  // ========== Internal helpers ==========
 
-    @NotNull
-    public static Collection<Warp> getAllWarps() {
-        WarpManager wm = getWarpManager();
-        return wm != null ? wm.getAllWarps() : Collections.emptyList();
-    }
+  @Nullable
+  private static WarpManager getWarpManager() {
+    if (!isAvailable()) return null;
+    WarpsModule module = instance.getWarpsModule();
+    return (module != null && module.isEnabled()) ? module.getWarpManager() : null;
+  }
 
-    @NotNull
-    public static List<Warp> getAccessibleWarps(@NotNull UUID uuid) {
-        WarpManager wm = getWarpManager();
-        return wm != null ? wm.getAccessibleWarps(uuid) : Collections.emptyList();
-    }
+  @Nullable
+  private static SpawnManager getSpawnManager() {
+    if (!isAvailable()) return null;
+    SpawnsModule module = instance.getSpawnsModule();
+    return (module != null && module.isEnabled()) ? module.getSpawnManager() : null;
+  }
 
-    // ========== Spawn API ==========
+  @Nullable
+  private static BackManager getBackManager() {
+    if (!isAvailable()) return null;
+    TeleportModule module = instance.getTeleportModule();
+    return (module != null && module.isEnabled()) ? module.getBackManager() : null;
+  }
 
-    @Nullable
-    public static Spawn getSpawn(@NotNull String name) {
-        SpawnManager sm = getSpawnManager();
-        return sm != null ? sm.getSpawn(name) : null;
-    }
-
-    @Nullable
-    public static Spawn getDefaultSpawn() {
-        SpawnManager sm = getSpawnManager();
-        return sm != null ? sm.getDefaultSpawn() : null;
-    }
-
-    @Nullable
-    public static Spawn getSpawnForPlayer(@NotNull UUID uuid) {
-        SpawnManager sm = getSpawnManager();
-        return sm != null ? sm.getSpawnForPlayer(uuid) : null;
-    }
-
-    // ========== Back API ==========
-
-    public static void saveBackLocation(@NotNull UUID uuid, @NotNull Location location) {
-        BackManager bm = getBackManager();
-        if (bm != null) {
-            bm.saveBackLocation(uuid, location);
-        }
-    }
-
-    public static boolean hasBackHistory(@NotNull UUID uuid) {
-        BackManager bm = getBackManager();
-        return bm != null && bm.hasBackHistory(uuid);
-    }
-
-    // ========== TPA API ==========
-
-    public static boolean isAcceptingTpa(@NotNull UUID uuid) {
-        TpaManager tm = getTpaManager();
-        return tm == null || tm.isAcceptingRequests(uuid);
-    }
-
-    // ========== Internal helpers ==========
-
-    @Nullable
-    private static WarpManager getWarpManager() {
-        if (!isAvailable()) return null;
-        WarpsModule module = instance.getWarpsModule();
-        return (module != null && module.isEnabled()) ? module.getWarpManager() : null;
-    }
-
-    @Nullable
-    private static SpawnManager getSpawnManager() {
-        if (!isAvailable()) return null;
-        SpawnsModule module = instance.getSpawnsModule();
-        return (module != null && module.isEnabled()) ? module.getSpawnManager() : null;
-    }
-
-    @Nullable
-    private static BackManager getBackManager() {
-        if (!isAvailable()) return null;
-        TeleportModule module = instance.getTeleportModule();
-        return (module != null && module.isEnabled()) ? module.getBackManager() : null;
-    }
-
-    @Nullable
-    private static TpaManager getTpaManager() {
-        if (!isAvailable()) return null;
-        TeleportModule module = instance.getTeleportModule();
-        return (module != null && module.isEnabled()) ? module.getTpaManager() : null;
-    }
+  @Nullable
+  private static TpaManager getTpaManager() {
+    if (!isAvailable()) return null;
+    TeleportModule module = instance.getTeleportModule();
+    return (module != null && module.isEnabled()) ? module.getTpaManager() : null;
+  }
 }

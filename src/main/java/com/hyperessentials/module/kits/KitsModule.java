@@ -18,64 +18,64 @@ import org.jetbrains.annotations.Nullable;
  */
 public class KitsModule extends AbstractModule {
 
-    private KitStorage kitStorage;
-    private KitManager kitManager;
+  private KitStorage kitStorage;
+  private KitManager kitManager;
 
-    @Override
-    @NotNull
-    public String getName() {
-        return "kits";
+  @Override
+  @NotNull
+  public String getName() {
+    return "kits";
+  }
+
+  @Override
+  @NotNull
+  public String getDisplayName() {
+    return "Kits";
+  }
+
+  @Override
+  public void onEnable() {
+    super.onEnable();
+
+    HyperEssentials core = HyperEssentialsAPI.getInstance();
+    if (core == null) return;
+
+    // Initialize storage and manager
+    kitStorage = new KitStorage(core.getDataDir());
+    kitStorage.load();
+    kitManager = new KitManager(kitStorage);
+
+    // Register commands
+    HyperEssentialsPlugin plugin = HyperEssentialsPlugin.getInstance();
+    if (plugin != null) {
+      try {
+        plugin.getCommandRegistry().registerCommand(new KitCommand(this));
+        plugin.getCommandRegistry().registerCommand(new KitsCommand(this));
+        plugin.getCommandRegistry().registerCommand(new CreateKitCommand(this));
+        plugin.getCommandRegistry().registerCommand(new DeleteKitCommand(this));
+        Logger.info("[Kits] Registered commands: /kit, /kits, /createkit, /deletekit");
+      } catch (Exception e) {
+        Logger.severe("[Kits] Failed to register commands: %s", e.getMessage());
+      }
     }
+  }
 
-    @Override
-    @NotNull
-    public String getDisplayName() {
-        return "Kits";
+  @Override
+  public void onDisable() {
+    if (kitManager != null) {
+      kitManager.shutdown();
     }
+    super.onDisable();
+  }
 
-    @Override
-    public void onEnable() {
-        super.onEnable();
+  @NotNull
+  public KitManager getKitManager() {
+    return kitManager;
+  }
 
-        HyperEssentials core = HyperEssentialsAPI.getInstance();
-        if (core == null) return;
-
-        // Initialize storage and manager
-        kitStorage = new KitStorage(core.getDataDir());
-        kitStorage.load();
-        kitManager = new KitManager(kitStorage);
-
-        // Register commands
-        HyperEssentialsPlugin plugin = HyperEssentialsPlugin.getInstance();
-        if (plugin != null) {
-            try {
-                plugin.getCommandRegistry().registerCommand(new KitCommand(this));
-                plugin.getCommandRegistry().registerCommand(new KitsCommand(this));
-                plugin.getCommandRegistry().registerCommand(new CreateKitCommand(this));
-                plugin.getCommandRegistry().registerCommand(new DeleteKitCommand(this));
-                Logger.info("[Kits] Registered commands: /kit, /kits, /createkit, /deletekit");
-            } catch (Exception e) {
-                Logger.severe("[Kits] Failed to register commands: %s", e.getMessage());
-            }
-        }
-    }
-
-    @Override
-    public void onDisable() {
-        if (kitManager != null) {
-            kitManager.shutdown();
-        }
-        super.onDisable();
-    }
-
-    @NotNull
-    public KitManager getKitManager() {
-        return kitManager;
-    }
-
-    @Override
-    @Nullable
-    public ModuleConfig getModuleConfig() {
-        return ConfigManager.get().kits();
-    }
+  @Override
+  @Nullable
+  public ModuleConfig getModuleConfig() {
+    return ConfigManager.get().kits();
+  }
 }

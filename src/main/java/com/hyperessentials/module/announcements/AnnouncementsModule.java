@@ -16,56 +16,56 @@ import org.jetbrains.annotations.Nullable;
  */
 public class AnnouncementsModule extends AbstractModule {
 
-    private AnnouncementScheduler scheduler;
+  private AnnouncementScheduler scheduler;
 
-    @Override
-    @NotNull
-    public String getName() {
-        return "announcements";
+  @Override
+  @NotNull
+  public String getName() {
+    return "announcements";
+  }
+
+  @Override
+  @NotNull
+  public String getDisplayName() {
+    return "Announcements";
+  }
+
+  @Override
+  public void onEnable() {
+    super.onEnable();
+
+    scheduler = new AnnouncementScheduler();
+    scheduler.start();
+
+    // Register commands
+    HyperEssentialsPlugin plugin = HyperEssentialsPlugin.getInstance();
+    if (plugin != null) {
+      try {
+        plugin.getCommandRegistry().registerCommand(new BroadcastCommand(this));
+        plugin.getCommandRegistry().registerCommand(new AnnounceCommand(this));
+        Logger.info("[Announcements] Registered commands: /broadcast, /announce");
+      } catch (Exception e) {
+        Logger.severe("[Announcements] Failed to register commands: %s", e.getMessage());
+      }
     }
+  }
 
-    @Override
-    @NotNull
-    public String getDisplayName() {
-        return "Announcements";
+  @Override
+  public void onDisable() {
+    if (scheduler != null) {
+      scheduler.shutdown();
     }
+    super.onDisable();
+  }
 
-    @Override
-    public void onEnable() {
-        super.onEnable();
+  @NotNull
+  public AnnouncementScheduler getScheduler() {
+    return scheduler;
+  }
 
-        scheduler = new AnnouncementScheduler();
-        scheduler.start();
-
-        // Register commands
-        HyperEssentialsPlugin plugin = HyperEssentialsPlugin.getInstance();
-        if (plugin != null) {
-            try {
-                plugin.getCommandRegistry().registerCommand(new BroadcastCommand(this));
-                plugin.getCommandRegistry().registerCommand(new AnnounceCommand(this));
-                Logger.info("[Announcements] Registered commands: /broadcast, /announce");
-            } catch (Exception e) {
-                Logger.severe("[Announcements] Failed to register commands: %s", e.getMessage());
-            }
-        }
-    }
-
-    @Override
-    public void onDisable() {
-        if (scheduler != null) {
-            scheduler.shutdown();
-        }
-        super.onDisable();
-    }
-
-    @NotNull
-    public AnnouncementScheduler getScheduler() {
-        return scheduler;
-    }
-
-    @Override
-    @Nullable
-    public ModuleConfig getModuleConfig() {
-        return ConfigManager.get().announcements();
-    }
+  @Override
+  @Nullable
+  public ModuleConfig getModuleConfig() {
+    return ConfigManager.get().announcements();
+  }
 }

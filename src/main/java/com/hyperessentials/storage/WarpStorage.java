@@ -11,8 +11,8 @@ import java.util.concurrent.CompletableFuture;
  */
 public interface WarpStorage {
 
-    CompletableFuture<Void> init();
-    CompletableFuture<Void> shutdown();
-    CompletableFuture<Map<String, Warp>> loadWarps();
-    CompletableFuture<Void> saveWarps(@NotNull Map<String, Warp> warps);
+  CompletableFuture<Void> init();
+  CompletableFuture<Void> shutdown();
+  CompletableFuture<Map<String, Warp>> loadWarps();
+  CompletableFuture<Void> saveWarps(@NotNull Map<String, Warp> warps);
 }

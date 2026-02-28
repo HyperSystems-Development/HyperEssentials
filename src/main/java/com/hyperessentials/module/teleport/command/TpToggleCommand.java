@@ -19,33 +19,33 @@ import java.util.UUID;
  */
 public class TpToggleCommand extends AbstractPlayerCommand {
 
-    private final TpaManager tpaManager;
+  private final TpaManager tpaManager;
 
-    public TpToggleCommand(@NotNull TpaManager tpaManager) {
-        super("tptoggle", "Toggle accepting teleport requests");
-        this.tpaManager = tpaManager;
+  public TpToggleCommand(@NotNull TpaManager tpaManager) {
+    super("tptoggle", "Toggle accepting teleport requests");
+    this.tpaManager = tpaManager;
+  }
+
+  @Override
+  protected void execute(@NotNull CommandContext ctx,
+              @NotNull Store<EntityStore> store,
+              @NotNull Ref<EntityStore> ref,
+              @NotNull PlayerRef playerRef,
+              @NotNull World currentWorld) {
+
+    UUID uuid = playerRef.getUuid();
+
+    if (!CommandUtil.hasPermission(uuid, Permissions.TPTOGGLE)) {
+      ctx.sendMessage(CommandUtil.error("You don't have permission to toggle TPA."));
+      return;
     }
 
-    @Override
-    protected void execute(@NotNull CommandContext ctx,
-                          @NotNull Store<EntityStore> store,
-                          @NotNull Ref<EntityStore> ref,
-                          @NotNull PlayerRef playerRef,
-                          @NotNull World currentWorld) {
+    boolean newState = tpaManager.toggleTpToggle(uuid);
 
-        UUID uuid = playerRef.getUuid();
-
-        if (!CommandUtil.hasPermission(uuid, Permissions.TPTOGGLE)) {
-            ctx.sendMessage(CommandUtil.error("You don't have permission to toggle TPA."));
-            return;
-        }
-
-        boolean newState = tpaManager.toggleTpToggle(uuid);
-
-        if (newState) {
-            ctx.sendMessage(CommandUtil.success("You are now accepting teleport requests."));
-        } else {
-            ctx.sendMessage(CommandUtil.error("You are no longer accepting teleport requests."));
-        }
+    if (newState) {
+      ctx.sendMessage(CommandUtil.success("You are now accepting teleport requests."));
+    } else {
+      ctx.sendMessage(CommandUtil.error("You are no longer accepting teleport requests."));
     }
+  }
 }

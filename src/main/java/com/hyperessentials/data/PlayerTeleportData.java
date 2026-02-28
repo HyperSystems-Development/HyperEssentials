@@ -14,95 +14,95 @@ import java.util.UUID;
  */
 public class PlayerTeleportData {
 
-    private final UUID uuid;
-    private String username;
-    private boolean tpToggle; // true = accepting TPA requests
-    private List<Location> backHistory;
-    private long lastTpaRequest;
-    private long lastTeleport;
+  private final UUID uuid;
+  private String username;
+  private boolean tpToggle; // true = accepting TPA requests
+  private List<Location> backHistory;
+  private long lastTpaRequest;
+  private long lastTeleport;
 
-    public PlayerTeleportData(@NotNull UUID uuid, @NotNull String username) {
-        this.uuid = uuid;
-        this.username = username;
-        this.tpToggle = true;
-        this.backHistory = new ArrayList<>();
-        this.lastTpaRequest = 0;
-        this.lastTeleport = 0;
-    }
+  public PlayerTeleportData(@NotNull UUID uuid, @NotNull String username) {
+    this.uuid = uuid;
+    this.username = username;
+    this.tpToggle = true;
+    this.backHistory = new ArrayList<>();
+    this.lastTpaRequest = 0;
+    this.lastTeleport = 0;
+  }
 
-    @NotNull
-    public UUID getUuid() {
-        return uuid;
-    }
+  @NotNull
+  public UUID getUuid() {
+    return uuid;
+  }
 
-    @NotNull
-    public String getUsername() {
-        return username;
-    }
+  @NotNull
+  public String getUsername() {
+    return username;
+  }
 
-    public void setUsername(@NotNull String username) {
-        this.username = username;
-    }
+  public void setUsername(@NotNull String username) {
+    this.username = username;
+  }
 
-    public boolean isTpToggle() {
-        return tpToggle;
-    }
+  public boolean isTpToggle() {
+    return tpToggle;
+  }
 
-    public void setTpToggle(boolean tpToggle) {
-        this.tpToggle = tpToggle;
-    }
+  public void setTpToggle(boolean tpToggle) {
+    this.tpToggle = tpToggle;
+  }
 
-    public boolean toggleTpToggle() {
-        tpToggle = !tpToggle;
-        return tpToggle;
-    }
+  public boolean toggleTpToggle() {
+    tpToggle = !tpToggle;
+    return tpToggle;
+  }
 
-    public long getLastTpaRequest() {
-        return lastTpaRequest;
-    }
+  public long getLastTpaRequest() {
+    return lastTpaRequest;
+  }
 
-    public void setLastTpaRequest(long lastTpaRequest) {
-        this.lastTpaRequest = lastTpaRequest;
-    }
+  public void setLastTpaRequest(long lastTpaRequest) {
+    this.lastTpaRequest = lastTpaRequest;
+  }
 
-    public long getLastTeleport() {
-        return lastTeleport;
-    }
+  public long getLastTeleport() {
+    return lastTeleport;
+  }
 
-    public void setLastTeleport(long lastTeleport) {
-        this.lastTeleport = lastTeleport;
-    }
+  public void setLastTeleport(long lastTeleport) {
+    this.lastTeleport = lastTeleport;
+  }
 
-    @NotNull
-    public List<Location> getBackHistory() {
-        return Collections.unmodifiableList(backHistory);
-    }
+  @NotNull
+  public List<Location> getBackHistory() {
+    return Collections.unmodifiableList(backHistory);
+  }
 
-    @Nullable
-    public Location getLastBackLocation() {
-        return backHistory.isEmpty() ? null : backHistory.get(0);
-    }
+  @Nullable
+  public Location getLastBackLocation() {
+    return backHistory.isEmpty() ? null : backHistory.get(0);
+  }
 
-    public void addBackLocation(@NotNull Location location, int maxSize) {
-        backHistory.add(0, location);
-        while (backHistory.size() > maxSize) {
-            backHistory.remove(backHistory.size() - 1);
-        }
+  public void addBackLocation(@NotNull Location location, int maxSize) {
+    backHistory.add(0, location);
+    while (backHistory.size() > maxSize) {
+      backHistory.remove(backHistory.size() - 1);
     }
+  }
 
-    @Nullable
-    public Location popBackLocation() {
-        if (backHistory.isEmpty()) {
-            return null;
-        }
-        return backHistory.remove(0);
+  @Nullable
+  public Location popBackLocation() {
+    if (backHistory.isEmpty()) {
+      return null;
     }
+    return backHistory.remove(0);
+  }
 
-    public void clearBackHistory() {
-        backHistory.clear();
-    }
+  public void clearBackHistory() {
+    backHistory.clear();
+  }
 
-    public void setBackHistory(@NotNull List<Location> history) {
-        this.backHistory = new ArrayList<>(history);
-    }
+  public void setBackHistory(@NotNull List<Location> history) {
+    this.backHistory = new ArrayList<>(history);
+  }
 }

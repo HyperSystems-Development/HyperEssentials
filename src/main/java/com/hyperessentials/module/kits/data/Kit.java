@@ -16,24 +16,24 @@ import java.util.List;
  * @param permission      custom permission override, or null for default
  */
 public record Kit(
-    @NotNull String name,
-    @NotNull String displayName,
-    @NotNull List<KitItem> items,
-    int cooldownSeconds,
-    boolean oneTime,
-    @Nullable String permission
+  @NotNull String name,
+  @NotNull String displayName,
+  @NotNull List<KitItem> items,
+  int cooldownSeconds,
+  boolean oneTime,
+  @Nullable String permission
 ) {
-    public Kit {
-        if (cooldownSeconds < 0) cooldownSeconds = 0;
-        items = List.copyOf(items);
-    }
+  public Kit {
+    if (cooldownSeconds < 0) cooldownSeconds = 0;
+    items = List.copyOf(items);
+  }
 
-    /**
-     * Returns the effective permission node for this kit.
-     * Uses custom permission if set, otherwise derives from kit name.
-     */
-    @NotNull
-    public String getEffectivePermission() {
-        return permission != null ? permission : "hyperessentials.kit.use." + name;
-    }
+  /**
+   * Returns the effective permission node for this kit.
+   * Uses custom permission if set, otherwise derives from kit name.
+   */
+  @NotNull
+  public String getEffectivePermission() {
+    return permission != null ? permission : "hyperessentials.kit.use." + name;
+  }
 }

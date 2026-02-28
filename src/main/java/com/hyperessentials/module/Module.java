@@ -10,36 +10,36 @@ import org.jetbrains.annotations.Nullable;
  */
 public interface Module {
 
-    /**
-     * Gets the unique module name.
-     */
-    @NotNull
-    String getName();
+  /**
+   * Gets the unique module name.
+   */
+  @NotNull
+  String getName();
 
-    /**
-     * Gets the display name for UI.
-     */
-    @NotNull
-    String getDisplayName();
+  /**
+   * Gets the display name for UI.
+   */
+  @NotNull
+  String getDisplayName();
 
-    /**
-     * Whether this module is currently enabled.
-     */
-    boolean isEnabled();
+  /**
+   * Whether this module is currently enabled.
+   */
+  boolean isEnabled();
 
-    /**
-     * Called when the module is enabled.
-     */
-    void onEnable();
+  /**
+   * Called when the module is enabled.
+   */
+  void onEnable();
 
-    /**
-     * Called when the module is disabled.
-     */
-    void onDisable();
+  /**
+   * Called when the module is disabled.
+   */
+  void onDisable();
 
-    /**
-     * Gets the module's configuration.
-     */
-    @Nullable
-    ModuleConfig getModuleConfig();
+  /**
+   * Gets the module's configuration.
+   */
+  @Nullable
+  ModuleConfig getModuleConfig();
 }

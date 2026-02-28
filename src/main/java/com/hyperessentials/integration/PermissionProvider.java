@@ -10,16 +10,16 @@ import java.util.UUID;
  */
 public interface PermissionProvider {
 
-    @NotNull
-    String getName();
+  @NotNull
+  String getName();
 
-    boolean isAvailable();
+  boolean isAvailable();
 
-    @NotNull
-    Optional<Boolean> hasPermission(@NotNull UUID playerUuid, @NotNull String permission);
+  @NotNull
+  Optional<Boolean> hasPermission(@NotNull UUID playerUuid, @NotNull String permission);
 
-    int getPermissionValue(@NotNull UUID playerUuid, @NotNull String prefix, int defaultValue);
+  int getPermissionValue(@NotNull UUID playerUuid, @NotNull String prefix, int defaultValue);
 
-    @NotNull
-    String getPrimaryGroup(@NotNull UUID playerUuid);
+  @NotNull
+  String getPrimaryGroup(@NotNull UUID playerUuid);
 }

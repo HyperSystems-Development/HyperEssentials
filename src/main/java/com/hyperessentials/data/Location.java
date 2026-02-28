@@ -13,28 +13,28 @@ import org.jetbrains.annotations.NotNull;
  * @param pitch pitch rotation
  */
 public record Location(
-    @NotNull String world,
-    double x,
-    double y,
-    double z,
-    float yaw,
-    float pitch
+  @NotNull String world,
+  double x,
+  double y,
+  double z,
+  float yaw,
+  float pitch
 ) {
-    public static Location fromWarp(@NotNull Warp warp) {
-        return new Location(warp.world(), warp.x(), warp.y(), warp.z(), warp.yaw(), warp.pitch());
-    }
+  public static Location fromWarp(@NotNull Warp warp) {
+    return new Location(warp.world(), warp.x(), warp.y(), warp.z(), warp.yaw(), warp.pitch());
+  }
 
-    public static Location fromSpawn(@NotNull Spawn spawn) {
-        return new Location(spawn.world(), spawn.x(), spawn.y(), spawn.z(), spawn.yaw(), spawn.pitch());
-    }
+  public static Location fromSpawn(@NotNull Spawn spawn) {
+    return new Location(spawn.world(), spawn.x(), spawn.y(), spawn.z(), spawn.yaw(), spawn.pitch());
+  }
 
-    public double distanceSquared(@NotNull Location other) {
-        if (!world.equals(other.world)) {
-            return Double.MAX_VALUE;
-        }
-        double dx = x - other.x;
-        double dy = y - other.y;
-        double dz = z - other.z;
-        return dx * dx + dy * dy + dz * dz;
+  public double distanceSquared(@NotNull Location other) {
+    if (!world.equals(other.world)) {
+      return Double.MAX_VALUE;
     }
+    double dx = x - other.x;
+    double dy = y - other.y;
+    double dz = z - other.z;
+    return dx * dx + dy * dy + dz * dz;
+  }
 }

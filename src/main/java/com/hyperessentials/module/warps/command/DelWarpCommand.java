@@ -19,43 +19,43 @@ import java.util.UUID;
  */
 public class DelWarpCommand extends AbstractPlayerCommand {
 
-    private final WarpManager warpManager;
+  private final WarpManager warpManager;
 
-    public DelWarpCommand(@NotNull WarpManager warpManager) {
-        super("delwarp", "Delete a server warp");
-        this.warpManager = warpManager;
-        addAliases("deletewarp", "rmwarp", "removewarp");
-        setAllowsExtraArguments(true);
+  public DelWarpCommand(@NotNull WarpManager warpManager) {
+    super("delwarp", "Delete a server warp");
+    this.warpManager = warpManager;
+    addAliases("deletewarp", "rmwarp", "removewarp");
+    setAllowsExtraArguments(true);
+  }
+
+  @Override
+  protected void execute(@NotNull CommandContext ctx,
+              @NotNull Store<EntityStore> store,
+              @NotNull Ref<EntityStore> ref,
+              @NotNull PlayerRef playerRef,
+              @NotNull World currentWorld) {
+
+    UUID uuid = playerRef.getUuid();
+
+    if (!CommandUtil.hasPermission(uuid, Permissions.WARP_DELETE)) {
+      ctx.sendMessage(CommandUtil.error("You don't have permission to delete warps."));
+      return;
     }
 
-    @Override
-    protected void execute(@NotNull CommandContext ctx,
-                          @NotNull Store<EntityStore> store,
-                          @NotNull Ref<EntityStore> ref,
-                          @NotNull PlayerRef playerRef,
-                          @NotNull World currentWorld) {
+    String input = ctx.getInputString();
+    String[] parts = input != null ? input.trim().split("\\s+") : new String[0];
 
-        UUID uuid = playerRef.getUuid();
-
-        if (!CommandUtil.hasPermission(uuid, Permissions.WARP_DELETE)) {
-            ctx.sendMessage(CommandUtil.error("You don't have permission to delete warps."));
-            return;
-        }
-
-        String input = ctx.getInputString();
-        String[] parts = input != null ? input.trim().split("\\s+") : new String[0];
-
-        if (parts.length < 2) {
-            ctx.sendMessage(CommandUtil.error("Usage: /delwarp <name>"));
-            return;
-        }
-
-        String warpName = parts[1].toLowerCase();
-
-        if (warpManager.deleteWarp(warpName)) {
-            ctx.sendMessage(CommandUtil.success("Warp '" + warpName + "' has been deleted."));
-        } else {
-            ctx.sendMessage(CommandUtil.error("Warp '" + warpName + "' not found."));
-        }
+    if (parts.length < 2) {
+      ctx.sendMessage(CommandUtil.error("Usage: /delwarp <name>"));
+      return;
     }
+
+    String warpName = parts[1].toLowerCase();
+
+    if (warpManager.deleteWarp(warpName)) {
+      ctx.sendMessage(CommandUtil.success("Warp '" + warpName + "' has been deleted."));
+    } else {
+      ctx.sendMessage(CommandUtil.error("Warp '" + warpName + "' not found."));
+    }
+  }
 }

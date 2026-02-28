@@ -9,7 +9,7 @@ import java.util.concurrent.CompletableFuture;
  */
 public interface HomeStorage {
 
-    // TODO: Define home CRUD operations when homes module is implemented
-    CompletableFuture<Void> init();
-    CompletableFuture<Void> shutdown();
+  // TODO: Define home CRUD operations when homes module is implemented
+  CompletableFuture<Void> init();
+  CompletableFuture<Void> shutdown();
 }

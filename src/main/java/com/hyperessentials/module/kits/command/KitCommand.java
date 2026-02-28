@@ -20,55 +20,55 @@ import org.jetbrains.annotations.NotNull;
  */
 public class KitCommand extends AbstractPlayerCommand {
 
-    private final KitsModule module;
+  private final KitsModule module;
 
-    public KitCommand(@NotNull KitsModule module) {
-        super("kit", "Claim a kit");
-        this.module = module;
-        setAllowsExtraArguments(true);
+  public KitCommand(@NotNull KitsModule module) {
+    super("kit", "Claim a kit");
+    this.module = module;
+    setAllowsExtraArguments(true);
+  }
+
+  @Override
+  protected void execute(@NotNull CommandContext ctx,
+              @NotNull Store<EntityStore> store,
+              @NotNull Ref<EntityStore> ref,
+              @NotNull PlayerRef playerRef,
+              @NotNull World world) {
+    if (!CommandUtil.hasPermission(playerRef.getUuid(), Permissions.KIT_USE)) {
+      ctx.sendMessage(CommandUtil.error("You don't have permission to use kits."));
+      return;
     }
 
-    @Override
-    protected void execute(@NotNull CommandContext ctx,
-                          @NotNull Store<EntityStore> store,
-                          @NotNull Ref<EntityStore> ref,
-                          @NotNull PlayerRef playerRef,
-                          @NotNull World world) {
-        if (!CommandUtil.hasPermission(playerRef.getUuid(), Permissions.KIT_USE)) {
-            ctx.sendMessage(CommandUtil.error("You don't have permission to use kits."));
-            return;
-        }
+    String input = ctx.getInputString();
+    String[] parts = input != null ? input.trim().split("\\s+") : new String[0];
 
-        String input = ctx.getInputString();
-        String[] parts = input != null ? input.trim().split("\\s+") : new String[0];
-
-        if (parts.length < 2) {
-            ctx.sendMessage(CommandUtil.error("Usage: /kit <name>"));
-            return;
-        }
-
-        String kitName = parts[1].toLowerCase();
-        KitManager manager = module.getKitManager();
-        Kit kit = manager.getKit(kitName);
-
-        if (kit == null) {
-            ctx.sendMessage(CommandUtil.error("Kit '" + kitName + "' not found."));
-            return;
-        }
-
-        KitManager.ClaimResult result = manager.claimKit(
-            playerRef.getUuid(), playerRef, store, ref, kit
-        );
-
-        switch (result) {
-            case SUCCESS -> ctx.sendMessage(CommandUtil.success("Kit '" + kit.displayName() + "' claimed!"));
-            case ON_COOLDOWN -> {
-                long remaining = manager.getRemainingCooldown(playerRef.getUuid(), kitName);
-                ctx.sendMessage(CommandUtil.error("Kit on cooldown. " + DurationParser.formatHuman(remaining) + " remaining."));
-            }
-            case ALREADY_CLAIMED -> ctx.sendMessage(CommandUtil.error("You have already claimed this one-time kit."));
-            case NO_PERMISSION -> ctx.sendMessage(CommandUtil.error("You don't have permission to use this kit."));
-            case KIT_NOT_FOUND -> ctx.sendMessage(CommandUtil.error("Kit '" + kitName + "' not found."));
-        }
+    if (parts.length < 2) {
+      ctx.sendMessage(CommandUtil.error("Usage: /kit <name>"));
+      return;
     }
+
+    String kitName = parts[1].toLowerCase();
+    KitManager manager = module.getKitManager();
+    Kit kit = manager.getKit(kitName);
+
+    if (kit == null) {
+      ctx.sendMessage(CommandUtil.error("Kit '" + kitName + "' not found."));
+      return;
+    }
+
+    KitManager.ClaimResult result = manager.claimKit(
+      playerRef.getUuid(), playerRef, store, ref, kit
+    );
+
+    switch (result) {
+      case SUCCESS -> ctx.sendMessage(CommandUtil.success("Kit '" + kit.displayName() + "' claimed!"));
+      case ON_COOLDOWN -> {
+        long remaining = manager.getRemainingCooldown(playerRef.getUuid(), kitName);
+        ctx.sendMessage(CommandUtil.error("Kit on cooldown. " + DurationParser.formatHuman(remaining) + " remaining."));
+      }
+      case ALREADY_CLAIMED -> ctx.sendMessage(CommandUtil.error("You have already claimed this one-time kit."));
+      case NO_PERMISSION -> ctx.sendMessage(CommandUtil.error("You don't have permission to use this kit."));
+      case KIT_NOT_FOUND -> ctx.sendMessage(CommandUtil.error("Kit '" + kitName + "' not found."));
+    }
+  }
 }

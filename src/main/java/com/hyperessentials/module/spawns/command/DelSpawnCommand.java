@@ -19,43 +19,43 @@ import java.util.UUID;
  */
 public class DelSpawnCommand extends AbstractPlayerCommand {
 
-    private final SpawnManager spawnManager;
+  private final SpawnManager spawnManager;
 
-    public DelSpawnCommand(@NotNull SpawnManager spawnManager) {
-        super("delspawn", "Delete a spawn");
-        this.spawnManager = spawnManager;
-        addAliases("deletespawn", "rmspawn", "removespawn");
-        setAllowsExtraArguments(true);
+  public DelSpawnCommand(@NotNull SpawnManager spawnManager) {
+    super("delspawn", "Delete a spawn");
+    this.spawnManager = spawnManager;
+    addAliases("deletespawn", "rmspawn", "removespawn");
+    setAllowsExtraArguments(true);
+  }
+
+  @Override
+  protected void execute(@NotNull CommandContext ctx,
+              @NotNull Store<EntityStore> store,
+              @NotNull Ref<EntityStore> ref,
+              @NotNull PlayerRef playerRef,
+              @NotNull World currentWorld) {
+
+    UUID uuid = playerRef.getUuid();
+
+    if (!CommandUtil.hasPermission(uuid, Permissions.SPAWN_DELETE)) {
+      ctx.sendMessage(CommandUtil.error("You don't have permission to delete spawns."));
+      return;
     }
 
-    @Override
-    protected void execute(@NotNull CommandContext ctx,
-                          @NotNull Store<EntityStore> store,
-                          @NotNull Ref<EntityStore> ref,
-                          @NotNull PlayerRef playerRef,
-                          @NotNull World currentWorld) {
+    String input = ctx.getInputString();
+    String[] parts = input != null ? input.trim().split("\\s+") : new String[0];
 
-        UUID uuid = playerRef.getUuid();
-
-        if (!CommandUtil.hasPermission(uuid, Permissions.SPAWN_DELETE)) {
-            ctx.sendMessage(CommandUtil.error("You don't have permission to delete spawns."));
-            return;
-        }
-
-        String input = ctx.getInputString();
-        String[] parts = input != null ? input.trim().split("\\s+") : new String[0];
-
-        if (parts.length < 2) {
-            ctx.sendMessage(CommandUtil.error("Usage: /delspawn <name>"));
-            return;
-        }
-
-        String spawnName = parts[1].toLowerCase();
-
-        if (spawnManager.deleteSpawn(spawnName)) {
-            ctx.sendMessage(CommandUtil.success("Spawn '" + spawnName + "' has been deleted."));
-        } else {
-            ctx.sendMessage(CommandUtil.error("Spawn '" + spawnName + "' not found."));
-        }
+    if (parts.length < 2) {
+      ctx.sendMessage(CommandUtil.error("Usage: /delspawn <name>"));
+      return;
     }
+
+    String spawnName = parts[1].toLowerCase();
+
+    if (spawnManager.deleteSpawn(spawnName)) {
+      ctx.sendMessage(CommandUtil.success("Spawn '" + spawnName + "' has been deleted."));
+    } else {
+      ctx.sendMessage(CommandUtil.error("Spawn '" + spawnName + "' not found."));
+    }
+  }
 }

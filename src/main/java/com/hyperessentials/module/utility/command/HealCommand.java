@@ -20,67 +20,67 @@ import org.jetbrains.annotations.NotNull;
  */
 public class HealCommand extends AbstractPlayerCommand {
 
-    public HealCommand() {
-        super("heal", "Heal a player to full health");
-        setAllowsExtraArguments(true);
+  public HealCommand() {
+    super("heal", "Heal a player to full health");
+    setAllowsExtraArguments(true);
+  }
+
+  @Override
+  protected void execute(@NotNull CommandContext ctx,
+              @NotNull Store<EntityStore> store,
+              @NotNull Ref<EntityStore> ref,
+              @NotNull PlayerRef playerRef,
+              @NotNull World world) {
+    if (!CommandUtil.hasPermission(playerRef.getUuid(), Permissions.UTILITY_HEAL)) {
+      ctx.sendMessage(CommandUtil.error("You don't have permission to heal."));
+      return;
     }
 
-    @Override
-    protected void execute(@NotNull CommandContext ctx,
-                          @NotNull Store<EntityStore> store,
-                          @NotNull Ref<EntityStore> ref,
-                          @NotNull PlayerRef playerRef,
-                          @NotNull World world) {
-        if (!CommandUtil.hasPermission(playerRef.getUuid(), Permissions.UTILITY_HEAL)) {
-            ctx.sendMessage(CommandUtil.error("You don't have permission to heal."));
-            return;
-        }
+    String input = ctx.getInputString();
+    String[] parts = input != null ? input.trim().split("\\s+") : new String[0];
 
-        String input = ctx.getInputString();
-        String[] parts = input != null ? input.trim().split("\\s+") : new String[0];
+    if (parts.length >= 2) {
+      if (!CommandUtil.hasPermission(playerRef.getUuid(), Permissions.UTILITY_HEAL_OTHERS)) {
+        ctx.sendMessage(CommandUtil.error("You don't have permission to heal others."));
+        return;
+      }
 
-        if (parts.length >= 2) {
-            if (!CommandUtil.hasPermission(playerRef.getUuid(), Permissions.UTILITY_HEAL_OTHERS)) {
-                ctx.sendMessage(CommandUtil.error("You don't have permission to heal others."));
-                return;
-            }
+      PlayerRef target = CommandUtil.findOnlinePlayer(parts[1]);
+      if (target == null) {
+        ctx.sendMessage(CommandUtil.error("Player '" + parts[1] + "' is not online."));
+        return;
+      }
 
-            PlayerRef target = CommandUtil.findOnlinePlayer(parts[1]);
-            if (target == null) {
-                ctx.sendMessage(CommandUtil.error("Player '" + parts[1] + "' is not online."));
-                return;
-            }
-
-            // For targeting other players, we'd need their store/ref — heal self for now
-            // TODO: Resolve target's store/ref for cross-player healing
-            healPlayer(store, ref);
-            ctx.sendMessage(CommandUtil.success("Healed " + target.getUsername() + "."));
-            target.sendMessage(CommandUtil.success("You have been healed."));
-        } else {
-            healPlayer(store, ref);
-            ctx.sendMessage(CommandUtil.success("You have been healed."));
-        }
+      // For targeting other players, we'd need their store/ref — heal self for now
+      // TODO: Resolve target's store/ref for cross-player healing
+      healPlayer(store, ref);
+      ctx.sendMessage(CommandUtil.success("Healed " + target.getUsername() + "."));
+      target.sendMessage(CommandUtil.success("You have been healed."));
+    } else {
+      healPlayer(store, ref);
+      ctx.sendMessage(CommandUtil.success("You have been healed."));
     }
+  }
 
-    private void healPlayer(@NotNull Store<EntityStore> store, @NotNull Ref<EntityStore> ref) {
-        try {
-            // Access EntityStatMap via EntityStatsModule component type
-            // Following pattern from built-in EntityStatsSetToMaxCommand
-            EntityStatMap statMap = store.getComponent(ref,
-                EntityStatsModule.get().getEntityStatMapComponentType());
-            if (statMap != null) {
-                // Maximize all stat values (health, stamina, etc.)
-                int statCount = statMap.size();
-                for (int i = 0; i < statCount; i++) {
-                    try {
-                        statMap.maximizeStatValue(i);
-                    } catch (Exception ignored) {
-                        // Some stats may not support maximization
-                    }
-                }
-            }
-        } catch (Exception e) {
-            Logger.debug("[Utility] Failed to heal via EntityStatsModule: %s", e.getMessage());
+  private void healPlayer(@NotNull Store<EntityStore> store, @NotNull Ref<EntityStore> ref) {
+    try {
+      // Access EntityStatMap via EntityStatsModule component type
+      // Following pattern from built-in EntityStatsSetToMaxCommand
+      EntityStatMap statMap = store.getComponent(ref,
+        EntityStatsModule.get().getEntityStatMapComponentType());
+      if (statMap != null) {
+        // Maximize all stat values (health, stamina, etc.)
+        int statCount = statMap.size();
+        for (int i = 0; i < statCount; i++) {
+          try {
+            statMap.maximizeStatValue(i);
+          } catch (Exception ignored) {
+            // Some stats may not support maximization
+          }
         }
+      }
+    } catch (Exception e) {
+      Logger.debug("[Utility] Failed to heal via EntityStatsModule: %s", e.getMessage());
     }
+  }
 }

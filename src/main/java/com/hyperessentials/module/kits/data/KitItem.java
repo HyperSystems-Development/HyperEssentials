@@ -10,11 +10,11 @@ import org.jetbrains.annotations.NotNull;
  * @param slot     the target slot index, or -1 for first available
  */
 public record KitItem(
-    @NotNull String itemId,
-    int quantity,
-    int slot
+  @NotNull String itemId,
+  int quantity,
+  int slot
 ) {
-    public KitItem {
-        if (quantity < 1) quantity = 1;
-    }
+  public KitItem {
+    if (quantity < 1) quantity = 1;
+  }
 }
