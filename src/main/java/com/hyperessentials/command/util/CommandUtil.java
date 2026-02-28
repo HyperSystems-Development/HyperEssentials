@@ -2,8 +2,11 @@ package com.hyperessentials.command.util;
 
 import com.hyperessentials.config.ConfigManager;
 import com.hyperessentials.integration.PermissionManager;
+import com.hyperessentials.platform.HyperEssentialsPlugin;
 import com.hypixel.hytale.server.core.Message;
+import com.hypixel.hytale.server.core.universe.PlayerRef;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 
@@ -75,5 +78,17 @@ public final class CommandUtil {
             return minutes + " minute" + (minutes == 1 ? "" : "s");
         }
         return minutes + "m " + seconds + "s";
+    }
+
+    /**
+     * Finds an online player by name (case-insensitive).
+     *
+     * @param name the player name
+     * @return the PlayerRef if found online, null otherwise
+     */
+    @Nullable
+    public static PlayerRef findOnlinePlayer(@NotNull String name) {
+        HyperEssentialsPlugin plugin = HyperEssentialsPlugin.getInstance();
+        return plugin != null ? plugin.findOnlinePlayer(name) : null;
     }
 }

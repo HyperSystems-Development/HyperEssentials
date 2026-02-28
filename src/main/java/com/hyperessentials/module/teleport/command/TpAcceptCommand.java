@@ -154,7 +154,7 @@ public class TpAcceptCommand extends AbstractPlayerCommand {
 
     private PlayerRef findPlayer(String name) {
         HyperEssentialsPlugin plugin = HyperEssentialsPlugin.getInstance();
-        return plugin != null ? plugin.findPlayerByUsername(name) : null;
+        return plugin != null ? plugin.findOnlinePlayer(name) : null;
     }
 
     private PlayerRef findPlayerByUuid(UUID uuid) {
