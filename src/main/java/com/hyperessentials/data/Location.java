@@ -28,6 +28,10 @@ public record Location(
     return new Location(spawn.world(), spawn.x(), spawn.y(), spawn.z(), spawn.yaw(), spawn.pitch());
   }
 
+  public static Location fromHome(@NotNull Home home) {
+    return new Location(home.world(), home.x(), home.y(), home.z(), home.yaw(), home.pitch());
+  }
+
   public double distanceSquared(@NotNull Location other) {
     if (!world.equals(other.world)) {
       return Double.MAX_VALUE;
