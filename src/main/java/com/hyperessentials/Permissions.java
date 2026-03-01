@@ -120,6 +120,7 @@ public final class Permissions {
   public static final String ADMIN_WILDCARD = ADMIN + ".*";
   public static final String ADMIN_RELOAD = ADMIN + ".reload";
   public static final String ADMIN_SETTINGS = ADMIN + ".settings";
+  public static final String ADMIN_GUI = ADMIN + ".gui";
 
   // === RTP ===
   public static final String RTP = ROOT + ".rtp";

@@ -9,6 +9,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+#### GUI Foundation Infrastructure
+- `GuiColors` — centralized semantic color constants (brand gold, text, status, backgrounds, dividers)
+- `UIPaths` — centralized UI template path constants for all shared, player, and admin pages
+- `PlayerPageData` — BuilderCodec for player page events (Button, NavTarget, Target, Page)
+- `AdminPageData` — BuilderCodec for admin page events (Button, NavTarget, Target, Value, Filter, Page)
+- `PlayerPageOpener` / `AdminPageOpener` — static utilities to resolve and open pages from registries
+- `GuiManager.openPlayerPage()` / `openAdminPage()` — convenience methods for page opening
+- `NavBarHelper.setupAdminBar()` — admin nav bar variant with "HE Admin" title
+- `NavBarHelper.handleNavEvent()` — overload with `GuiType` for admin/player nav routing
+- `UIHelper.formatPlaytime()` — human-readable playtime formatting (Xd Xh Xm)
+- `hyperessentials.admin.gui` permission node for admin panel access
+- `/he` (no args) now opens player dashboard GUI (falls back to help text if no pages registered)
+- `/he admin` opens admin dashboard GUI (requires `admin.gui` permission)
+- Shared `.ui` templates: `styles.ui` (HyperFactions-quality TextButtonStyle definitions), `empty_state.ui`, `confirm_modal.ui`, `stat_row.ui`
+
 #### New Utility Commands
 - `/motd` — display configurable message of the day
 - `/rules` — display server rules

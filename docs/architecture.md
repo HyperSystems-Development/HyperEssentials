@@ -113,14 +113,23 @@ com.hyperessentials/
       VanishModule.java         Standalone vanish module (stub, not yet implemented)
 
   gui/
-    GuiManager.java             Central GUI hub
+    GuiManager.java             Central GUI hub (openPlayerPage, openAdminPage)
+    GuiColors.java              Semantic color constants (brand, text, status, backgrounds)
+    UIPaths.java                Centralized UI template path constants
     PageRegistry.java           Dynamic page registration
-    NavBarHelper.java           Shared navigation bar
+    NavBarHelper.java           Shared navigation bar (player + admin variants)
+    PlayerPageOpener.java       Static utility to open player pages
+    AdminPageOpener.java        Static utility to open admin pages
     ActivePageTracker.java      Player-to-page tracking
-    UIHelper.java               Formatting utilities
+    UIHelper.java               Formatting utilities (coords, duration, playtime)
     RefreshablePage.java        Push-refresh interface
     PageSupplier.java           Page factory interface
     GuiType.java                PLAYER / ADMIN enum
+    data/
+      PlayerPageData.java       BuilderCodec for player page events
+      AdminPageData.java        BuilderCodec for admin page events
+    player/                     Player page implementations (Phase 2-3)
+    admin/                      Admin page implementations (Phase 4-5)
 
   storage/
     StorageProvider.java        Top-level storage interface

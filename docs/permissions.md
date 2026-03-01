@@ -136,3 +136,4 @@ Individual warps can also have custom permission nodes set via `/setwarp`.
 | `hyperessentials.admin.*` | All admin permissions |
 | `hyperessentials.admin.reload` | Reload configuration |
 | `hyperessentials.admin.settings` | Modify settings |
+| `hyperessentials.admin.gui` | Access admin GUI panel (`/he admin`) |

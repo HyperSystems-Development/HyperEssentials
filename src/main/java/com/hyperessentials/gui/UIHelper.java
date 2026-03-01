@@ -125,6 +125,21 @@ public final class UIHelper {
     return limit < 0 ? "\u221E" : String.valueOf(limit);
   }
 
+  public static String formatPlaytime(long ms) {
+    long totalSeconds = ms / 1000;
+    long days = totalSeconds / 86400;
+    long hours = (totalSeconds % 86400) / 3600;
+    long minutes = (totalSeconds % 3600) / 60;
+
+    if (days > 0) {
+      return days + "d " + hours + "h " + minutes + "m";
+    } else if (hours > 0) {
+      return hours + "h " + minutes + "m";
+    } else {
+      return minutes + "m";
+    }
+  }
+
   public static Message parseColorCodes(String text) {
     if (text == null || text.isEmpty()) {
       return Message.raw("");

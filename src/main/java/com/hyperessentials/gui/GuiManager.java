@@ -1,5 +1,10 @@
 package com.hyperessentials.gui;
 
+import com.hypixel.hytale.component.Ref;
+import com.hypixel.hytale.component.Store;
+import com.hypixel.hytale.server.core.entity.entities.Player;
+import com.hypixel.hytale.server.core.universe.PlayerRef;
+import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -34,6 +39,36 @@ public class GuiManager {
   @NotNull
   public ActivePageTracker getPageTracker() {
     return pageTracker;
+  }
+
+  /**
+   * Opens a player page by ID.
+   *
+   * @return true if the page was opened successfully
+   */
+  public boolean openPlayerPage(
+      @NotNull String pageId,
+      @NotNull Player player,
+      @NotNull Ref<EntityStore> ref,
+      @NotNull Store<EntityStore> store,
+      @NotNull PlayerRef playerRef
+  ) {
+    return PlayerPageOpener.open(pageId, player, ref, store, playerRef, this);
+  }
+
+  /**
+   * Opens an admin page by ID.
+   *
+   * @return true if the page was opened successfully
+   */
+  public boolean openAdminPage(
+      @NotNull String pageId,
+      @NotNull Player player,
+      @NotNull Ref<EntityStore> ref,
+      @NotNull Store<EntityStore> store,
+      @NotNull PlayerRef playerRef
+  ) {
+    return AdminPageOpener.open(pageId, player, ref, store, playerRef, this);
   }
 
   /**

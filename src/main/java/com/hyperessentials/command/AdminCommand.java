@@ -5,12 +5,14 @@ import com.hyperessentials.Permissions;
 import com.hyperessentials.api.HyperEssentialsAPI;
 import com.hyperessentials.command.util.CommandUtil;
 import com.hyperessentials.config.ConfigManager;
+import com.hyperessentials.gui.GuiManager;
 import com.hyperessentials.module.spawns.SpawnManager;
 import com.hyperessentials.module.spawns.SpawnsModule;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.server.core.command.system.CommandContext;
 import com.hypixel.hytale.server.core.command.system.basecommands.AbstractPlayerCommand;
+import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
@@ -48,7 +50,8 @@ public class AdminCommand extends AbstractPlayerCommand {
       case "importspawns" -> handleImportSpawns(ctx, playerRef);
       case "version", "ver" -> showVersion(ctx);
       case "help" -> showFullHelp(ctx);
-      default -> showHelp(ctx);
+      case "admin" -> openAdminGui(ctx, store, ref, playerRef);
+      default -> openPlayerGui(ctx, store, ref, playerRef);
     }
   }
 
@@ -131,6 +134,63 @@ public class AdminCommand extends AbstractPlayerCommand {
       ctx.sendMessage(CommandUtil.msg("[Announcements] /broadcast, /announce", CommandUtil.COLOR_AQUA));
     }
     ctx.sendMessage(CommandUtil.msg("[Admin] /he reload | version | help | importspawns", CommandUtil.COLOR_AQUA));
+  }
+
+  private void openPlayerGui(@NotNull CommandContext ctx,
+                             @NotNull Store<EntityStore> store,
+                             @NotNull Ref<EntityStore> ref,
+                             @NotNull PlayerRef playerRef) {
+    if (!HyperEssentialsAPI.isAvailable()) {
+      showHelp(ctx);
+      return;
+    }
+
+    GuiManager guiManager = HyperEssentialsAPI.getInstance().getGuiManager();
+    if (guiManager.getPlayerRegistry().getEntries().isEmpty()) {
+      showHelp(ctx);
+      return;
+    }
+
+    Player player = store.getComponent(ref, Player.getComponentType());
+    if (player == null) {
+      showHelp(ctx);
+      return;
+    }
+
+    if (!guiManager.openPlayerPage("dashboard", player, ref, store, playerRef)) {
+      showHelp(ctx);
+    }
+  }
+
+  private void openAdminGui(@NotNull CommandContext ctx,
+                            @NotNull Store<EntityStore> store,
+                            @NotNull Ref<EntityStore> ref,
+                            @NotNull PlayerRef playerRef) {
+    if (!CommandUtil.hasPermission(playerRef.getUuid(), Permissions.ADMIN_GUI)) {
+      ctx.sendMessage(CommandUtil.error("You don't have permission to access the admin panel."));
+      return;
+    }
+
+    if (!HyperEssentialsAPI.isAvailable()) {
+      ctx.sendMessage(CommandUtil.error("HyperEssentials is not initialized."));
+      return;
+    }
+
+    GuiManager guiManager = HyperEssentialsAPI.getInstance().getGuiManager();
+    if (guiManager.getAdminRegistry().getEntries().isEmpty()) {
+      ctx.sendMessage(CommandUtil.error("No admin pages are registered."));
+      return;
+    }
+
+    Player player = store.getComponent(ref, Player.getComponentType());
+    if (player == null) {
+      ctx.sendMessage(CommandUtil.error("Could not resolve player."));
+      return;
+    }
+
+    if (!guiManager.openAdminPage("admin_dashboard", player, ref, store, playerRef)) {
+      ctx.sendMessage(CommandUtil.error("Could not open admin dashboard."));
+    }
   }
 
   private boolean isModuleEnabled(@NotNull String name) {

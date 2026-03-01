@@ -1,38 +1,181 @@
+// HyperEssentials Shared Styles
+// Centralized style definitions for consistent UI appearance
+// Brand colors: Gold (#FFAA00)
+
 $C = "../../Common.ui";
 
+// =============================================================================
+// COLORS
+// =============================================================================
 @ColorGold = #FFAA00;
-@ColorGreen = #55FF55;
-@ColorRed = #FF5555;
+@ColorGoldLight = #FFD700;
+@ColorGoldDark = #CC8800;
+@ColorGreen = #44cc44;
+@ColorRed = #ff5555;
 @ColorAqua = #55FFFF;
 @ColorGray = #7c8b99;
 @ColorWhite = #FFFFFF;
+@ColorMuted = #888888;
 @ColorBgDark = #0a1119;
-@ColorBgLight = #141c26;
+@ColorBgPanel = #141c26;
+@ColorBgCard = #1a2a3a;
+@ColorBgNav = #16212f;
+@ColorDivider = #2a3a4a;
 
-@ButtonLabelStyle = LabelStyle {
-    FontSize: 14;
-    TextColor: @ColorWhite;
-};
+// =============================================================================
+// LABEL STYLES
+// =============================================================================
 
-@GreenLabelStyle = LabelStyle {
-    FontSize: 14;
-    TextColor: @ColorGreen;
-};
+@ButtonLabelStyle = LabelStyle(
+  FontSize: 13,
+  TextColor: #bfcdd5,
+  RenderBold: true,
+  HorizontalAlignment: Center,
+  VerticalAlignment: Center
+);
 
-@GoldLabelStyle = LabelStyle {
-    FontSize: 14;
-    TextColor: @ColorGold;
-};
+@GoldLabelStyle = LabelStyle(
+  FontSize: 13,
+  TextColor: #FFAA00,
+  RenderBold: true,
+  HorizontalAlignment: Center,
+  VerticalAlignment: Center
+);
 
-@SmallLabelStyle = LabelStyle {
-    FontSize: 12;
-    TextColor: @ColorGray;
-};
+@GreenLabelStyle = LabelStyle(
+  FontSize: 13,
+  TextColor: #44cc44,
+  RenderBold: true,
+  HorizontalAlignment: Center,
+  VerticalAlignment: Center
+);
 
-@ButtonStyle = ButtonStyle {
-    Default: $C.@TextButtonDefaultBackground;
-    Hovered: $C.@TextButtonHoveredBackground;
-    Pressed: $C.@TextButtonPressedBackground;
-    Disabled: $C.@TextButtonDisabledBackground;
-    LabelStyle: @ButtonLabelStyle;
-};
+@RedLabelStyle = LabelStyle(
+  FontSize: 13,
+  TextColor: #ff5555,
+  RenderBold: true,
+  HorizontalAlignment: Center,
+  VerticalAlignment: Center
+);
+
+@AquaLabelStyle = LabelStyle(
+  FontSize: 13,
+  TextColor: #55FFFF,
+  RenderBold: true,
+  HorizontalAlignment: Center,
+  VerticalAlignment: Center
+);
+
+@DisabledLabelStyle = LabelStyle(
+  FontSize: 13,
+  TextColor: #555555,
+  RenderBold: true,
+  HorizontalAlignment: Center,
+  VerticalAlignment: Center
+);
+
+@FlatWhiteLabelStyle = LabelStyle(
+  FontSize: 13,
+  TextColor: #FFFFFF,
+  RenderBold: true,
+  HorizontalAlignment: Center,
+  VerticalAlignment: Center
+);
+
+// =============================================================================
+// BUTTON STYLES
+// =============================================================================
+
+// Standard button style - native backgrounds with controlled font size
+@ButtonStyle = TextButtonStyle(
+  Default: (Background: $C.@DefaultSquareButtonDefaultBackground, LabelStyle: @ButtonLabelStyle),
+  Hovered: (Background: $C.@DefaultSquareButtonHoveredBackground, LabelStyle: @ButtonLabelStyle),
+  Pressed: (Background: $C.@DefaultSquareButtonPressedBackground, LabelStyle: @ButtonLabelStyle),
+  Disabled: (Background: $C.@DefaultSquareButtonDisabledBackground, LabelStyle: @ButtonLabelStyle),
+  Sounds: $C.@ButtonSounds,
+);
+
+// Gold text button style (brand accent)
+@GoldButtonStyle = TextButtonStyle(
+  Default: (Background: $C.@DefaultSquareButtonDefaultBackground, LabelStyle: @GoldLabelStyle),
+  Hovered: (Background: $C.@DefaultSquareButtonHoveredBackground, LabelStyle: @GoldLabelStyle),
+  Pressed: (Background: $C.@DefaultSquareButtonPressedBackground, LabelStyle: @GoldLabelStyle),
+  Disabled: (Background: $C.@DefaultSquareButtonDisabledBackground, LabelStyle: @GoldLabelStyle),
+  Sounds: $C.@ButtonSounds,
+);
+
+// Green text button style (success/confirm actions)
+@GreenButtonStyle = TextButtonStyle(
+  Default: (Background: $C.@DefaultSquareButtonDefaultBackground, LabelStyle: @GreenLabelStyle),
+  Hovered: (Background: $C.@DefaultSquareButtonHoveredBackground, LabelStyle: @GreenLabelStyle),
+  Pressed: (Background: $C.@DefaultSquareButtonPressedBackground, LabelStyle: @GreenLabelStyle),
+  Disabled: (Background: $C.@DefaultSquareButtonDisabledBackground, LabelStyle: @GreenLabelStyle),
+  Sounds: $C.@ButtonSounds,
+);
+
+// Red text button style (danger/delete actions)
+@RedButtonStyle = TextButtonStyle(
+  Default: (Background: $C.@DefaultSquareButtonDefaultBackground, LabelStyle: @RedLabelStyle),
+  Hovered: (Background: $C.@DefaultSquareButtonHoveredBackground, LabelStyle: @RedLabelStyle),
+  Pressed: (Background: $C.@DefaultSquareButtonPressedBackground, LabelStyle: @RedLabelStyle),
+  Disabled: (Background: $C.@DefaultSquareButtonDisabledBackground, LabelStyle: @RedLabelStyle),
+  Sounds: $C.@ButtonSounds,
+);
+
+// Aqua text button style (info actions)
+@AquaButtonStyle = TextButtonStyle(
+  Default: (Background: $C.@DefaultSquareButtonDefaultBackground, LabelStyle: @AquaLabelStyle),
+  Hovered: (Background: $C.@DefaultSquareButtonHoveredBackground, LabelStyle: @AquaLabelStyle),
+  Pressed: (Background: $C.@DefaultSquareButtonPressedBackground, LabelStyle: @AquaLabelStyle),
+  Disabled: (Background: $C.@DefaultSquareButtonDisabledBackground, LabelStyle: @AquaLabelStyle),
+  Sounds: $C.@ButtonSounds,
+);
+
+// Invisible button style - transparent background for click overlays
+@InvisibleButtonStyle = TextButtonStyle(
+  Default: (Background: (Color: #00000000), LabelStyle: @ButtonLabelStyle),
+  Hovered: (Background: (Color: #00000000), LabelStyle: @ButtonLabelStyle),
+  Pressed: (Background: (Color: #00000000), LabelStyle: @ButtonLabelStyle),
+  Disabled: (Background: (Color: #00000000), LabelStyle: @ButtonLabelStyle),
+  Sounds: $C.@ButtonSounds,
+);
+
+// Disabled button style - grayed out, non-interactive
+@DisabledButtonStyle = TextButtonStyle(
+  Default: (Background: $C.@DefaultSquareButtonDisabledBackground, LabelStyle: @DisabledLabelStyle),
+  Hovered: (Background: $C.@DefaultSquareButtonDisabledBackground, LabelStyle: @DisabledLabelStyle),
+  Pressed: (Background: $C.@DefaultSquareButtonDisabledBackground, LabelStyle: @DisabledLabelStyle),
+  Disabled: (Background: $C.@DefaultSquareButtonDisabledBackground, LabelStyle: @DisabledLabelStyle),
+  Sounds: $C.@ButtonSounds,
+);
+
+// =============================================================================
+// FLAT COLOR BUTTON STYLES (solid color backgrounds, no texture)
+// =============================================================================
+
+// Flat red button (destructive actions like delete/ban)
+@FlatRedButtonStyle = TextButtonStyle(
+  Default: (Background: (Color: #CC3344), LabelStyle: @FlatWhiteLabelStyle),
+  Hovered: (Background: (Color: #DD4455), LabelStyle: @FlatWhiteLabelStyle),
+  Pressed: (Background: (Color: #AA2233), LabelStyle: @FlatWhiteLabelStyle),
+  Disabled: (Background: (Color: #553333), LabelStyle: @FlatWhiteLabelStyle),
+  Sounds: $C.@ButtonSounds,
+);
+
+// Flat green button (confirm actions)
+@FlatGreenButtonStyle = TextButtonStyle(
+  Default: (Background: (Color: #2d8c3c), LabelStyle: @FlatWhiteLabelStyle),
+  Hovered: (Background: (Color: #3da04c), LabelStyle: @FlatWhiteLabelStyle),
+  Pressed: (Background: (Color: #1d7c2c), LabelStyle: @FlatWhiteLabelStyle),
+  Disabled: (Background: (Color: #335533), LabelStyle: @FlatWhiteLabelStyle),
+  Sounds: $C.@ButtonSounds,
+);
+
+// Flat gold button (brand accent actions)
+@FlatGoldButtonStyle = TextButtonStyle(
+  Default: (Background: (Color: #996600), LabelStyle: @FlatWhiteLabelStyle),
+  Hovered: (Background: (Color: #AA7700), LabelStyle: @FlatWhiteLabelStyle),
+  Pressed: (Background: (Color: #885500), LabelStyle: @FlatWhiteLabelStyle),
+  Disabled: (Background: (Color: #554400), LabelStyle: @FlatWhiteLabelStyle),
+  Sounds: $C.@ButtonSounds,
+);
