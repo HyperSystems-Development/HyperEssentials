@@ -61,6 +61,7 @@ public final class Permissions {
   public static final String MODERATION_FREEZE = ROOT + ".moderation.freeze";
   public static final String MODERATION_VANISH = ROOT + ".moderation.vanish";
   public static final String MODERATION_HISTORY = ROOT + ".moderation.history";
+  public static final String MODERATION_IPBAN = ROOT + ".moderation.ipban";
 
   // === Utility ===
   public static final String UTILITY_WILDCARD = ROOT + ".utility.*";
@@ -75,7 +76,18 @@ public final class Permissions {
   public static final String UTILITY_CLEARINVENTORY = ROOT + ".utility.clearinventory";
   public static final String UTILITY_CLEARINVENTORY_OTHERS = ROOT + ".utility.clearinventory.others";
   public static final String UTILITY_REPAIR = ROOT + ".utility.repair";
+  public static final String UTILITY_DURABILITY = ROOT + ".utility.durability";
   public static final String UTILITY_NEAR = ROOT + ".utility.near";
+  public static final String UTILITY_MOTD = ROOT + ".utility.motd";
+  public static final String UTILITY_PLAYTIME = ROOT + ".utility.playtime";
+  public static final String UTILITY_JOINDATE = ROOT + ".utility.joindate";
+  public static final String UTILITY_AFK = ROOT + ".utility.afk";
+  public static final String UTILITY_INVSEE = ROOT + ".utility.invsee";
+  public static final String UTILITY_STAMINA = ROOT + ".utility.stamina";
+  public static final String UTILITY_STAMINA_OTHERS = ROOT + ".utility.stamina.others";
+  public static final String UTILITY_TRASH = ROOT + ".utility.trash";
+  public static final String UTILITY_MAXSTACK = ROOT + ".utility.maxstack";
+  public static final String UTILITY_SLEEPPERCENTAGE = ROOT + ".utility.sleeppercentage";
 
   // === Announcements ===
   public static final String ANNOUNCE_WILDCARD = ROOT + ".announce.*";

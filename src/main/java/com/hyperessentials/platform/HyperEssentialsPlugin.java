@@ -211,6 +211,9 @@ public class HyperEssentialsPlugin extends JavaPlugin {
     PlayerRef playerRef = event.getPlayerRef();
     trackedPlayers.put(playerRef.getUuid(), playerRef);
 
+    // Notify connect handlers
+    hyperEssentials.onPlayerConnect(playerRef.getUuid(), playerRef.getUsername());
+
     // Load home data
     HomesModule homesModule = hyperEssentials.getHomesModule();
     if (homesModule != null && homesModule.isEnabled() && homesModule.getHomeManager() != null) {

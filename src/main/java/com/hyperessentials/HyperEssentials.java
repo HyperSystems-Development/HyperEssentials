@@ -30,6 +30,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 /**
@@ -48,6 +49,7 @@ public class HyperEssentials {
   private StorageProvider storageProvider;
   private VaultEconomyProvider vaultEconomy;
   private final CopyOnWriteArrayList<Consumer<UUID>> disconnectHandlers = new CopyOnWriteArrayList<>();
+  private final CopyOnWriteArrayList<BiConsumer<UUID, String>> connectHandlers = new CopyOnWriteArrayList<>();
 
   public HyperEssentials(@NotNull Path dataDir, @NotNull HytaleLogger hytaleLogger) {
     this.dataDir = dataDir;
@@ -131,9 +133,9 @@ public class HyperEssentials {
       guiManager.shutdown();
     }
 
-    // Clear warmup state
+    // Shutdown warmup scheduler
     if (warmupManager != null) {
-      warmupManager.clear();
+      warmupManager.shutdown();
     }
 
     // Save config
@@ -233,6 +235,35 @@ public class HyperEssentials {
    */
   public boolean isModuleEnabled(@NotNull String name) {
     return ConfigManager.get().isModuleEnabled(name);
+  }
+
+  /**
+   * Registers a handler that is called when a player connects.
+   * Handler receives (UUID, username).
+   */
+  public void registerConnectHandler(@NotNull BiConsumer<UUID, String> handler) {
+    connectHandlers.add(handler);
+  }
+
+  /**
+   * Unregisters a connect handler.
+   */
+  public void unregisterConnectHandler(@NotNull BiConsumer<UUID, String> handler) {
+    connectHandlers.remove(handler);
+  }
+
+  /**
+   * Called by the plugin when a player connects.
+   * Notifies all registered connect handlers.
+   */
+  public void onPlayerConnect(@NotNull UUID uuid, @NotNull String username) {
+    for (BiConsumer<UUID, String> handler : connectHandlers) {
+      try {
+        handler.accept(uuid, username);
+      } catch (Exception e) {
+        Logger.severe("Error in connect handler: %s", e.getMessage());
+      }
+    }
   }
 
   /**
