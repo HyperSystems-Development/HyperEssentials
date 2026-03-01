@@ -3,6 +3,10 @@ package com.hyperessentials;
 import com.hyperessentials.config.ConfigManager;
 import com.hyperessentials.gui.GuiManager;
 import com.hyperessentials.gui.PageRegistry;
+import com.hyperessentials.gui.admin.AdminDashboardPage;
+import com.hyperessentials.gui.admin.AdminKitsPage;
+import com.hyperessentials.gui.admin.AdminSpawnsPage;
+import com.hyperessentials.gui.admin.AdminWarpsPage;
 import com.hyperessentials.gui.player.HomesPage;
 import com.hyperessentials.gui.player.KitsPage;
 import com.hyperessentials.gui.player.PlayerDashboardPage;
@@ -267,6 +271,53 @@ public class HyperEssentials {
     int pageCount = playerReg.getEntries().size();
     if (pageCount > 0) {
       Logger.info("[GUI] Registered %d player page(s)", pageCount);
+    }
+
+    // === Admin Pages ===
+    PageRegistry adminReg = guiManager.getAdminRegistry();
+
+    // Admin Dashboard
+    adminReg.registerEntry(new PageRegistry.Entry(
+        "dashboard", "Dashboard", "core", null,
+        (player, ref, store, playerRef, gm) ->
+            new AdminDashboardPage(player, playerRef, gm, moduleRegistry),
+        true, 0
+    ));
+
+    // Admin Warps
+    if (warps != null && warps.isEnabled() && warps.getWarpManager() != null) {
+      adminReg.registerEntry(new PageRegistry.Entry(
+          "warps", "Warps", "warps", Permissions.WARP_SET,
+          (player, ref, store, playerRef, gm) ->
+              new AdminWarpsPage(player, playerRef, warps.getWarpManager(), gm),
+          true, 20
+      ));
+    }
+
+    // Admin Spawns
+    SpawnsModule spawnsForAdmin = getSpawnsModule();
+    if (spawnsForAdmin != null && spawnsForAdmin.isEnabled() && spawnsForAdmin.getSpawnManager() != null) {
+      adminReg.registerEntry(new PageRegistry.Entry(
+          "spawns", "Spawns", "spawns", Permissions.SPAWN_SET,
+          (player, ref, store, playerRef, gm) ->
+              new AdminSpawnsPage(player, playerRef, spawnsForAdmin.getSpawnManager(), gm),
+          true, 30
+      ));
+    }
+
+    // Admin Kits
+    if (kitsModule != null && kitsModule.isEnabled() && kitsModule.getKitManager() != null) {
+      adminReg.registerEntry(new PageRegistry.Entry(
+          "kits", "Kits", "kits", Permissions.KIT_CREATE,
+          (player, ref, store, playerRef, gm) ->
+              new AdminKitsPage(player, playerRef, ref, store, kitsModule.getKitManager(), gm),
+          true, 40
+      ));
+    }
+
+    int adminPageCount = adminReg.getEntries().size();
+    if (adminPageCount > 0) {
+      Logger.info("[GUI] Registered %d admin page(s)", adminPageCount);
     }
   }
 

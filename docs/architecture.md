@@ -135,7 +135,11 @@ com.hyperessentials/
       PlayerDashboardPage.java  Welcome screen, stat cards, quick actions
       TpaPage.java              Incoming TPA requests, accept/deny, toggle
       StatsPage.java            Playtime, join dates, session, status indicators
-    admin/                      Admin page implementations (Phase 4-5)
+    admin/
+      AdminDashboardPage.java   Server overview, stats, module grid
+      AdminWarpsPage.java       Warp management (create/delete)
+      AdminSpawnsPage.java      Spawn management (create/delete)
+      AdminKitsPage.java        Kit management (create from inventory/delete)
 
   storage/
     StorageProvider.java        Top-level storage interface

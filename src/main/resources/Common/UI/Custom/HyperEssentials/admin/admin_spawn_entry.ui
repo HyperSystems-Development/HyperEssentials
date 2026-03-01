@@ -1,0 +1,67 @@
+$S = "../shared/styles.ui";
+
+Group {
+  Anchor: (Height: 44, Bottom: 3);
+  Background: (Color: #141c26);
+  LayoutMode: Left;
+
+  // Color indicator bar
+  Group #IndicatorBar {
+    Anchor: (Width: 3, Height: 44);
+    Background: (Color: $S.@ColorGold);
+  }
+
+  // Info section
+  Group {
+    FlexWeight: 1;
+    Padding: (Left: 10, Top: 5, Bottom: 5);
+    LayoutMode: Top;
+
+    Group {
+      Anchor: (Height: 16);
+      LayoutMode: Left;
+
+      Label #SpawnName {
+        Text: "";
+        Style: (FontSize: 12, TextColor: $S.@ColorWhite, VerticalAlignment: Center);
+        Anchor: (Width: 150);
+      }
+
+      Label #DefaultBadge {
+        Text: "";
+        Style: (FontSize: 10, TextColor: #55FF55, VerticalAlignment: Center);
+        Anchor: (Width: 80);
+      }
+    }
+
+    Group {
+      Anchor: (Height: 14);
+      LayoutMode: Left;
+
+      Label #SpawnWorld {
+        Text: "";
+        Style: (FontSize: 10, TextColor: $S.@ColorGray, VerticalAlignment: Center);
+        Anchor: (Width: 100);
+      }
+
+      Label #SpawnCoords {
+        Text: "";
+        Style: (FontSize: 10, TextColor: $S.@ColorGray, VerticalAlignment: Center);
+        Anchor: (Width: 180);
+      }
+    }
+  }
+
+  // Action buttons
+  Group {
+    Anchor: (Width: 75);
+    Padding: (Right: 8, Top: 10, Bottom: 10);
+    LayoutMode: Left;
+
+    TextButton #DeleteBtn {
+      Text: "Delete";
+      Style: $S.@RedButtonStyle;
+      Anchor: (Width: 65, Height: 24);
+    }
+  }
+}

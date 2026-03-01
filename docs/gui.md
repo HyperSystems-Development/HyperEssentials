@@ -1,6 +1,6 @@
 # GUI System
 
-> **Status:** All 6 player pages complete (Dashboard, Homes, Warps, Kits, TPA, Stats). Admin pages pending (Phase 4-5).
+> **Status:** All 6 player pages + 4 admin pages complete. Remaining admin pages: Players, Moderation, Announcements, Settings (Phase 5).
 
 ## Overview
 
@@ -98,7 +98,15 @@ Common/UI/Custom/HyperEssentials/
   player/
     dashboard.ui           Welcome screen with stat cards and quick actions
     stats.ui               Player stats and status indicators
-  admin/                   Admin page templates (Phase 4-5)
+  admin/
+    admin_dashboard.ui     Server overview with stats and module grid
+    admin_module_card.ui   Module status card (name + enabled/disabled)
+    admin_warps.ui         Manage warps list with create/delete
+    admin_warp_entry.ui    Warp row: name, category, world, coords, Delete
+    admin_spawns.ui        Manage spawns list with create/delete
+    admin_spawn_entry.ui   Spawn row: name, default badge, world, coords, Delete
+    admin_kits.ui          Manage kits list with create/delete
+    admin_kit_entry.ui     Kit row: name, items, cooldown, one-time, Delete
 ```
 
 ## Style System
@@ -190,6 +198,32 @@ private boolean tryOpenGui(Store store, Ref ref, PlayerRef playerRef) {
 - **Dynamic lists:** Uses `stat_row.ui` for both `#StatsList` and `#StatusList`
 - **Status coloring:** Active status indicators colored green (`#4aff7f`)
 - **Events:** Nav bar navigation
+
+## Implemented Admin Pages
+
+### AdminDashboardPage
+- **File:** `gui/admin/AdminDashboardPage.java`
+- **Features:** Server overview — online player count, warp/spawn/kit stats cards, module status grid
+- **Module grid:** Lists all registered modules with name, enabled/disabled status, color-coded indicator dot
+- **Events:** Nav bar navigation only (read-only dashboard)
+
+### AdminWarpsPage
+- **File:** `gui/admin/AdminWarpsPage.java`
+- **Features:** List all warps sorted by category then name, create at player location, delete
+- **Create:** Generates auto-named warp at admin's current position/world
+- **Events:** Create button, Delete button per entry; Nav bar navigation
+
+### AdminSpawnsPage
+- **File:** `gui/admin/AdminSpawnsPage.java`
+- **Features:** List all spawns with default badge, create at player location, delete
+- **Sorting:** Default spawn listed first, then alphabetical
+- **Events:** Create button, Delete button per entry; Nav bar navigation
+
+### AdminKitsPage
+- **File:** `gui/admin/AdminKitsPage.java`
+- **Features:** List all kits with item count, cooldown, one-time badge; create from inventory, delete
+- **Create:** Captures admin's current inventory as a new kit
+- **Events:** Create button, Delete button per entry; Nav bar navigation
 
 ## Page Implementation Pattern
 

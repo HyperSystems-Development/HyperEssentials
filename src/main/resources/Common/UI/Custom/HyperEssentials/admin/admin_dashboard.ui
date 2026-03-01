@@ -1,0 +1,156 @@
+$C = "../../Common.ui";
+$S = "../shared/styles.ui";
+$Nav = "../shared/nav_bar.ui";
+
+$C.@PageOverlay {
+  $Nav.@HyperEssentialsNavBar #NavBar {}
+
+  $C.@Container {
+    Anchor: (Width: 580, Height: 440);
+
+    #Title {
+      $C.@Title {
+        @Text = "Admin Dashboard";
+      }
+    }
+
+    #Content {
+      LayoutMode: Top;
+      Padding: (Left: 15, Right: 15, Top: 10, Bottom: 10);
+
+      // Server info header
+      Group {
+        Anchor: (Height: 22, Bottom: 4);
+        LayoutMode: Left;
+
+        Label #ServerTitle {
+          Text: "Server Overview";
+          Style: (FontSize: 14, TextColor: $S.@ColorWhite, VerticalAlignment: Center);
+          Anchor: (Width: 200);
+        }
+
+        Group { FlexWeight: 1; }
+
+        Label #VersionLabel {
+          Text: "";
+          Style: (FontSize: 11, TextColor: $S.@ColorGray, VerticalAlignment: Center);
+          Anchor: (Width: 200);
+        }
+      }
+
+      // Divider
+      Group {
+        Anchor: (Height: 1, Bottom: 10);
+        Background: (Color: $S.@ColorGold);
+      }
+
+      // Stats cards row
+      Group {
+        Anchor: (Height: 52, Bottom: 10);
+        LayoutMode: Left;
+
+        // Online players card
+        Group {
+          FlexWeight: 1;
+          Background: (Color: #1a2a3a);
+          Padding: (Full: 8);
+          LayoutMode: Top;
+
+          Label {
+            Text: "Online";
+            Style: (FontSize: 10, TextColor: $S.@ColorGray);
+            Anchor: (Height: 14);
+          }
+          Label #OnlineCount {
+            Text: "0";
+            Style: (FontSize: 18, TextColor: #55FF55);
+            Anchor: (Height: 22);
+          }
+        }
+
+        Group { Anchor: (Width: 6); }
+
+        // Warps card
+        Group {
+          FlexWeight: 1;
+          Background: (Color: #1a2a3a);
+          Padding: (Full: 8);
+          LayoutMode: Top;
+
+          Label {
+            Text: "Warps";
+            Style: (FontSize: 10, TextColor: $S.@ColorGray);
+            Anchor: (Height: 14);
+          }
+          Label #WarpCount {
+            Text: "0";
+            Style: (FontSize: 18, TextColor: #55FFFF);
+            Anchor: (Height: 22);
+          }
+        }
+
+        Group { Anchor: (Width: 6); }
+
+        // Spawns card
+        Group {
+          FlexWeight: 1;
+          Background: (Color: #1a2a3a);
+          Padding: (Full: 8);
+          LayoutMode: Top;
+
+          Label {
+            Text: "Spawns";
+            Style: (FontSize: 10, TextColor: $S.@ColorGray);
+            Anchor: (Height: 14);
+          }
+          Label #SpawnCount {
+            Text: "0";
+            Style: (FontSize: 18, TextColor: $S.@ColorGold);
+            Anchor: (Height: 22);
+          }
+        }
+
+        Group { Anchor: (Width: 6); }
+
+        // Kits card
+        Group {
+          FlexWeight: 1;
+          Background: (Color: #1a2a3a);
+          Padding: (Full: 8);
+          LayoutMode: Top;
+
+          Label {
+            Text: "Kits";
+            Style: (FontSize: 10, TextColor: $S.@ColorGray);
+            Anchor: (Height: 14);
+          }
+          Label #KitCount {
+            Text: "0";
+            Style: (FontSize: 18, TextColor: #44cc44);
+            Anchor: (Height: 22);
+          }
+        }
+      }
+
+      // Module status header
+      Label {
+        Text: "Module Status";
+        Style: (FontSize: 13, TextColor: $S.@ColorWhite);
+        Anchor: (Height: 20, Bottom: 6);
+      }
+
+      // Module grid
+      Group #ModuleGrid {
+        LayoutMode: TopScrolling;
+        ScrollbarStyle: $C.@DefaultScrollbarStyle;
+        FlexWeight: 1;
+
+        Group #ModuleList {
+          LayoutMode: Top;
+        }
+      }
+    }
+  }
+}
+
+$C.@BackButton {}

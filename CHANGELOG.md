@@ -32,6 +32,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `/homes`, `/warps`, `/kits` commands now open GUI pages (text fallback preserved)
 - Page registration in `HyperEssentials.registerPages()` with correct display order (Homes=10, Warps=20, Kits=30)
 
+#### Admin GUI Pages — Dashboard, Warps, Spawns, Kits
+- `AdminDashboardPage` — server overview with online count, warp/spawn/kit stats, module status grid (enabled/disabled indicators)
+- `AdminWarpsPage` — list all warps sorted by category, create at current location, delete
+- `AdminSpawnsPage` — list all spawns with default badge, create at current location, delete
+- `AdminKitsPage` — list all kits with item count/cooldown/one-time info, create from inventory, delete
+- `.ui` templates: `admin_dashboard.ui`, `admin_module_card.ui`, `admin_warps.ui`, `admin_warp_entry.ui`, `admin_spawns.ui`, `admin_spawn_entry.ui`, `admin_kits.ui`, `admin_kit_entry.ui`
+- Admin page registration in `HyperEssentials.registerPages()`: Dashboard(0), Warps(20), Spawns(30), Kits(40)
+- `/he admin` now navigable to all 4 admin tabs
+
 #### Player GUI Pages — Dashboard, TPA, Stats
 - `PlayerDashboardPage` — welcome screen with stat cards (homes, online players, TPA requests), quick action buttons, playtime/join info
 - `TpaPage` — incoming TPA requests with per-entry accept/deny, toggle TPA acceptance on/off, time remaining display
