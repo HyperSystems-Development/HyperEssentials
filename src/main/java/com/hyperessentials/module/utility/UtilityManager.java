@@ -1,19 +1,69 @@
 package com.hyperessentials.module.utility;
 
+import com.hyperessentials.command.util.CommandUtil;
+import com.hyperessentials.config.ConfigManager;
+import com.hyperessentials.config.modules.UtilityConfig;
+import com.hyperessentials.data.PlayerStats;
+import com.hyperessentials.platform.HyperEssentialsPlugin;
+import com.hyperessentials.storage.PlayerStatsStorage;
+import com.hyperessentials.util.Logger;
+import com.hypixel.hytale.server.core.Message;
+import com.hypixel.hytale.server.core.universe.PlayerRef;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
+import java.nio.file.Path;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
- * Manages session-only states for utility commands (fly, god).
- * All states are cleared on player disconnect and server shutdown.
+ * Manages session-only states for utility commands (fly, god, AFK, stamina)
+ * and persistent player stats (playtime, join date).
  */
 public class UtilityManager {
 
   private final Set<UUID> flyingPlayers = ConcurrentHashMap.newKeySet();
   private final Set<UUID> godPlayers = ConcurrentHashMap.newKeySet();
+  private final Set<UUID> afkPlayers = ConcurrentHashMap.newKeySet();
+  private final Set<UUID> infiniteStaminaPlayers = ConcurrentHashMap.newKeySet();
+  private final Map<UUID, Instant> lastActivityTimes = new ConcurrentHashMap<>();
+  private final Map<UUID, Instant> sessionStartTimes = new ConcurrentHashMap<>();
+
+  private PlayerStatsStorage statsStorage;
+  private ScheduledExecutorService scheduler;
+
+  /**
+   * Initializes stats storage and starts the periodic task scheduler.
+   */
+  public void init(@NotNull Path dataDir) {
+    statsStorage = new PlayerStatsStorage(dataDir);
+    statsStorage.load();
+
+    scheduler = Executors.newSingleThreadScheduledExecutor(r -> {
+      Thread t = new Thread(r, "HyperEssentials-Utility");
+      t.setDaemon(true);
+      return t;
+    });
+
+    // Periodic task: AFK idle check + stamina enforcement (every 1 second)
+    scheduler.scheduleAtFixedRate(this::periodicTask, 1, 1, TimeUnit.SECONDS);
+  }
+
+  private void periodicTask() {
+    try {
+      checkAfkTimeout();
+      enforceInfiniteStamina();
+    } catch (Exception e) {
+      Logger.debug("[Utility] Periodic task error: %s", e.getMessage());
+    }
+  }
 
   // === Fly ===
 
@@ -57,15 +107,197 @@ public class UtilityManager {
     else godPlayers.remove(uuid);
   }
 
-  // === Cleanup ===
+  // === AFK ===
+
+  public boolean isAfk(@NotNull UUID uuid) {
+    return afkPlayers.contains(uuid);
+  }
+
+  public boolean toggleAfk(@NotNull UUID uuid) {
+    if (afkPlayers.contains(uuid)) {
+      afkPlayers.remove(uuid);
+      return false;
+    } else {
+      afkPlayers.add(uuid);
+      return true;
+    }
+  }
+
+  /**
+   * Records player activity and auto-unsets AFK if needed.
+   * Called from event listeners on chat, interact, mouse motion, etc.
+   */
+  public void onPlayerActivity(@NotNull UUID uuid) {
+    lastActivityTimes.put(uuid, Instant.now());
+    if (afkPlayers.remove(uuid)) {
+      broadcastAfkStatus(uuid, false);
+    }
+  }
+
+  private void checkAfkTimeout() {
+    UtilityConfig config = ConfigManager.get().utility();
+    int timeout = config.getAfkTimeoutSeconds();
+    if (timeout <= 0) return;
+
+    Instant now = Instant.now();
+    for (Map.Entry<UUID, Instant> entry : lastActivityTimes.entrySet()) {
+      UUID uuid = entry.getKey();
+      if (!afkPlayers.contains(uuid)) {
+        Instant last = entry.getValue();
+        if (last != null && Duration.between(last, now).getSeconds() >= timeout) {
+          afkPlayers.add(uuid);
+          broadcastAfkStatus(uuid, true);
+        }
+      }
+    }
+  }
+
+  private void broadcastAfkStatus(@NotNull UUID uuid, boolean nowAfk) {
+    HyperEssentialsPlugin plugin = HyperEssentialsPlugin.getInstance();
+    if (plugin == null) return;
+
+    PlayerRef player = plugin.getTrackedPlayer(uuid);
+    String name = player != null ? player.getUsername() : uuid.toString();
+    String text = name + (nowAfk ? " is now AFK" : " is no longer AFK");
+    Message msg = CommandUtil.msg(text, CommandUtil.COLOR_GRAY);
+
+    for (PlayerRef p : plugin.getTrackedPlayers().values()) {
+      p.sendMessage(msg);
+    }
+  }
+
+  // === Infinite Stamina ===
+
+  public boolean isInfiniteStamina(@NotNull UUID uuid) {
+    return infiniteStaminaPlayers.contains(uuid);
+  }
+
+  public boolean toggleInfiniteStamina(@NotNull UUID uuid) {
+    if (infiniteStaminaPlayers.contains(uuid)) {
+      infiniteStaminaPlayers.remove(uuid);
+      return false;
+    } else {
+      infiniteStaminaPlayers.add(uuid);
+      return true;
+    }
+  }
+
+  private void enforceInfiniteStamina() {
+    if (infiniteStaminaPlayers.isEmpty()) return;
+
+    HyperEssentialsPlugin plugin = HyperEssentialsPlugin.getInstance();
+    if (plugin == null) return;
+
+    for (UUID uuid : infiniteStaminaPlayers) {
+      PlayerRef player = plugin.getTrackedPlayer(uuid);
+      if (player != null) {
+        try {
+          var statMap = player.getComponent(
+            com.hypixel.hytale.server.core.modules.entitystats.EntityStatsModule.get().getEntityStatMapComponentType());
+          if (statMap != null) {
+            for (int i = 0; i < statMap.size(); i++) {
+              try {
+                statMap.maximizeStatValue(i);
+              } catch (Exception ignored) {}
+            }
+          }
+        } catch (Exception e) {
+          Logger.debug("[Utility] Stamina enforcement failed for %s: %s", uuid, e.getMessage());
+        }
+      }
+    }
+  }
+
+  // === Player Stats ===
+
+  public void onPlayerConnect(@NotNull UUID uuid, @NotNull String username) {
+    sessionStartTimes.put(uuid, Instant.now());
+    lastActivityTimes.put(uuid, Instant.now());
+
+    if (statsStorage != null) {
+      PlayerStats existing = statsStorage.getStats(uuid);
+      Instant now = Instant.now();
+      if (existing == null) {
+        statsStorage.updateStats(new PlayerStats(uuid, username, now, 0L, now));
+      } else {
+        statsStorage.updateStats(new PlayerStats(uuid, username, existing.firstJoin(), existing.totalPlaytimeMs(), now));
+      }
+    }
+  }
 
   public void onPlayerDisconnect(@NotNull UUID uuid) {
     flyingPlayers.remove(uuid);
     godPlayers.remove(uuid);
+    afkPlayers.remove(uuid);
+    infiniteStaminaPlayers.remove(uuid);
+    lastActivityTimes.remove(uuid);
+
+    // Accumulate session playtime
+    Instant sessionStart = sessionStartTimes.remove(uuid);
+    if (sessionStart != null && statsStorage != null) {
+      long sessionMs = Duration.between(sessionStart, Instant.now()).toMillis();
+      PlayerStats existing = statsStorage.getStats(uuid);
+      if (existing != null) {
+        statsStorage.updateStats(new PlayerStats(
+          uuid, existing.username(), existing.firstJoin(),
+          existing.totalPlaytimeMs() + sessionMs, existing.lastJoin()
+        ));
+      }
+    }
   }
 
+  @Nullable
+  public PlayerStats getPlayerStats(@NotNull UUID uuid) {
+    return statsStorage != null ? statsStorage.getStats(uuid) : null;
+  }
+
+  /**
+   * Gets total playtime including the current session.
+   */
+  public long getTotalPlaytimeMs(@NotNull UUID uuid) {
+    PlayerStats stats = getPlayerStats(uuid);
+    long total = stats != null ? stats.totalPlaytimeMs() : 0L;
+
+    Instant sessionStart = sessionStartTimes.get(uuid);
+    if (sessionStart != null) {
+      total += Duration.between(sessionStart, Instant.now()).toMillis();
+    }
+    return total;
+  }
+
+  @Nullable
+  public PlayerStatsStorage getStatsStorage() {
+    return statsStorage;
+  }
+
+  // === Cleanup ===
+
   public void shutdown() {
+    // Save all active session playtimes
+    if (statsStorage != null) {
+      for (Map.Entry<UUID, Instant> entry : sessionStartTimes.entrySet()) {
+        UUID uuid = entry.getKey();
+        Instant sessionStart = entry.getValue();
+        long sessionMs = Duration.between(sessionStart, Instant.now()).toMillis();
+        PlayerStats existing = statsStorage.getStats(uuid);
+        if (existing != null) {
+          statsStorage.updateStats(new PlayerStats(
+            uuid, existing.username(), existing.firstJoin(),
+            existing.totalPlaytimeMs() + sessionMs, existing.lastJoin()
+          ));
+        }
+      }
+    }
+
+    if (scheduler != null && !scheduler.isShutdown()) {
+      scheduler.shutdown();
+    }
+
     flyingPlayers.clear();
     godPlayers.clear();
+    afkPlayers.clear();
+    infiniteStaminaPlayers.clear();
+    lastActivityTimes.clear();
+    sessionStartTimes.clear();
   }
 }
