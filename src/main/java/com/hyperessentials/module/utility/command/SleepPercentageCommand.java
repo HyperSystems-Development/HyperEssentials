@@ -22,7 +22,7 @@ public class SleepPercentageCommand extends AbstractPlayerCommand {
 
   public SleepPercentageCommand() {
     super("sleeppercentage", "View or set sleep skip percentage");
-    addAliases("sleeppct");
+    addAliases("sleeppct", "spc");
     setAllowsExtraArguments(true);
   }
 

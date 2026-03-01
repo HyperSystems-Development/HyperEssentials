@@ -19,7 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `/afk` (alias: `/away`) — toggle AFK status with server-wide broadcast
 - `/stamina` (alias: `/stam`) — toggle infinite stamina with periodic enforcement
 - `/maxstack` (alias: `/stack`) — set held item quantity to max stack size
-- `/sleeppercentage` (alias: `/sleeppct`) — view/set sleep skip percentage threshold
+- `/sleeppercentage` (aliases: `/sleeppct`, `/spc`) — view/set sleep skip percentage threshold
 - `/invsee <player>` — stub for inventory viewing (GUI coming later)
 - `/trash` — stub for disposal inventory (GUI coming later)
 - `/repairmax` (alias: `/fixmax`) — fully restore held item including max durability reset
