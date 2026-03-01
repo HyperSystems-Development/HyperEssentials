@@ -9,6 +9,130 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+#### New Utility Commands
+- `/motd` — display configurable message of the day
+- `/rules` — display server rules
+- `/discord` — display Discord invite link
+- `/list` (aliases: `/online`, `/players`) — show sorted online player list with count
+- `/playtime` (alias: `/pt`) — show total playtime including current session
+- `/joindate` (alias: `/firstjoin`) — show first join timestamp
+- `/afk` (alias: `/away`) — toggle AFK status with server-wide broadcast
+- `/stamina` (alias: `/stam`) — toggle infinite stamina with periodic enforcement
+- `/maxstack` (alias: `/stack`) — set held item quantity to max stack size
+- `/sleeppercentage` (alias: `/sleeppct`) — view/set sleep skip percentage threshold
+- `/invsee <player>` — stub for inventory viewing (GUI coming later)
+- `/trash` — stub for disposal inventory (GUI coming later)
+- `/repairmax` (alias: `/fixmax`) — fully restore held item including max durability reset
+- `/durability` (alias: `/dura`) — set or reset max durability on held items
+- `/previewkit` (aliases: `/vkit`, `/viewkit`) — preview kit contents without claiming
+
+#### IP Ban System
+- `/ipban <player> [duration] [reason]` — ban player's IP with smart duration detection
+- `/ipunban <ip>` — unban an IP address
+- `IpBan` record with expiration support (permanent and temporary)
+- IP tracking on player connect via `ModerationManager`
+- Connect-time IP ban enforcement in `ModerationListener`
+- IP ban persistence in `ModerationStorage` (`"ipBans"` JSON section)
+- Same-IP kick on ban (disconnects all players on the banned IP)
+
+#### Player Stats System
+- `PlayerStats` record (uuid, username, firstJoin, totalPlaytimeMs, lastJoin)
+- `PlayerStatsStorage` with JSON persistence at `data/playerstats.json`
+- Session tracking in `UtilityManager` with playtime accumulation across sessions
+- Connect handler infrastructure in `HyperEssentials` core (mirrors disconnect handler)
+
+#### AFK System
+- Manual AFK toggle via `/afk` command with server-wide broadcast
+- Auto-AFK detection via configurable idle timeout (`afkTimeoutSeconds`)
+- Auto-unset AFK on player activity (chat, interact events)
+- Activity tracking via `PlayerChatEvent` and `PlayerInteractEvent` listeners
+
+#### Infinite Stamina System
+- Toggle-based infinite stamina via `UtilityManager` state tracking
+- Periodic enforcement via `ScheduledExecutorService` (every 1 second)
+- Uses `EntityStatsModule` component for stat maximization
+- Support for targeting other players with `stamina.others` permission
+
+#### Spawn Auto-Detection
+- Auto-import spawn points from Hytale `WorldConfig` `ISpawnProvider` on fresh install
+- `SpawnManager.importWorldSpawns()` for manual import via `/he importspawns`
+
+#### Expanded Help
+- `/he help` subcommand with full command listing grouped by module
+- Each module section only shown if the module is enabled
+
+#### Utility Config Expansion
+- 12 new command enable toggles (motd, rules, discord, list, playtime, joindate, afk, invsee, stamina, trash, maxstack, sleepPercentage)
+- Content fields: `motdLines`, `ruleLines`, `discordUrl`
+- AFK config: `afkTimeoutSeconds` (default 300, 0 = disabled)
+- Sleep config: `sleepPercentage` with per-world overrides
+
+#### New Permission Nodes
+- `utility.motd`, `utility.playtime`, `utility.joindate`, `utility.afk`
+- `utility.invsee`, `utility.stamina`, `utility.stamina.others`
+- `utility.trash`, `utility.maxstack`, `utility.sleeppercentage`
+- `moderation.ipban`
+
+#### Command Aliases
+- Homes: `deletehome`/`rmhome`/`removehome`, `listhomes`/`homelist`, `createhome`
+- Teleport: `tpy`, `tpc`, `tpn`, `tpt`, `tpr`
+- Kits: `ckit`, `dkit`
+- Utility: `cc`, `fix`
+- Warps: `createwarp`
+- Announcements: `bc`
+- Moderation: `pun`
+
+### Changed
+
+#### Ban/Mute Consolidation
+- `/ban <player> [duration] [reason]` — unified syntax with smart duration detection (replaces `/ban` + `/tempban`)
+- `/mute <player> [duration] [reason]` — unified syntax with smart duration detection (replaces `/mute` + `/tempmute`)
+- `tempban` alias added to `/ban`, `tempmute`/`tmute` aliases added to `/mute`
+
+#### Kits Overhaul
+- Kit items now support 4 inventory sections (hotbar, storage, armor, utility) instead of flat slot numbering
+- Inventory space pre-check with `INSUFFICIENT_SPACE` result before claiming
+- Displaced armor/utility items automatically moved to hotbar/storage
+- Backward-compatible deserialization from old flat-slot format
+
+#### Fly Command
+- Replaced Creative/Adventure gamemode hack with proper `MovementManager.canFly` toggle
+- Uses `UpdateMovementSettings` packet for client-side flight mode
+- Cross-player fly toggle disabled pending entity ref resolution
+
+#### Repair Command
+- Added "already full durability" check before repairing
+- Uses `withDurability(maxDurability)` instead of `withRestoredDurability()`
+
+#### Warmup/Cooldown System
+- Auto-completion via `ScheduledExecutorService` replaces manual polling
+- Added `bypass.warmup` and `bypass.cooldown` permission checks
+- Cancels existing warmup before starting a new one
+- Clean shutdown lifecycle for plugin disable
+
+#### Teleport Commands
+- All teleport commands use `executeTeleport` callback pattern with `onComplete` runnable
+- Added `ref.isValid()` safety check before teleporting
+- Switched to `Teleport.createForPlayer()` for proper API usage
+- Store retrieval deferred to world thread for thread safety
+
+#### RTP Cave Avoidance
+- Added `rtpSafetyAirAboveHead` config (default 10) to prevent underground RTP placement
+- RtpManager scans for solid blocks above landing position
+
+### Removed
+
+#### Ban/Mute Consolidation
+- `TempBanCommand.java` — merged into `BanCommand`
+- `TempMuteCommand.java` — merged into `MuteCommand`
+
+### Fixed
+- Manifest `IncludesAssetPack` set to false (plugin has no bundled assets)
+
+---
+
+### Added (prior releases below)
+
 #### RTP Overhaul
 - Chunk-based random location selection with multi-attempt safety verification
 - `findSafeY()` heightmap scan with `BlockMaterial` + fluid-aware safety checks (avoidWater, avoidDangerousFluids)
