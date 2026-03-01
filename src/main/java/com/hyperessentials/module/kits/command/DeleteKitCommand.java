@@ -22,6 +22,7 @@ public class DeleteKitCommand extends AbstractPlayerCommand {
   public DeleteKitCommand(@NotNull KitsModule module) {
     super("deletekit", "Delete a kit");
     this.module = module;
+    addAliases("dkit");
     setAllowsExtraArguments(true);
   }
 

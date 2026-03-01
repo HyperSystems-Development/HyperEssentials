@@ -69,6 +69,7 @@ public class KitCommand extends AbstractPlayerCommand {
       case ALREADY_CLAIMED -> ctx.sendMessage(CommandUtil.error("You have already claimed this one-time kit."));
       case NO_PERMISSION -> ctx.sendMessage(CommandUtil.error("You don't have permission to use this kit."));
       case KIT_NOT_FOUND -> ctx.sendMessage(CommandUtil.error("Kit '" + kitName + "' not found."));
+      case INSUFFICIENT_SPACE -> ctx.sendMessage(CommandUtil.error("Not enough inventory space to claim this kit."));
     }
   }
 }

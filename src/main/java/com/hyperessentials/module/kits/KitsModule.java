@@ -53,7 +53,8 @@ public class KitsModule extends AbstractModule {
         plugin.getCommandRegistry().registerCommand(new KitsCommand(this));
         plugin.getCommandRegistry().registerCommand(new CreateKitCommand(this));
         plugin.getCommandRegistry().registerCommand(new DeleteKitCommand(this));
-        Logger.info("[Kits] Registered commands: /kit, /kits, /createkit, /deletekit");
+        plugin.getCommandRegistry().registerCommand(new PreviewKitCommand(this));
+        Logger.info("[Kits] Registered commands: /kit, /kits, /createkit, /deletekit, /previewkit");
       } catch (Exception e) {
         Logger.severe("[Kits] Failed to register commands: %s", e.getMessage());
       }

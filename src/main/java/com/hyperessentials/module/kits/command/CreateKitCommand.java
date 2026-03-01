@@ -23,6 +23,7 @@ public class CreateKitCommand extends AbstractPlayerCommand {
   public CreateKitCommand(@NotNull KitsModule module) {
     super("createkit", "Create a kit from your inventory");
     this.module = module;
+    addAliases("ckit");
     setAllowsExtraArguments(true);
   }
 

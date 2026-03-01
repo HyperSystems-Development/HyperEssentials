@@ -113,6 +113,7 @@ public class KitStorage {
       itemObj.addProperty("itemId", item.itemId());
       itemObj.addProperty("quantity", item.quantity());
       itemObj.addProperty("slot", item.slot());
+      itemObj.addProperty("section", item.section());
       items.add(itemObj);
     }
     obj.add("items", items);
@@ -133,10 +134,23 @@ public class KitStorage {
       if (obj.has("items") && obj.get("items").isJsonArray()) {
         for (JsonElement el : obj.getAsJsonArray("items")) {
           JsonObject itemObj = el.getAsJsonObject();
+          int slot = itemObj.has("slot") ? itemObj.get("slot").getAsInt() : -1;
+          String section;
+          if (itemObj.has("section")) {
+            section = itemObj.get("section").getAsString();
+          } else {
+            // Backward compat: infer section from old flat-slot numbering
+            // 0-8 = hotbar, 9+ = storage
+            section = (slot >= 0 && slot < 9) ? KitItem.HOTBAR : KitItem.STORAGE;
+            if (section.equals(KitItem.STORAGE) && slot >= 9) {
+              slot = slot - 9; // Convert flat slot to storage-local slot
+            }
+          }
           items.add(new KitItem(
             itemObj.get("itemId").getAsString(),
             itemObj.has("quantity") ? itemObj.get("quantity").getAsInt() : 1,
-            itemObj.has("slot") ? itemObj.get("slot").getAsInt() : -1
+            slot,
+            section
           ));
         }
       }
