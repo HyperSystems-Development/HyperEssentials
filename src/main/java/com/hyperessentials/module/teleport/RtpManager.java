@@ -141,7 +141,9 @@ public class RtpManager {
 
   /**
    * Scans from heightmap downward to find a safe Y coordinate.
-   * Checks for solid ground with 2 empty non-fluid blocks above.
+   * Checks for solid ground with 2 empty non-fluid blocks for the player body,
+   * plus additional air blocks above to ensure surface placement (not caves).
+   * The number of air blocks above head is configurable via safety.airAboveHead.
    *
    * @return safe Y coordinate (feet level), or -1 if none found
    */
@@ -149,6 +151,7 @@ public class RtpManager {
     int topY = chunk.getHeight(blockX, blockZ);
     int minY = config.getRtpSafetyMinY();
     int maxY = config.getRtpSafetyMaxY();
+    int airAboveHead = config.getRtpSafetyAirAboveHead();
     boolean avoidWater = config.isRtpSafetyAvoidWater();
     boolean avoidDangerous = config.isRtpSafetyAvoidDangerousFluids();
 
@@ -168,6 +171,21 @@ public class RtpManager {
       boolean feetClear = feet == null || feet.getMaterial() == BlockMaterial.Empty;
       boolean headClear = head == null || head.getMaterial() == BlockMaterial.Empty;
       if (!feetClear || !headClear) continue;
+
+      // Check additional air blocks above head to avoid caves
+      boolean aboveClear = true;
+      for (int above = 3; above <= 2 + airAboveHead; above++) {
+        BlockType aboveBlock = world.getBlockType(blockX, y + above, blockZ);
+        if (aboveBlock != null && aboveBlock.getMaterial() == BlockMaterial.Solid) {
+          aboveClear = false;
+          break;
+        }
+      }
+      if (!aboveClear) {
+        Logger.debugRtp("Rejected y=%d at (%d, %d): solid block within %d blocks above head (cave)",
+          y, blockX, blockZ, airAboveHead);
+        continue;
+      }
 
       // Fluid checks
       if (avoidWater) {

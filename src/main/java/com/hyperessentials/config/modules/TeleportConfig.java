@@ -39,6 +39,7 @@ public class TeleportConfig extends ModuleConfig {
   private boolean rtpSafetyAvoidDangerousFluids = true;
   private int rtpSafetyMinY = 5;
   private int rtpSafetyMaxY = 300;
+  private int rtpSafetyAirAboveHead = 10;
 
   public TeleportConfig(@NotNull Path filePath) {
     super(filePath);
@@ -94,6 +95,7 @@ public class TeleportConfig extends ModuleConfig {
         rtpSafetyAvoidDangerousFluids = getBool(safety, "avoidDangerousFluids", rtpSafetyAvoidDangerousFluids);
         rtpSafetyMinY = getInt(safety, "minY", rtpSafetyMinY);
         rtpSafetyMaxY = getInt(safety, "maxY", rtpSafetyMaxY);
+        rtpSafetyAirAboveHead = getInt(safety, "airAboveHead", rtpSafetyAirAboveHead);
       }
     }
   }
@@ -133,6 +135,7 @@ public class TeleportConfig extends ModuleConfig {
     safety.addProperty("avoidDangerousFluids", rtpSafetyAvoidDangerousFluids);
     safety.addProperty("minY", rtpSafetyMinY);
     safety.addProperty("maxY", rtpSafetyMaxY);
+    safety.addProperty("airAboveHead", rtpSafetyAirAboveHead);
     rtp.add("safety", safety);
 
     root.add("rtp", rtp);
@@ -164,4 +167,5 @@ public class TeleportConfig extends ModuleConfig {
   public boolean isRtpSafetyAvoidDangerousFluids() { return rtpSafetyAvoidDangerousFluids; }
   public int getRtpSafetyMinY() { return rtpSafetyMinY; }
   public int getRtpSafetyMaxY() { return rtpSafetyMaxY; }
+  public int getRtpSafetyAirAboveHead() { return rtpSafetyAirAboveHead; }
 }
