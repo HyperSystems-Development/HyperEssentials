@@ -11,6 +11,7 @@ import com.hyperessentials.platform.HyperEssentialsPlugin;
 import com.hyperessentials.util.Logger;
 import com.hypixel.hytale.server.core.event.events.player.PlayerChatEvent;
 import com.hypixel.hytale.server.core.event.events.player.PlayerInteractEvent;
+import com.hypixel.hytale.server.core.event.events.player.PlayerMouseMotionEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -69,6 +70,8 @@ public class UtilityModule extends AbstractModule {
         plugin.getEventRegistry().registerGlobal(PlayerChatEvent.class,
           event -> utilityManager.onPlayerActivity(event.getSender().getUuid()));
         plugin.getEventRegistry().registerGlobal(PlayerInteractEvent.class,
+          event -> utilityManager.onPlayerActivity(event.getPlayer().getUuid()));
+        plugin.getEventRegistry().registerGlobal(PlayerMouseMotionEvent.class,
           event -> utilityManager.onPlayerActivity(event.getPlayer().getUuid()));
       }
 

@@ -9,6 +9,8 @@ import com.hyperessentials.storage.PlayerStatsStorage;
 import com.hyperessentials.util.Logger;
 import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
+import com.hypixel.hytale.server.core.universe.Universe;
+import com.hypixel.hytale.server.core.universe.world.World;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -35,6 +37,7 @@ public class UtilityManager {
   private final Set<UUID> infiniteStaminaPlayers = ConcurrentHashMap.newKeySet();
   private final Map<UUID, Instant> lastActivityTimes = new ConcurrentHashMap<>();
   private final Map<UUID, Instant> sessionStartTimes = new ConcurrentHashMap<>();
+  private final Map<UUID, double[]> lastKnownPositions = new ConcurrentHashMap<>();
 
   private PlayerStatsStorage statsStorage;
   private ScheduledExecutorService scheduler;
@@ -58,10 +61,39 @@ public class UtilityManager {
 
   private void periodicTask() {
     try {
+      checkMovement();
       checkAfkTimeout();
       enforceInfiniteStamina();
     } catch (Exception e) {
       Logger.debug("[Utility] Periodic task error: %s", e.getMessage());
+    }
+  }
+
+  /**
+   * Checks if tracked players have moved since the last check.
+   * Hytale has no PlayerMoveEvent, so we poll position changes to detect WASD movement.
+   */
+  private void checkMovement() {
+    HyperEssentialsPlugin plugin = HyperEssentialsPlugin.getInstance();
+    if (plugin == null) return;
+
+    for (Map.Entry<UUID, Instant> entry : lastActivityTimes.entrySet()) {
+      UUID uuid = entry.getKey();
+      PlayerRef player = plugin.getTrackedPlayer(uuid);
+      if (player == null) continue;
+
+      try {
+        var pos = player.getTransform().getPosition();
+        double x = pos.getX();
+        double y = pos.getY();
+        double z = pos.getZ();
+
+        double[] last = lastKnownPositions.get(uuid);
+        if (last != null && (last[0] != x || last[1] != y || last[2] != z)) {
+          onPlayerActivity(uuid);
+        }
+        lastKnownPositions.put(uuid, new double[]{x, y, z});
+      } catch (Exception ignored) {}
     }
   }
 
@@ -190,20 +222,30 @@ public class UtilityManager {
 
     for (UUID uuid : infiniteStaminaPlayers) {
       PlayerRef player = plugin.getTrackedPlayer(uuid);
-      if (player != null) {
-        try {
-          var statMap = player.getComponent(
-            com.hypixel.hytale.server.core.modules.entitystats.EntityStatsModule.get().getEntityStatMapComponentType());
-          if (statMap != null) {
-            for (int i = 0; i < statMap.size(); i++) {
-              try {
-                statMap.maximizeStatValue(i);
-              } catch (Exception ignored) {}
+      if (player == null) continue;
+
+      try {
+        UUID worldUuid = player.getWorldUuid();
+        if (worldUuid == null) continue;
+
+        World world = Universe.get().getWorld(worldUuid);
+        if (world == null) continue;
+
+        // Dispatch to the world thread — PlayerRef.getComponent() requires it
+        world.execute(() -> {
+          try {
+            var statMap = player.getComponent(
+              com.hypixel.hytale.server.core.modules.entitystats.EntityStatsModule.get().getEntityStatMapComponentType());
+            if (statMap != null) {
+              statMap.maximizeStatValue(
+                com.hypixel.hytale.server.core.modules.entitystats.asset.DefaultEntityStatTypes.getStamina());
             }
+          } catch (Exception e) {
+            Logger.debug("[Utility] Stamina enforcement failed for %s: %s", uuid, e.getMessage());
           }
-        } catch (Exception e) {
-          Logger.debug("[Utility] Stamina enforcement failed for %s: %s", uuid, e.getMessage());
-        }
+        });
+      } catch (Exception e) {
+        Logger.debug("[Utility] Stamina enforcement failed for %s: %s", uuid, e.getMessage());
       }
     }
   }
@@ -231,6 +273,7 @@ public class UtilityManager {
     afkPlayers.remove(uuid);
     infiniteStaminaPlayers.remove(uuid);
     lastActivityTimes.remove(uuid);
+    lastKnownPositions.remove(uuid);
 
     // Accumulate session playtime
     Instant sessionStart = sessionStartTimes.remove(uuid);
@@ -298,6 +341,7 @@ public class UtilityManager {
     afkPlayers.clear();
     infiniteStaminaPlayers.clear();
     lastActivityTimes.clear();
+    lastKnownPositions.clear();
     sessionStartTimes.clear();
   }
 }

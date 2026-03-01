@@ -44,13 +44,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 #### AFK System
 - Manual AFK toggle via `/afk` command with server-wide broadcast
 - Auto-AFK detection via configurable idle timeout (`afkTimeoutSeconds`)
-- Auto-unset AFK on player activity (chat, interact events)
-- Activity tracking via `PlayerChatEvent` and `PlayerInteractEvent` listeners
+- Auto-unset AFK on player activity (chat, interact, mouse motion, movement)
+- Activity tracking via `PlayerChatEvent`, `PlayerInteractEvent`, and `PlayerMouseMotionEvent` listeners
+- Position-based movement detection via periodic polling (Hytale has no PlayerMoveEvent)
 
 #### Infinite Stamina System
 - Toggle-based infinite stamina via `UtilityManager` state tracking
 - Periodic enforcement via `ScheduledExecutorService` (every 1 second)
-- Uses `EntityStatsModule` component for stat maximization
+- Uses `EntityStatsModule` component with `DefaultEntityStatTypes.getStamina()` for targeted stat maximization
 - Support for targeting other players with `stamina.others` permission
 
 #### Spawn Auto-Detection
@@ -127,6 +128,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `TempMuteCommand.java` — merged into `MuteCommand`
 
 ### Fixed
+- Infinite stamina enforcement now dispatches to world thread via `world.execute()` (fixes `PlayerRef.getComponent() called async` error spam)
+- AFK status now properly clears on player movement (added position polling and mouse motion listener)
+- `/heal` only maximizes health stat instead of all stats (avoids unnecessary regen visual effects)
+- `/stamina` maximize uses `DefaultEntityStatTypes.getStamina()` instead of iterating all stats
 - Manifest `IncludesAssetPack` set to false (plugin has no bundled assets)
 
 ---
