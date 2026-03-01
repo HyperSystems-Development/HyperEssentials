@@ -93,9 +93,11 @@ public class RtpCommand extends AbstractPlayerCommand {
       Location destination = ((RtpResult.Success) result).location();
 
       WarmupTask task = warmupManager.startWarmup(uuid, "rtp", "rtp", () -> {
-        executeTeleport(store, ref, destination);
-        ctx.sendMessage(CommandUtil.success(String.format("Teleported to random location! (%.0f, %.0f, %.0f)",
-          destination.x(), destination.y(), destination.z())));
+        executeTeleport(ref, destination, () -> {
+          ctx.sendMessage(CommandUtil.success(String.format(
+            "Teleported to random location! (%.0f, %.0f, %.0f)",
+            destination.x(), destination.y(), destination.z())));
+        });
       });
 
       if (task != null) {
@@ -106,16 +108,23 @@ public class RtpCommand extends AbstractPlayerCommand {
     });
   }
 
-  private void executeTeleport(Store<EntityStore> store, Ref<EntityStore> ref, Location dest) {
+  private void executeTeleport(Ref<EntityStore> ref, Location dest, Runnable onComplete) {
     World targetWorld = Universe.get().getWorld(dest.world());
     if (targetWorld == null) {
       return;
     }
     targetWorld.execute(() -> {
+      if (!ref.isValid()) {
+        return;
+      }
+      Store<EntityStore> store = ref.getStore();
       Vector3d position = new Vector3d(dest.x(), dest.y(), dest.z());
       Vector3f rotation = new Vector3f(dest.pitch(), dest.yaw(), 0);
-      Teleport teleport = new Teleport(targetWorld, position, rotation);
+      Teleport teleport = Teleport.createForPlayer(targetWorld, position, rotation);
       store.addComponent(ref, Teleport.getComponentType(), teleport);
+      if (onComplete != null) {
+        onComplete.run();
+      }
     });
   }
 }

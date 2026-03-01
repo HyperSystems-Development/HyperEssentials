@@ -96,8 +96,9 @@ public class WarpCommand extends AbstractPlayerCommand {
     Location destination = Location.fromWarp(warp);
 
     WarmupTask task = warmupManager.startWarmup(uuid, "warps", "warp", () -> {
-      executeTeleport(store, ref, destination);
-      ctx.sendMessage(CommandUtil.success("Teleported to warp '" + warpName + "'!"));
+      executeTeleport(ref, destination, () -> {
+        ctx.sendMessage(CommandUtil.success("Teleported to warp '" + warpName + "'!"));
+      });
     });
 
     if (task != null) {
@@ -105,16 +106,23 @@ public class WarpCommand extends AbstractPlayerCommand {
     }
   }
 
-  private void executeTeleport(Store<EntityStore> store, Ref<EntityStore> ref, Location dest) {
+  private void executeTeleport(Ref<EntityStore> ref, Location dest, Runnable onComplete) {
     World targetWorld = Universe.get().getWorld(dest.world());
     if (targetWorld == null) {
       return;
     }
     targetWorld.execute(() -> {
+      if (!ref.isValid()) {
+        return;
+      }
+      Store<EntityStore> store = ref.getStore();
       Vector3d position = new Vector3d(dest.x(), dest.y(), dest.z());
       Vector3f rotation = new Vector3f(dest.pitch(), dest.yaw(), 0);
-      Teleport teleport = new Teleport(targetWorld, position, rotation);
+      Teleport teleport = Teleport.createForPlayer(targetWorld, position, rotation);
       store.addComponent(ref, Teleport.getComponentType(), teleport);
+      if (onComplete != null) {
+        onComplete.run();
+      }
     });
   }
 }
