@@ -1,13 +1,16 @@
 package com.hyperessentials.module.warps.command;
 
 import com.hyperessentials.Permissions;
+import com.hyperessentials.api.HyperEssentialsAPI;
 import com.hyperessentials.command.util.CommandUtil;
 import com.hyperessentials.data.Warp;
+import com.hyperessentials.gui.GuiManager;
 import com.hyperessentials.module.warps.WarpManager;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.server.core.command.system.CommandContext;
 import com.hypixel.hytale.server.core.command.system.basecommands.AbstractPlayerCommand;
+import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
@@ -21,6 +24,7 @@ import java.util.stream.Collectors;
 
 /**
  * /warps [category] - List all warps or warps in a category.
+ * Opens GUI page when available (no category filter), falls back to text list.
  */
 public class WarpsCommand extends AbstractPlayerCommand {
 
@@ -50,6 +54,12 @@ public class WarpsCommand extends AbstractPlayerCommand {
     String[] parts = input != null ? input.trim().split("\\s+") : new String[0];
     String category = parts.length > 1 ? parts[1].toLowerCase() : null;
 
+    // Try GUI page for unfiltered /warps
+    if (category == null && tryOpenGui(store, ref, playerRef)) {
+      return;
+    }
+
+    // Text fallback
     List<Warp> warps;
     if (category != null) {
       warps = warpManager.getAccessibleWarpsByCategory(uuid, category);
@@ -95,5 +105,19 @@ public class WarpsCommand extends AbstractPlayerCommand {
     }
 
     ctx.sendMessage(CommandUtil.msg("Use /warp <name> to teleport.", CommandUtil.COLOR_GRAY));
+  }
+
+  private boolean tryOpenGui(@NotNull Store<EntityStore> store,
+                              @NotNull Ref<EntityStore> ref,
+                              @NotNull PlayerRef playerRef) {
+    if (!HyperEssentialsAPI.isAvailable()) return false;
+
+    GuiManager guiManager = HyperEssentialsAPI.getInstance().getGuiManager();
+    if (guiManager.getPlayerRegistry().getEntry("warps") == null) return false;
+
+    Player player = store.getComponent(ref, Player.getComponentType());
+    if (player == null) return false;
+
+    return guiManager.openPlayerPage("warps", player, ref, store, playerRef);
   }
 }

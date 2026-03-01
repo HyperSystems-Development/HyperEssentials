@@ -1,6 +1,6 @@
 # GUI System
 
-> **Status:** Foundation infrastructure complete. Page registration ready. Phase 2-5 pages pending.
+> **Status:** Foundation + Player pages (Homes, Warps, Kits) complete. Dashboard, TPA, Stats, and Admin pages pending (Phase 3-5).
 
 ## Overview
 
@@ -82,9 +82,16 @@ Common/UI/Custom/HyperEssentials/
     empty_state.ui         Empty list state (title + message)
     confirm_modal.ui       Confirmation modal (message + Confirm/Cancel buttons)
     stat_row.ui            Reusable label:value row for stats display
-  homes/                   Home page templates (Phase 2)
-  warps/                   Warp page templates (Phase 2)
-  kits/                    Kit page templates (Phase 2)
+  homes/
+    homes_page.ui          Browse homes list with count/limit header
+    home_entry.ui          Home row: name, world, coords, Teleport/Delete buttons
+  warps/
+    warps_page.ui          Browse warps with category grouping
+    warp_entry.ui          Warp row: name, category, world, coords, Teleport button
+    warp_category_header.ui  Category section divider
+  kits/
+    kits_page.ui           Browse available kits with count header
+    kit_entry.ui           Kit row: name, items, cooldown, Claim/Preview buttons
   teleport/                TPA page templates (Phase 3)
   player/                  Dashboard and stats templates (Phase 3)
   admin/                   Admin page templates (Phase 4-5)
@@ -105,27 +112,67 @@ Styles follow HyperFactions' proven pattern using `TextButtonStyle(...)` tuple s
 - `@FlatGreenButtonStyle` — solid green background (confirm)
 - `@FlatGoldButtonStyle` — solid gold background (brand accent)
 
-## Registering a Page
+## Registering Pages
 
-Modules register pages in their `onEnable()`:
+Pages are registered centrally in `HyperEssentials.registerPages()` after all module managers are initialized:
 
 ```java
-guiManager.getPlayerRegistry().registerEntry(new PageRegistry.Entry(
-    "homes",                          // id
-    "Homes",                          // displayName
-    "homes",                          // module
-    Permissions.HOME_GUI,             // permission
-    this::createHomesPage,            // supplier
-    true,                             // showsInNavBar
-    10                                // order
+playerReg.registerEntry(new PageRegistry.Entry(
+    "homes", "Homes", "homes", Permissions.HOME_LIST,
+    (player, ref, store, playerRef, gm) ->
+        new HomesPage(player, playerRef, homes.getHomeManager(), warmupManager, gm),
+    true, 10
 ));
 ```
+
+## Command GUI Integration
+
+Commands try to open their GUI page first, falling back to text output:
+
+```java
+// In execute():
+if (tryOpenGui(store, ref, playerRef)) return;
+// ... text fallback ...
+
+private boolean tryOpenGui(Store store, Ref ref, PlayerRef playerRef) {
+    if (!HyperEssentialsAPI.isAvailable()) return false;
+    GuiManager gm = HyperEssentialsAPI.getInstance().getGuiManager();
+    if (gm.getPlayerRegistry().getEntry("homes") == null) return false;
+    Player player = store.getComponent(ref, Player.getComponentType());
+    if (player == null) return false;
+    return gm.openPlayerPage("homes", player, ref, store, playerRef);
+}
+```
+
+## Implemented Player Pages
+
+### HomesPage
+- **File:** `gui/player/HomesPage.java`
+- **Features:** Browse homes with count/limit header, teleport with warmup, delete homes
+- **Dynamic list:** clears `#HomeList`, appends `home_entry.ui` entries with indexed selectors
+- **Teleport:** Uses `WarmupManager.startWarmup()` → `Teleport.createForPlayer()`, closes GUI on teleport
+- **Events:** Teleport, Delete buttons per entry; Nav bar navigation
+
+### WarpsPage
+- **File:** `gui/player/WarpsPage.java`
+- **Features:** Browse warps grouped by category, teleport with warmup
+- **Category grouping:** Inserts `warp_category_header.ui` before each category's warp entries
+- **Teleport:** Same warmup pattern as HomesPage, closes GUI on teleport
+- **Events:** Teleport button per entry; Nav bar navigation
+
+### KitsPage
+- **File:** `gui/player/KitsPage.java`
+- **Features:** Browse available kits, claim with cooldown display, preview
+- **Cooldown display:** Shows remaining cooldown time, "Ready", "One-time kit", or nothing
+- **Claim:** Calls `kitManager.claimKit()` and rebuilds list to update cooldown status
+- **Events:** Claim, Preview buttons per entry; Nav bar navigation
 
 ## Page Implementation Pattern
 
 ```java
 public class HomesPage extends InteractiveCustomUIPage<PlayerPageData> {
-  public HomesPage(PlayerRef playerRef, HomeManager homeManager, GuiManager guiManager) {
+  public HomesPage(Player player, PlayerRef playerRef, HomeManager homeManager,
+                   WarmupManager warmupManager, GuiManager guiManager) {
     super(playerRef, CustomPageLifetime.CanDismiss, PlayerPageData.CODEC);
   }
 
@@ -133,16 +180,26 @@ public class HomesPage extends InteractiveCustomUIPage<PlayerPageData> {
   public void build(Ref ref, UICommandBuilder cmd, UIEventBuilder events, Store store) {
     cmd.append(UIPaths.HOMES_PAGE);
     NavBarHelper.setupBar(playerRef, "homes", guiManager.getPlayerRegistry(), cmd, events);
-    // populate content...
+    buildHomeList(cmd, events);  // populate dynamic list
   }
 
   @Override
   public void handleDataEvent(Ref ref, Store store, PlayerPageData data) {
     if ("Nav".equals(data.button)) {
-      NavBarHelper.handleNavEvent(data.navTarget, player, ref, store, playerRef, guiManager);
+      NavBarHelper.handleNavEvent(data.navTarget, player, ref, store, playerRef, guiManager, GuiType.PLAYER);
       return;
     }
-    // handle page-specific events...
+    switch (data.button) {
+      case "Teleport" -> handleTeleport(ref, data.target);
+      case "Delete" -> handleDelete(ref, store, data.target);
+    }
+  }
+
+  private void rebuildList() {
+    UICommandBuilder cmd = new UICommandBuilder();
+    UIEventBuilder events = new UIEventBuilder();
+    buildHomeList(cmd, events);
+    sendUpdate(cmd, events, false);  // partial update, not full rebuild
   }
 }
 ```

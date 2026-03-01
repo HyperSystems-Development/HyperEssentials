@@ -1,0 +1,60 @@
+$C = "../../Common.ui";
+$S = "../shared/styles.ui";
+
+Group {
+  LayoutMode: Left;
+  Anchor: (Height: 48, Bottom: 4);
+  Background: (Color: $S.@ColorBgCard);
+  Padding: (Left: 12, Right: 12, Top: 6, Bottom: 6);
+
+  // Green indicator bar
+  Group #KitIndicator {
+    Anchor: (Width: 3, Top: 4, Bottom: 4);
+    Background: (Color: $S.@ColorGreen);
+  }
+
+  Group { Anchor: (Width: 8); }
+
+  // Kit name and item count
+  Group {
+    Anchor: (Width: 160);
+    LayoutMode: Top;
+
+    Label #KitName {
+      Text: "Kit";
+      Style: (FontSize: 13, TextColor: $S.@ColorWhite, RenderBold: true, VerticalAlignment: Center);
+      Anchor: (Height: 20);
+    }
+
+    Label #KitItems {
+      Text: "0 items";
+      Style: (FontSize: 10, TextColor: $S.@ColorGray, VerticalAlignment: Center);
+      Anchor: (Height: 16);
+    }
+  }
+
+  // Cooldown info
+  Label #KitCooldown {
+    Text: "";
+    Style: (FontSize: 11, TextColor: $S.@ColorMuted, VerticalAlignment: Center);
+    Anchor: (Width: 120);
+  }
+
+  Group { FlexWeight: 1; }
+
+  // Claim button
+  TextButton #ClaimBtn {
+    Text: "CLAIM";
+    Anchor: (Width: 80, Height: 28);
+    Style: $S.@GreenButtonStyle;
+  }
+
+  Group { Anchor: (Width: 6); }
+
+  // Preview button
+  TextButton #PreviewBtn {
+    Text: "PREVIEW";
+    Anchor: (Width: 80, Height: 28);
+    Style: $S.@ButtonStyle;
+  }
+}

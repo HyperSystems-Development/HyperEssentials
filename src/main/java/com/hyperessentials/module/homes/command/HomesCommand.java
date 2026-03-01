@@ -1,13 +1,16 @@
 package com.hyperessentials.module.homes.command;
 
 import com.hyperessentials.Permissions;
+import com.hyperessentials.api.HyperEssentialsAPI;
 import com.hyperessentials.command.util.CommandUtil;
 import com.hyperessentials.data.Home;
+import com.hyperessentials.gui.GuiManager;
 import com.hyperessentials.module.homes.HomeManager;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.server.core.command.system.CommandContext;
 import com.hypixel.hytale.server.core.command.system.basecommands.AbstractPlayerCommand;
+import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
@@ -18,6 +21,7 @@ import java.util.UUID;
 
 /**
  * /homes - List all homes with count and limit.
+ * Opens GUI page when available, falls back to text list.
  */
 public class HomesCommand extends AbstractPlayerCommand {
 
@@ -43,6 +47,12 @@ public class HomesCommand extends AbstractPlayerCommand {
       return;
     }
 
+    // Try GUI page first
+    if (tryOpenGui(store, ref, playerRef)) {
+      return;
+    }
+
+    // Text fallback
     Collection<Home> homes = homeManager.getHomes(uuid);
     int count = homes.size();
     int limit = homeManager.getHomeLimit(uuid);
@@ -63,5 +73,19 @@ public class HomesCommand extends AbstractPlayerCommand {
       sb.append(home.name());
     }
     ctx.sendMessage(CommandUtil.msg(sb.toString(), CommandUtil.COLOR_GRAY));
+  }
+
+  private boolean tryOpenGui(@NotNull Store<EntityStore> store,
+                              @NotNull Ref<EntityStore> ref,
+                              @NotNull PlayerRef playerRef) {
+    if (!HyperEssentialsAPI.isAvailable()) return false;
+
+    GuiManager guiManager = HyperEssentialsAPI.getInstance().getGuiManager();
+    if (guiManager.getPlayerRegistry().getEntry("homes") == null) return false;
+
+    Player player = store.getComponent(ref, Player.getComponentType());
+    if (player == null) return false;
+
+    return guiManager.openPlayerPage("homes", player, ref, store, playerRef);
   }
 }

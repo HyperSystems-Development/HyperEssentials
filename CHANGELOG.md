@@ -24,6 +24,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `/he admin` opens admin dashboard GUI (requires `admin.gui` permission)
 - Shared `.ui` templates: `styles.ui` (HyperFactions-quality TextButtonStyle definitions), `empty_state.ui`, `confirm_modal.ui`, `stat_row.ui`
 
+#### Player GUI Pages — Homes, Warps, Kits
+- `HomesPage` — browse homes, teleport (with warmup), delete; shows count/limit header
+- `WarpsPage` — browse warps grouped by category with category headers, teleport with warmup
+- `KitsPage` — browse available kits, claim with cooldown status display, preview items
+- `.ui` templates: `homes_page.ui`, `home_entry.ui`, `warps_page.ui`, `warp_entry.ui`, `warp_category_header.ui`, `kits_page.ui`, `kit_entry.ui`
+- `/homes`, `/warps`, `/kits` commands now open GUI pages (text fallback preserved)
+- Page registration in `HyperEssentials.registerPages()` with correct display order (Homes=10, Warps=20, Kits=30)
+
 #### New Utility Commands
 - `/motd` — display configurable message of the day
 - `/rules` — display server rules

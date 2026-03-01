@@ -128,7 +128,10 @@ com.hyperessentials/
     data/
       PlayerPageData.java       BuilderCodec for player page events
       AdminPageData.java        BuilderCodec for admin page events
-    player/                     Player page implementations (Phase 2-3)
+    player/
+      HomesPage.java            Browse homes, teleport (warmup), delete
+      WarpsPage.java            Browse warps by category, teleport (warmup)
+      KitsPage.java             Browse kits, claim with cooldown, preview
     admin/                      Admin page implementations (Phase 4-5)
 
   storage/

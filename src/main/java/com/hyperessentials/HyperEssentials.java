@@ -2,6 +2,10 @@ package com.hyperessentials;
 
 import com.hyperessentials.config.ConfigManager;
 import com.hyperessentials.gui.GuiManager;
+import com.hyperessentials.gui.PageRegistry;
+import com.hyperessentials.gui.player.HomesPage;
+import com.hyperessentials.gui.player.KitsPage;
+import com.hyperessentials.gui.player.WarpsPage;
 import com.hyperessentials.integration.EcotaleIntegration;
 import com.hyperessentials.integration.HyperFactionsIntegration;
 import com.hyperessentials.integration.PermissionManager;
@@ -111,6 +115,9 @@ public class HyperEssentials {
     // Initialize module managers with storage (post-enable)
     initModuleManagers();
 
+    // Register GUI pages (post-init, modules + managers must be ready)
+    registerPages();
+
     Logger.info("HyperEssentials enabled with %d modules", moduleRegistry.getEnabledModules().size());
   }
 
@@ -176,6 +183,51 @@ public class HyperEssentials {
     TeleportModule teleport = getTeleportModule();
     if (teleport != null && teleport.isEnabled()) {
       teleport.initManagers(storageProvider.getPlayerDataStorage());
+    }
+  }
+
+  /**
+   * Registers GUI pages for enabled modules.
+   */
+  private void registerPages() {
+    PageRegistry playerReg = guiManager.getPlayerRegistry();
+
+    // Homes page
+    HomesModule homes = getHomesModule();
+    if (homes != null && homes.isEnabled() && homes.getHomeManager() != null) {
+      playerReg.registerEntry(new PageRegistry.Entry(
+          "homes", "Homes", "homes", Permissions.HOME_LIST,
+          (player, ref, store, playerRef, gm) ->
+              new HomesPage(player, playerRef, homes.getHomeManager(), warmupManager, gm),
+          true, 10
+      ));
+    }
+
+    // Warps page
+    WarpsModule warps = getWarpsModule();
+    if (warps != null && warps.isEnabled() && warps.getWarpManager() != null) {
+      playerReg.registerEntry(new PageRegistry.Entry(
+          "warps", "Warps", "warps", Permissions.WARP_LIST,
+          (player, ref, store, playerRef, gm) ->
+              new WarpsPage(player, playerRef, warps.getWarpManager(), warmupManager, gm),
+          true, 20
+      ));
+    }
+
+    // Kits page
+    KitsModule kitsModule = moduleRegistry.getModule(KitsModule.class);
+    if (kitsModule != null && kitsModule.isEnabled()) {
+      playerReg.registerEntry(new PageRegistry.Entry(
+          "kits", "Kits", "kits", Permissions.KIT_LIST,
+          (player, ref, store, playerRef, gm) ->
+              new KitsPage(player, playerRef, kitsModule.getKitManager(), gm),
+          true, 30
+      ));
+    }
+
+    int pageCount = playerReg.getEntries().size();
+    if (pageCount > 0) {
+      Logger.info("[GUI] Registered %d player page(s)", pageCount);
     }
   }
 
