@@ -3,6 +3,7 @@ package com.hyperessentials.module.moderation.command;
 import com.hyperessentials.Permissions;
 import com.hyperessentials.command.util.CommandUtil;
 import com.hyperessentials.module.moderation.ModerationModule;
+import com.hyperessentials.util.DurationParser;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.server.core.command.system.CommandContext;
@@ -15,14 +16,17 @@ import org.jetbrains.annotations.NotNull;
 import java.util.UUID;
 
 /**
- * /ban <player> [reason...] - Permanently ban a player.
+ * /ban <player> [duration] [reason...] - Ban a player (permanent or temporary).
+ * If the second argument parses as a duration, it's a temp ban; otherwise treat as reason.
+ * Aliases: /tempban
  */
 public class BanCommand extends AbstractPlayerCommand {
 
   private final ModerationModule module;
 
   public BanCommand(@NotNull ModerationModule module) {
-    super("ban", "Permanently ban a player");
+    super("ban", "Ban a player");
+    addAliases("tempban");
     this.module = module;
     setAllowsExtraArguments(true);
   }
@@ -42,12 +46,25 @@ public class BanCommand extends AbstractPlayerCommand {
     String[] parts = input != null ? input.trim().split("\\s+") : new String[0];
 
     if (parts.length < 2) {
-      ctx.sendMessage(CommandUtil.error("Usage: /ban <player> [reason...]"));
+      ctx.sendMessage(CommandUtil.error("Usage: /ban <player> [duration] [reason...]"));
       return;
     }
 
     String targetName = parts[1];
-    String reason = parts.length > 2 ? joinArgs(parts, 2) : null;
+    Long durationMs = null;
+    String reason = null;
+
+    if (parts.length > 2) {
+      // Try to parse second arg as duration
+      long parsed = DurationParser.parse(parts[2]);
+      if (parsed > 0) {
+        durationMs = parsed;
+        reason = parts.length > 3 ? joinArgs(parts, 3) : null;
+      } else {
+        // Not a duration, treat as start of reason
+        reason = joinArgs(parts, 2);
+      }
+    }
 
     // Resolve target
     UUID targetUuid = module.getModerationManager().findPlayerUuid(targetName);
@@ -62,8 +79,13 @@ public class BanCommand extends AbstractPlayerCommand {
       return;
     }
 
-    module.getModerationManager().ban(targetUuid, targetName, playerRef.getUuid(), playerRef.getUsername(), reason, null);
-    ctx.sendMessage(CommandUtil.success("Permanently banned " + targetName + "."));
+    module.getModerationManager().ban(targetUuid, targetName, playerRef.getUuid(), playerRef.getUsername(), reason, durationMs);
+
+    if (durationMs != null) {
+      ctx.sendMessage(CommandUtil.success("Banned " + targetName + " for " + DurationParser.formatHuman(durationMs) + "."));
+    } else {
+      ctx.sendMessage(CommandUtil.success("Permanently banned " + targetName + "."));
+    }
   }
 
   private String joinArgs(String[] parts, int start) {

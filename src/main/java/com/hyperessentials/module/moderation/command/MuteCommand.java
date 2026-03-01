@@ -3,6 +3,7 @@ package com.hyperessentials.module.moderation.command;
 import com.hyperessentials.Permissions;
 import com.hyperessentials.command.util.CommandUtil;
 import com.hyperessentials.module.moderation.ModerationModule;
+import com.hyperessentials.util.DurationParser;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.server.core.command.system.CommandContext;
@@ -15,14 +16,17 @@ import org.jetbrains.annotations.NotNull;
 import java.util.UUID;
 
 /**
- * /mute <player> [reason...] - Permanently mute a player.
+ * /mute <player> [duration] [reason...] - Mute a player (permanent or temporary).
+ * If the second argument parses as a duration, it's a temp mute; otherwise treat as reason.
+ * Aliases: /tempmute, /tmute
  */
 public class MuteCommand extends AbstractPlayerCommand {
 
   private final ModerationModule module;
 
   public MuteCommand(@NotNull ModerationModule module) {
-    super("mute", "Permanently mute a player");
+    super("mute", "Mute a player");
+    addAliases("tempmute", "tmute");
     this.module = module;
     setAllowsExtraArguments(true);
   }
@@ -42,12 +46,23 @@ public class MuteCommand extends AbstractPlayerCommand {
     String[] parts = input != null ? input.trim().split("\\s+") : new String[0];
 
     if (parts.length < 2) {
-      ctx.sendMessage(CommandUtil.error("Usage: /mute <player> [reason...]"));
+      ctx.sendMessage(CommandUtil.error("Usage: /mute <player> [duration] [reason...]"));
       return;
     }
 
     String targetName = parts[1];
-    String reason = parts.length > 2 ? joinArgs(parts, 2) : null;
+    Long durationMs = null;
+    String reason = null;
+
+    if (parts.length > 2) {
+      long parsed = DurationParser.parse(parts[2]);
+      if (parsed > 0) {
+        durationMs = parsed;
+        reason = parts.length > 3 ? joinArgs(parts, 3) : null;
+      } else {
+        reason = joinArgs(parts, 2);
+      }
+    }
 
     UUID targetUuid = module.getModerationManager().findPlayerUuid(targetName);
     if (targetUuid == null) {
@@ -60,8 +75,13 @@ public class MuteCommand extends AbstractPlayerCommand {
       return;
     }
 
-    module.getModerationManager().mute(targetUuid, targetName, playerRef.getUuid(), playerRef.getUsername(), reason, null);
-    ctx.sendMessage(CommandUtil.success("Permanently muted " + targetName + "."));
+    module.getModerationManager().mute(targetUuid, targetName, playerRef.getUuid(), playerRef.getUsername(), reason, durationMs);
+
+    if (durationMs != null) {
+      ctx.sendMessage(CommandUtil.success("Muted " + targetName + " for " + DurationParser.formatHuman(durationMs) + "."));
+    } else {
+      ctx.sendMessage(CommandUtil.success("Permanently muted " + targetName + "."));
+    }
   }
 
   private String joinArgs(String[] parts, int start) {
