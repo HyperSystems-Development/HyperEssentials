@@ -1,6 +1,7 @@
 package com.hyperessentials.module.moderation.storage;
 
 import com.google.gson.*;
+import com.hyperessentials.module.moderation.data.IpBan;
 import com.hyperessentials.module.moderation.data.Punishment;
 import com.hyperessentials.module.moderation.data.PunishmentType;
 import com.hyperessentials.util.Logger;
@@ -24,6 +25,7 @@ public class ModerationStorage {
 
   private final Path filePath;
   private final Map<UUID, List<Punishment>> punishments = new ConcurrentHashMap<>();
+  private final Map<String, IpBan> ipBans = new ConcurrentHashMap<>();
 
   public ModerationStorage(@NotNull Path dataDir) {
     this.filePath = dataDir.resolve("data").resolve("punishments.json");
@@ -31,6 +33,7 @@ public class ModerationStorage {
 
   public void load() {
     punishments.clear();
+    ipBans.clear();
 
     if (!Files.exists(filePath)) {
       Logger.info("[ModerationStorage] No punishments file found, starting fresh");
@@ -60,7 +63,20 @@ public class ModerationStorage {
         }
       }
 
-      Logger.info("[ModerationStorage] Loaded punishments for %d player(s)", punishments.size());
+      // Load IP bans
+      if (root.has("ipBans") && root.get("ipBans").isJsonObject()) {
+        JsonObject bans = root.getAsJsonObject("ipBans");
+        for (Map.Entry<String, JsonElement> entry : bans.entrySet()) {
+          try {
+            IpBan ban = deserializeIpBan(entry.getKey(), entry.getValue().getAsJsonObject());
+            if (ban != null) ipBans.put(entry.getKey(), ban);
+          } catch (Exception e) {
+            Logger.warn("[ModerationStorage] Failed to parse IP ban for %s: %s", entry.getKey(), e.getMessage());
+          }
+        }
+      }
+
+      Logger.info("[ModerationStorage] Loaded punishments for %d player(s), %d IP ban(s)", punishments.size(), ipBans.size());
     } catch (Exception e) {
       Logger.severe("[ModerationStorage] Failed to load punishments: %s", e.getMessage());
     }
@@ -93,6 +109,14 @@ public class ModerationStorage {
       }
 
       root.add("players", players);
+
+      // Save IP bans
+      JsonObject ipBansObj = new JsonObject();
+      for (Map.Entry<String, IpBan> entry : ipBans.entrySet()) {
+        ipBansObj.add(entry.getKey(), serializeIpBan(entry.getValue()));
+      }
+      root.add("ipBans", ipBansObj);
+
       Files.writeString(filePath, GSON.toJson(root));
       Logger.debug("[ModerationStorage] Saved punishments");
     } catch (IOException e) {
@@ -200,6 +224,61 @@ public class ModerationStorage {
     obj.addProperty("revokedBy", p.revokedBy() != null ? p.revokedBy().toString() : null);
     obj.addProperty("revokedAt", p.revokedAt() != null ? p.revokedAt().toEpochMilli() : null);
     return obj;
+  }
+
+  // === IP Ban Operations ===
+
+  public void addIpBan(@NotNull IpBan ban) {
+    ipBans.put(ban.ip(), ban);
+    save();
+  }
+
+  public boolean removeIpBan(@NotNull String ip) {
+    IpBan removed = ipBans.remove(ip);
+    if (removed != null) {
+      save();
+      return true;
+    }
+    return false;
+  }
+
+  @Nullable
+  public IpBan getIpBan(@NotNull String ip) {
+    return ipBans.get(ip);
+  }
+
+  @NotNull
+  public Map<String, IpBan> getAllIpBans() {
+    return Collections.unmodifiableMap(ipBans);
+  }
+
+  private JsonObject serializeIpBan(@NotNull IpBan ban) {
+    JsonObject obj = new JsonObject();
+    obj.addProperty("reason", ban.reason());
+    obj.addProperty("issuerUuid", ban.issuerUuid() != null ? ban.issuerUuid().toString() : null);
+    obj.addProperty("issuerName", ban.issuerName());
+    obj.addProperty("issuedAt", ban.issuedAt().toEpochMilli());
+    obj.addProperty("expiresAt", ban.expiresAt() != null ? ban.expiresAt().toEpochMilli() : null);
+    return obj;
+  }
+
+  @Nullable
+  private IpBan deserializeIpBan(@NotNull String ip, @NotNull JsonObject obj) {
+    try {
+      return new IpBan(
+        ip,
+        obj.has("reason") && !obj.get("reason").isJsonNull() ? obj.get("reason").getAsString() : null,
+        obj.has("issuerUuid") && !obj.get("issuerUuid").isJsonNull()
+          ? UUID.fromString(obj.get("issuerUuid").getAsString()) : null,
+        obj.get("issuerName").getAsString(),
+        Instant.ofEpochMilli(obj.get("issuedAt").getAsLong()),
+        obj.has("expiresAt") && !obj.get("expiresAt").isJsonNull()
+          ? Instant.ofEpochMilli(obj.get("expiresAt").getAsLong()) : null
+      );
+    } catch (Exception e) {
+      Logger.warn("[ModerationStorage] Failed to parse IP ban: %s", e.getMessage());
+      return null;
+    }
   }
 
   @Nullable

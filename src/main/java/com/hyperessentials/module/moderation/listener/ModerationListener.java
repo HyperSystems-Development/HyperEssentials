@@ -6,6 +6,7 @@ import com.hyperessentials.config.ConfigManager;
 import com.hyperessentials.module.moderation.ModerationManager;
 import com.hyperessentials.module.moderation.ModerationModule;
 import com.hyperessentials.module.moderation.VanishManager;
+import com.hyperessentials.module.moderation.data.IpBan;
 import com.hyperessentials.module.moderation.data.Punishment;
 import com.hyperessentials.util.DurationParser;
 import com.hyperessentials.util.Logger;
@@ -14,8 +15,10 @@ import com.hypixel.hytale.server.core.event.events.player.PlayerConnectEvent;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import org.jetbrains.annotations.NotNull;
 
+import java.net.InetSocketAddress;
+
 /**
- * Handles player connect and chat events for ban/mute enforcement and vanish.
+ * Handles player connect and chat events for ban/mute enforcement, IP bans, and vanish.
  */
 public class ModerationListener {
 
@@ -26,16 +29,15 @@ public class ModerationListener {
   }
 
   /**
-   * Called on player connect. Checks ban status and applies vanish hiding.
+   * Called on player connect. Checks ban and IP ban status, applies vanish hiding.
    */
   public void onPlayerConnect(@NotNull PlayerConnectEvent event) {
     PlayerRef playerRef = event.getPlayerRef();
+    ModerationManager modManager = module.getModerationManager();
 
     // Check for active ban
-    ModerationManager modManager = module.getModerationManager();
     Punishment ban = modManager.getActiveBan(playerRef.getUuid());
     if (ban != null && ban.isEffective()) {
-      // Player is banned - disconnect them
       StringBuilder message = new StringBuilder("You are banned from this server.");
       if (ban.reason() != null) {
         message.append("\nReason: ").append(ban.reason());
@@ -50,6 +52,25 @@ public class ModerationListener {
         Logger.warn("[Moderation] Failed to disconnect banned player: %s", e.getMessage());
       }
       return;
+    }
+
+    // Check for IP ban
+    try {
+      InetSocketAddress addr = (InetSocketAddress) playerRef.getPacketHandler()
+          .getChannel().remoteAddress();
+      if (addr != null) {
+        String ip = addr.getAddress().getHostAddress();
+        if (modManager.isIpBanned(ip)) {
+          try {
+            playerRef.getPacketHandler().disconnect("Your IP address has been banned.");
+          } catch (Exception e) {
+            Logger.warn("[Moderation] Failed to disconnect IP-banned player: %s", e.getMessage());
+          }
+          return;
+        }
+      }
+    } catch (Exception e) {
+      Logger.debug("[Moderation] Failed to check IP ban for %s: %s", playerRef.getUsername(), e.getMessage());
     }
 
     // Hide vanished players from the new player

@@ -3,6 +3,7 @@ package com.hyperessentials.module.moderation;
 import com.hyperessentials.Permissions;
 import com.hyperessentials.command.util.CommandUtil;
 import com.hyperessentials.config.ConfigManager;
+import com.hyperessentials.module.moderation.data.IpBan;
 import com.hyperessentials.module.moderation.data.Punishment;
 import com.hyperessentials.module.moderation.data.PunishmentType;
 import com.hyperessentials.module.moderation.storage.ModerationStorage;
@@ -14,10 +15,12 @@ import com.hypixel.hytale.server.core.universe.PlayerRef;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.net.InetSocketAddress;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Manages ban, mute, and kick operations.
@@ -25,9 +28,80 @@ import java.util.UUID;
 public class ModerationManager {
 
   private final ModerationStorage storage;
+  private final Map<UUID, String> playerIps = new ConcurrentHashMap<>();
 
   public ModerationManager(@NotNull ModerationStorage storage) {
     this.storage = storage;
+  }
+
+  // === IP Tracking ===
+
+  /**
+   * Captures a player's IP address on connect.
+   */
+  public void onPlayerConnect(@NotNull PlayerRef playerRef) {
+    try {
+      InetSocketAddress addr = (InetSocketAddress) playerRef.getPacketHandler()
+          .getChannel().remoteAddress();
+      if (addr != null) {
+        String ip = addr.getAddress().getHostAddress();
+        playerIps.put(playerRef.getUuid(), ip);
+      }
+    } catch (Exception e) {
+      Logger.debug("[Moderation] Failed to capture IP for %s", playerRef.getUsername());
+    }
+  }
+
+  @Nullable
+  public String getPlayerIp(@NotNull UUID uuid) {
+    return playerIps.get(uuid);
+  }
+
+  /**
+   * Checks if a player's IP is banned. Auto-removes expired bans.
+   */
+  public boolean isIpBanned(@NotNull String ip) {
+    IpBan ban = storage.getIpBan(ip);
+    if (ban != null && ban.hasExpired()) {
+      storage.removeIpBan(ip);
+      return false;
+    }
+    return ban != null && ban.isEffective();
+  }
+
+  @NotNull
+  public IpBan ipBan(@NotNull String ip, @Nullable UUID issuerUuid, @NotNull String issuerName,
+            @Nullable String reason, @Nullable Long durationMs) {
+    Instant expiresAt = durationMs != null ? Instant.now().plusMillis(durationMs) : null;
+    IpBan ban = new IpBan(ip, reason, issuerUuid, issuerName, Instant.now(), expiresAt);
+    storage.addIpBan(ban);
+
+    notifyStaff(Permissions.NOTIFY_BAN, issuerName + " IP banned " + ip
+      + (ban.isPermanent() ? " permanently" : " for " + DurationParser.formatHuman(durationMs)));
+
+    return ban;
+  }
+
+  public boolean ipUnban(@NotNull String ip) {
+    boolean removed = storage.removeIpBan(ip);
+    if (removed) {
+      notifyStaff(Permissions.NOTIFY_BAN, "IP " + ip + " was unbanned");
+    }
+    return removed;
+  }
+
+  /**
+   * Kicks all online players that share the given IP.
+   */
+  public void kickPlayersWithIp(@NotNull String ip, @NotNull String reason) {
+    HyperEssentialsPlugin plugin = HyperEssentialsPlugin.getInstance();
+    if (plugin == null) return;
+
+    for (Map.Entry<UUID, String> entry : playerIps.entrySet()) {
+      if (ip.equals(entry.getValue())) {
+        kickOnlinePlayer(entry.getKey(), reason);
+      }
+    }
   }
 
   // === Ban Operations ===
