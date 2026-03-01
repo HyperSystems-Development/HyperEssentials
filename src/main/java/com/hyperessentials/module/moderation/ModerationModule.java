@@ -12,15 +12,17 @@ import com.hyperessentials.platform.HyperEssentialsPlugin;
 import com.hyperessentials.util.Logger;
 import com.hypixel.hytale.server.core.event.events.player.PlayerChatEvent;
 import com.hypixel.hytale.server.core.event.events.player.PlayerConnectEvent;
+import com.hypixel.hytale.server.core.universe.PlayerRef;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 /**
  * Moderation module for HyperEssentials.
- * Provides ban/tempban, mute/tempmute, kick, freeze, vanish, and punishment history.
+ * Provides ban, mute, kick, freeze, vanish, punishment history, and IP bans.
  */
 public class ModerationModule extends AbstractModule {
 
@@ -30,6 +32,7 @@ public class ModerationModule extends AbstractModule {
   private VanishManager vanishManager;
   private ModerationListener listener;
   private Consumer<UUID> disconnectHandler;
+  private BiConsumer<UUID, String> connectHandler;
 
   @Override
   @NotNull
@@ -67,9 +70,6 @@ public class ModerationModule extends AbstractModule {
     HyperEssentialsPlugin plugin = HyperEssentialsPlugin.getInstance();
     if (plugin != null) {
       plugin.getEventRegistry().register(PlayerConnectEvent.class, listener::onPlayerConnect);
-      // PlayerChatEvent supports setCancelled for mute enforcement
-      // PlayerChatEvent implements IAsyncEvent<String>, not IBaseEvent<Void>,
-      // so registerGlobal() is needed (accepts any KeyType)
       plugin.getEventRegistry().registerGlobal(PlayerChatEvent.class, listener::onPlayerChat);
 
       // Register disconnect handler
@@ -79,18 +79,27 @@ public class ModerationModule extends AbstractModule {
       };
       core.registerDisconnectHandler(disconnectHandler);
 
+      // Register connect handler for IP tracking
+      connectHandler = (uuid, username) -> {
+        PlayerRef ref = plugin.getTrackedPlayer(uuid);
+        if (ref != null) {
+          moderationManager.onPlayerConnect(ref);
+        }
+      };
+      core.registerConnectHandler(connectHandler);
+
       // Register commands
       try {
         plugin.getCommandRegistry().registerCommand(new BanCommand(this));
-        plugin.getCommandRegistry().registerCommand(new TempBanCommand(this));
         plugin.getCommandRegistry().registerCommand(new UnbanCommand(this));
         plugin.getCommandRegistry().registerCommand(new MuteCommand(this));
-        plugin.getCommandRegistry().registerCommand(new TempMuteCommand(this));
         plugin.getCommandRegistry().registerCommand(new UnmuteCommand(this));
         plugin.getCommandRegistry().registerCommand(new KickCommand(this));
         plugin.getCommandRegistry().registerCommand(new FreezeCommand(this));
         plugin.getCommandRegistry().registerCommand(new VanishCommand(this));
         plugin.getCommandRegistry().registerCommand(new PunishmentsCommand(this));
+        plugin.getCommandRegistry().registerCommand(new IpBanCommand(this));
+        plugin.getCommandRegistry().registerCommand(new IpUnbanCommand(this));
         Logger.info("[Moderation] Registered 10 commands");
       } catch (Exception e) {
         Logger.severe("[Moderation] Failed to register commands: %s", e.getMessage());
@@ -104,11 +113,14 @@ public class ModerationModule extends AbstractModule {
     if (vanishManager != null) vanishManager.shutdown();
     if (moderationManager != null) moderationManager.shutdown();
 
-    // Unregister disconnect handler
-    if (disconnectHandler != null) {
-      HyperEssentials core = HyperEssentialsAPI.getInstance();
-      if (core != null) {
+    // Unregister handlers
+    HyperEssentials core = HyperEssentialsAPI.getInstance();
+    if (core != null) {
+      if (disconnectHandler != null) {
         core.unregisterDisconnectHandler(disconnectHandler);
+      }
+      if (connectHandler != null) {
+        core.unregisterConnectHandler(connectHandler);
       }
     }
 
