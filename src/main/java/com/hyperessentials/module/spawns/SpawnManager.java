@@ -5,6 +5,12 @@ import com.hyperessentials.data.Spawn;
 import com.hyperessentials.integration.PermissionManager;
 import com.hyperessentials.storage.SpawnStorage;
 import com.hyperessentials.util.Logger;
+import com.hypixel.hytale.math.vector.Transform;
+import com.hypixel.hytale.math.vector.Vector3d;
+import com.hypixel.hytale.math.vector.Vector3f;
+import com.hypixel.hytale.server.core.universe.Universe;
+import com.hypixel.hytale.server.core.universe.world.World;
+import com.hypixel.hytale.server.core.universe.world.spawn.ISpawnProvider;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -34,6 +40,102 @@ public class SpawnManager {
       spawns.putAll(loaded);
       Logger.info("[Spawns] Loaded %d spawns", spawns.size());
     });
+  }
+
+  /**
+   * Auto-detects world spawn points from the server on first startup.
+   * Only runs if no spawns are configured (fresh install).
+   */
+  public void autoDetectWorldSpawns() {
+    if (!spawns.isEmpty()) {
+      Logger.debug("[Spawns] Spawns already configured, skipping auto-detection");
+      return;
+    }
+    importWorldSpawns();
+  }
+
+  /**
+   * Imports world spawn points from the Hytale server's WorldConfig spawn providers.
+   * Creates or updates spawn records for each world that has a configured spawn point.
+   * Existing user-created spawns that don't match a world name are preserved.
+   * The default world's spawn is marked as default if no default exists yet.
+   *
+   * @return the number of spawns imported
+   */
+  public int importWorldSpawns() {
+    try {
+      Universe universe = Universe.get();
+      if (universe == null) {
+        Logger.warn("[Spawns] Universe not available, cannot import spawns");
+        return 0;
+      }
+
+      Map<String, World> worlds = universe.getWorlds();
+      if (worlds.isEmpty()) {
+        Logger.warn("[Spawns] No worlds found, cannot import spawns");
+        return 0;
+      }
+
+      World defaultWorld = universe.getDefaultWorld();
+      String defaultWorldName = defaultWorld != null ? defaultWorld.getName() : null;
+      boolean hasExistingDefault = getDefaultSpawn() != null;
+      int imported = 0;
+
+      for (World world : worlds.values()) {
+        ISpawnProvider provider = world.getWorldConfig().getSpawnProvider();
+        if (provider == null) {
+          Logger.debug("[Spawns] World '%s' has no spawn provider, skipping", world.getName());
+          continue;
+        }
+
+        @SuppressWarnings("deprecation")
+        Transform[] spawnPoints = provider.getSpawnPoints();
+        if (spawnPoints == null || spawnPoints.length == 0) {
+          Logger.debug("[Spawns] World '%s' spawn provider returned no spawn points, skipping", world.getName());
+          continue;
+        }
+
+        Transform transform = spawnPoints[0];
+        Vector3d pos = transform.getPosition();
+        Vector3f rot = transform.getRotation();
+
+        String spawnName = world.getName().toLowerCase();
+        boolean isDefault = !hasExistingDefault
+          && defaultWorldName != null
+          && world.getName().equalsIgnoreCase(defaultWorldName);
+
+        Spawn spawn = new Spawn(
+          spawnName,
+          world.getName(),
+          pos.getX(), pos.getY(), pos.getZ(),
+          rot.getY(), rot.getX(),  // yaw = rotation.y, pitch = rotation.x
+          null,   // no permission
+          null,   // no group permission
+          isDefault,
+          System.currentTimeMillis(),
+          "server" // created by server import
+        );
+
+        boolean isUpdate = spawns.containsKey(spawnName);
+        spawns.put(spawnName, spawn);
+        if (isDefault) hasExistingDefault = true;
+        imported++;
+
+        Logger.info("[Spawns] %s spawn for world '%s' at %.1f, %.1f, %.1f%s",
+          isUpdate ? "Updated" : "Imported",
+          world.getName(), pos.getX(), pos.getY(), pos.getZ(),
+          isDefault ? " (default)" : "");
+      }
+
+      if (imported > 0) {
+        saveSpawns();
+        Logger.info("[Spawns] Imported %d world spawn(s)", imported);
+      }
+      return imported;
+    } catch (Exception e) {
+      Logger.warn("[Spawns] Failed to import world spawns: %s", e.getMessage());
+      return 0;
+    }
   }
 
   public CompletableFuture<Void> saveSpawns() {

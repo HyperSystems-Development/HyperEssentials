@@ -37,6 +37,10 @@ public class SpawnsModule extends AbstractModule {
     SpawnsConfig config = ConfigManager.get().spawns();
     this.spawnManager = new SpawnManager(storage, config);
     spawnManager.loadSpawns().join();
+
+    // On first startup (no spawns configured), auto-detect from server world configs
+    spawnManager.autoDetectWorldSpawns();
+
     Logger.info("[Spawns] SpawnManager initialized");
   }
 
