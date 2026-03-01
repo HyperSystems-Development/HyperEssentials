@@ -16,13 +16,13 @@ import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * /repair - Repair the item in hand.
- * Uses Player component -> Inventory -> getItemInHand() pattern.
+ * /repair - Repair the item in hand (restore durability to current max).
  */
 public class RepairCommand extends AbstractPlayerCommand {
 
   public RepairCommand() {
     super("repair", "Repair held item");
+    addAliases("fix");
   }
 
   @Override
@@ -57,10 +57,12 @@ public class RepairCommand extends AbstractPlayerCommand {
         return;
       }
 
-      // Use withRestoredDurability to set both current and max durability
-      ItemStack repaired = heldItem.withRestoredDurability(maxDurability);
+      if (heldItem.getDurability() >= maxDurability) {
+        ctx.sendMessage(CommandUtil.info("Item is already at full durability."));
+        return;
+      }
 
-      // Replace in the active hotbar slot
+      ItemStack repaired = heldItem.withDurability(maxDurability);
       byte activeSlot = inventory.getActiveHotbarSlot();
       inventory.getHotbar().setItemStackForSlot(activeSlot, repaired);
       ctx.sendMessage(CommandUtil.success("Item repaired."));
