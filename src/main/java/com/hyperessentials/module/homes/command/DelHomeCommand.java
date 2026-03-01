@@ -26,6 +26,7 @@ public class DelHomeCommand extends AbstractPlayerCommand {
   public DelHomeCommand(@NotNull HomeManager homeManager) {
     super("delhome", "Delete a home");
     this.homeManager = homeManager;
+    addAliases("deletehome", "rmhome", "removehome");
     setAllowsExtraArguments(true);
   }
 

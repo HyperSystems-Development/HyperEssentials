@@ -26,6 +26,7 @@ public class TpCancelCommand extends AbstractPlayerCommand {
   public TpCancelCommand(@NotNull TpaManager tpaManager) {
     super("tpcancel", "Cancel your teleport request");
     this.tpaManager = tpaManager;
+    addAliases("tpc");
   }
 
   @Override

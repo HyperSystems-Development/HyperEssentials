@@ -24,6 +24,7 @@ public class TpToggleCommand extends AbstractPlayerCommand {
   public TpToggleCommand(@NotNull TpaManager tpaManager) {
     super("tptoggle", "Toggle accepting teleport requests");
     this.tpaManager = tpaManager;
+    addAliases("tpt");
   }
 
   @Override

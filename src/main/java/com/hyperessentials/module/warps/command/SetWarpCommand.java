@@ -31,6 +31,7 @@ public class SetWarpCommand extends AbstractPlayerCommand {
     super("setwarp", "Create a server warp at your location");
     this.warpManager = warpManager;
     this.config = config;
+    addAliases("createwarp");
     setAllowsExtraArguments(true);
   }
 

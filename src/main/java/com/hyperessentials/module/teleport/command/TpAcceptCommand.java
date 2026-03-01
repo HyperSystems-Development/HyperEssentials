@@ -40,7 +40,7 @@ public class TpAcceptCommand extends AbstractPlayerCommand {
     this.tpaManager = tpaManager;
     this.backManager = backManager;
     this.warmupManager = warmupManager;
-    addAliases("tpyes");
+    addAliases("tpyes", "tpy");
     setAllowsExtraArguments(true);
   }
 

@@ -26,7 +26,7 @@ public class TpDenyCommand extends AbstractPlayerCommand {
   public TpDenyCommand(@NotNull TpaManager tpaManager) {
     super("tpdeny", "Deny a teleport request");
     this.tpaManager = tpaManager;
-    addAliases("tpno");
+    addAliases("tpno", "tpn");
     setAllowsExtraArguments(true);
   }
 

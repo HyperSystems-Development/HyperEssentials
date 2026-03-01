@@ -21,6 +21,7 @@ public class ClearChatCommand extends AbstractPlayerCommand {
 
   public ClearChatCommand() {
     super("clearchat", "Clear chat");
+    addAliases("cc");
     setAllowsExtraArguments(true);
   }
 

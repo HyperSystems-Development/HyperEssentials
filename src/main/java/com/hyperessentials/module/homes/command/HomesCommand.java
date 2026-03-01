@@ -26,6 +26,7 @@ public class HomesCommand extends AbstractPlayerCommand {
   public HomesCommand(@NotNull HomeManager homeManager) {
     super("homes", "List your homes");
     this.homeManager = homeManager;
+    addAliases("listhomes", "homelist");
   }
 
   @Override

@@ -22,6 +22,7 @@ public class BroadcastCommand extends AbstractPlayerCommand {
   public BroadcastCommand(@NotNull AnnouncementsModule module) {
     super("broadcast", "Broadcast a message to all players");
     this.module = module;
+    addAliases("bc");
     setAllowsExtraArguments(true);
   }
 

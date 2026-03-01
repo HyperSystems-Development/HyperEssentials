@@ -34,6 +34,7 @@ public class PunishmentsCommand extends AbstractPlayerCommand {
   public PunishmentsCommand(@NotNull ModerationModule module) {
     super("punishments", "View punishment history");
     this.module = module;
+    addAliases("pun");
     setAllowsExtraArguments(true);
   }
 

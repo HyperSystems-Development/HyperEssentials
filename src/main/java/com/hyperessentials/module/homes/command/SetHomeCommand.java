@@ -32,6 +32,7 @@ public class SetHomeCommand extends AbstractPlayerCommand {
   public SetHomeCommand(@NotNull HomeManager homeManager) {
     super("sethome", "Set a home at your current location");
     this.homeManager = homeManager;
+    addAliases("createhome");
     setAllowsExtraArguments(true);
   }
 

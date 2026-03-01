@@ -29,6 +29,7 @@ public class TpaCommand extends AbstractPlayerCommand {
     super("tpa", "Request to teleport to a player");
     this.tpaManager = tpaManager;
     this.config = config;
+    addAliases("tpr");
     setAllowsExtraArguments(true);
   }
 
