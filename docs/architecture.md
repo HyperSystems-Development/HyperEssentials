@@ -132,6 +132,9 @@ com.hyperessentials/
       HomesPage.java            Browse homes, teleport (warmup), delete
       WarpsPage.java            Browse warps by category, teleport (warmup)
       KitsPage.java             Browse kits, claim with cooldown, preview
+      PlayerDashboardPage.java  Welcome screen, stat cards, quick actions
+      TpaPage.java              Incoming TPA requests, accept/deny, toggle
+      StatsPage.java            Playtime, join dates, session, status indicators
     admin/                      Admin page implementations (Phase 4-5)
 
   storage/

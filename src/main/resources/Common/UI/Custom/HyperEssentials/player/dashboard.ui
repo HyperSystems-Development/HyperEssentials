@@ -1,0 +1,166 @@
+$C = "../../Common.ui";
+$S = "../shared/styles.ui";
+$Nav = "../shared/nav_bar.ui";
+
+$C.@PageOverlay {
+  $Nav.@HyperEssentialsNavBar #NavBar {}
+
+  $C.@Container {
+    Anchor: (Width: 520, Height: 380);
+
+    #Title {
+      $C.@Title {
+        @Text = "Dashboard";
+      }
+    }
+
+    #Content {
+      LayoutMode: Top;
+      Padding: (Left: 15, Right: 15, Top: 10, Bottom: 10);
+
+      // Welcome header
+      Group {
+        Anchor: (Height: 32, Bottom: 8);
+
+        Label #WelcomeText {
+          Text: "Welcome!";
+          Style: (FontSize: 16, TextColor: $S.@ColorWhite, RenderBold: true, VerticalAlignment: Center);
+        }
+      }
+
+      // Divider
+      Group {
+        Anchor: (Height: 1, Bottom: 10);
+        Background: (Color: $S.@ColorGold);
+      }
+
+      // Stat cards row
+      Group {
+        LayoutMode: Left;
+        Anchor: (Height: 60, Bottom: 12);
+
+        // Homes card
+        Group {
+          FlexWeight: 1;
+          Anchor: (Right: 6);
+          Background: (Color: $S.@ColorBgCard);
+          Padding: (Left: 10, Right: 10, Top: 8, Bottom: 8);
+          LayoutMode: Top;
+
+          Label #HomesCount {
+            Text: "0";
+            Style: (FontSize: 18, TextColor: $S.@ColorGold, RenderBold: true);
+            Anchor: (Height: 24);
+          }
+
+          Label {
+            Text: "Homes";
+            Style: (FontSize: 10, TextColor: $S.@ColorGray);
+            Anchor: (Height: 16);
+          }
+        }
+
+        // Online players card
+        Group {
+          FlexWeight: 1;
+          Anchor: (Left: 3, Right: 3);
+          Background: (Color: $S.@ColorBgCard);
+          Padding: (Left: 10, Right: 10, Top: 8, Bottom: 8);
+          LayoutMode: Top;
+
+          Label #OnlineCount {
+            Text: "0";
+            Style: (FontSize: 18, TextColor: #4aff7f, RenderBold: true);
+            Anchor: (Height: 24);
+          }
+
+          Label {
+            Text: "Online";
+            Style: (FontSize: 10, TextColor: $S.@ColorGray);
+            Anchor: (Height: 16);
+          }
+        }
+
+        // Pending TPAs card
+        Group {
+          FlexWeight: 1;
+          Anchor: (Left: 6);
+          Background: (Color: $S.@ColorBgCard);
+          Padding: (Left: 10, Right: 10, Top: 8, Bottom: 8);
+          LayoutMode: Top;
+
+          Label #TpaCount {
+            Text: "0";
+            Style: (FontSize: 18, TextColor: $S.@ColorAqua, RenderBold: true);
+            Anchor: (Height: 24);
+          }
+
+          Label {
+            Text: "TPA Requests";
+            Style: (FontSize: 10, TextColor: $S.@ColorGray);
+            Anchor: (Height: 16);
+          }
+        }
+      }
+
+      // Quick actions header
+      Label {
+        Text: "Quick Actions";
+        Style: (FontSize: 12, TextColor: $S.@ColorGray, RenderBold: true);
+        Anchor: (Height: 20, Bottom: 6);
+      }
+
+      // Quick action buttons row
+      Group {
+        LayoutMode: Left;
+        Anchor: (Height: 34, Bottom: 8);
+
+        TextButton #HomesBtn {
+          Text: "HOMES";
+          Style: $S.@GoldButtonStyle;
+          Anchor: (Width: 90, Height: 28);
+        }
+
+        Group { Anchor: (Width: 8); }
+
+        TextButton #WarpsBtn {
+          Text: "WARPS";
+          Style: $S.@AquaButtonStyle;
+          Anchor: (Width: 90, Height: 28);
+        }
+
+        Group { Anchor: (Width: 8); }
+
+        TextButton #KitsBtn {
+          Text: "KITS";
+          Style: $S.@GreenButtonStyle;
+          Anchor: (Width: 90, Height: 28);
+        }
+      }
+
+      // Player info
+      Group {
+        Anchor: (Height: 1, Bottom: 8);
+        Background: (Color: $S.@ColorDivider);
+      }
+
+      Group {
+        LayoutMode: Top;
+
+        Label #PlaytimeLabel {
+          Text: "Playtime: --";
+          Style: (FontSize: 11, TextColor: $S.@ColorMuted);
+          Anchor: (Height: 18);
+        }
+
+        Label #JoinDateLabel {
+          Text: "First joined: --";
+          Style: (FontSize: 11, TextColor: $S.@ColorMuted);
+          Anchor: (Height: 18);
+        }
+      }
+    }
+  }
+}
+
+$C.@BackButton {}

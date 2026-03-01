@@ -308,6 +308,14 @@ public class UtilityManager {
     return total;
   }
 
+  /**
+   * Gets the session start time for a player.
+   */
+  @Nullable
+  public Instant getSessionStart(@NotNull UUID uuid) {
+    return sessionStartTimes.get(uuid);
+  }
+
   @Nullable
   public PlayerStatsStorage getStatsStorage() {
     return statsStorage;

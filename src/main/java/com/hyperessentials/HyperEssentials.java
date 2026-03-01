@@ -5,6 +5,9 @@ import com.hyperessentials.gui.GuiManager;
 import com.hyperessentials.gui.PageRegistry;
 import com.hyperessentials.gui.player.HomesPage;
 import com.hyperessentials.gui.player.KitsPage;
+import com.hyperessentials.gui.player.PlayerDashboardPage;
+import com.hyperessentials.gui.player.StatsPage;
+import com.hyperessentials.gui.player.TpaPage;
 import com.hyperessentials.gui.player.WarpsPage;
 import com.hyperessentials.integration.EcotaleIntegration;
 import com.hyperessentials.integration.HyperFactionsIntegration;
@@ -18,6 +21,7 @@ import com.hyperessentials.module.kits.KitsModule;
 import com.hyperessentials.module.moderation.ModerationModule;
 import com.hyperessentials.module.spawns.SpawnsModule;
 import com.hyperessentials.module.teleport.TeleportModule;
+import com.hyperessentials.module.utility.UtilityManager;
 import com.hyperessentials.module.utility.UtilityModule;
 import com.hyperessentials.module.warmup.WarmupManager;
 import com.hyperessentials.module.warmup.WarmupModule;
@@ -224,6 +228,41 @@ public class HyperEssentials {
           true, 30
       ));
     }
+
+    // TPA page
+    TeleportModule teleport = getTeleportModule();
+    if (teleport != null && teleport.isEnabled() && teleport.getTpaManager() != null) {
+      playerReg.registerEntry(new PageRegistry.Entry(
+          "tpa", "TPA", "teleport", Permissions.TPA,
+          (player, ref, store, playerRef, gm) ->
+              new TpaPage(player, playerRef, teleport.getTpaManager(), gm),
+          true, 40
+      ));
+    }
+
+    // Stats page
+    UtilityModule utilityModule = moduleRegistry.getModule(UtilityModule.class);
+    UtilityManager utilMgr = utilityModule != null && utilityModule.isEnabled()
+        ? utilityModule.getUtilityManager() : null;
+
+    playerReg.registerEntry(new PageRegistry.Entry(
+        "stats", "Stats", "core", null,
+        (player, ref, store, playerRef, gm) ->
+            new StatsPage(player, playerRef, gm, utilMgr),
+        true, 50
+    ));
+
+    // Dashboard (registered last since it references other module managers)
+    HomesModule homesForDash = getHomesModule();
+    playerReg.registerEntry(new PageRegistry.Entry(
+        "dashboard", "Dashboard", "core", null,
+        (player, ref, store, playerRef, gm) ->
+            new PlayerDashboardPage(player, playerRef, gm,
+                homesForDash != null && homesForDash.isEnabled() ? homesForDash.getHomeManager() : null,
+                teleport != null && teleport.isEnabled() ? teleport.getTpaManager() : null,
+                utilMgr),
+        true, 0
+    ));
 
     int pageCount = playerReg.getEntries().size();
     if (pageCount > 0) {

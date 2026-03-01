@@ -32,6 +32,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `/homes`, `/warps`, `/kits` commands now open GUI pages (text fallback preserved)
 - Page registration in `HyperEssentials.registerPages()` with correct display order (Homes=10, Warps=20, Kits=30)
 
+#### Player GUI Pages — Dashboard, TPA, Stats
+- `PlayerDashboardPage` — welcome screen with stat cards (homes, online players, TPA requests), quick action buttons, playtime/join info
+- `TpaPage` — incoming TPA requests with per-entry accept/deny, toggle TPA acceptance on/off, time remaining display
+- `StatsPage` — player stats (first joined, last login, total playtime, current session) and status indicators (AFK, Fly, God, Infinite Stamina)
+- `.ui` templates: `dashboard.ui`, `stats.ui`, `tpa_page.ui`, `tpa_entry.ui`
+- `UtilityManager.getSessionStart()` — new public accessor for session start time
+- All 6 player GUI tabs now functional: Dashboard(0), Homes(10), Warps(20), Kits(30), TPA(40), Stats(50)
+
 #### New Utility Commands
 - `/motd` — display configurable message of the day
 - `/rules` — display server rules

@@ -1,6 +1,6 @@
 # GUI System
 
-> **Status:** Foundation + Player pages (Homes, Warps, Kits) complete. Dashboard, TPA, Stats, and Admin pages pending (Phase 3-5).
+> **Status:** All 6 player pages complete (Dashboard, Homes, Warps, Kits, TPA, Stats). Admin pages pending (Phase 4-5).
 
 ## Overview
 
@@ -92,8 +92,12 @@ Common/UI/Custom/HyperEssentials/
   kits/
     kits_page.ui           Browse available kits with count header
     kit_entry.ui           Kit row: name, items, cooldown, Claim/Preview buttons
-  teleport/                TPA page templates (Phase 3)
-  player/                  Dashboard and stats templates (Phase 3)
+  teleport/
+    tpa_page.ui            TPA requests list with toggle bar
+    tpa_entry.ui           TPA request row: requester, type, time, Accept/Deny
+  player/
+    dashboard.ui           Welcome screen with stat cards and quick actions
+    stats.ui               Player stats and status indicators
   admin/                   Admin page templates (Phase 4-5)
 ```
 
@@ -166,6 +170,26 @@ private boolean tryOpenGui(Store store, Ref ref, PlayerRef playerRef) {
 - **Cooldown display:** Shows remaining cooldown time, "Ready", "One-time kit", or nothing
 - **Claim:** Calls `kitManager.claimKit()` and rebuilds list to update cooldown status
 - **Events:** Claim, Preview buttons per entry; Nav bar navigation
+
+### PlayerDashboardPage
+- **File:** `gui/player/PlayerDashboardPage.java`
+- **Features:** Welcome message, 3 stat cards (homes count, online players, TPA requests), quick action buttons (Homes, Warps, Kits), playtime and first join date
+- **Dependencies:** Optional HomeManager, TpaManager, UtilityManager (graceful degradation if any are null)
+- **Events:** NavDirect buttons for quick page navigation; Nav bar navigation
+
+### TpaPage
+- **File:** `gui/player/TpaPage.java`
+- **Features:** Incoming TPA requests with per-entry accept/deny, toggle TPA acceptance, request count, time remaining
+- **Dynamic list:** Clears `#RequestList`, appends `tpa_entry.ui` entries with indexed selectors
+- **Events:** Accept, Deny buttons per request (pass requester UUID as target); Toggle button; Nav bar navigation
+- **Updates:** Rebuilds request list after accept/deny/toggle actions
+
+### StatsPage
+- **File:** `gui/player/StatsPage.java`
+- **Features:** Player stats (first joined, last login, total playtime, current session) and status indicators (AFK, Fly, God, Infinite Stamina)
+- **Dynamic lists:** Uses `stat_row.ui` for both `#StatsList` and `#StatusList`
+- **Status coloring:** Active status indicators colored green (`#4aff7f`)
+- **Events:** Nav bar navigation
 
 ## Page Implementation Pattern
 
