@@ -9,6 +9,7 @@ import com.hypixel.hytale.server.core.command.system.CommandContext;
 import com.hypixel.hytale.server.core.command.system.basecommands.AbstractPlayerCommand;
 import com.hypixel.hytale.server.core.modules.entitystats.EntityStatMap;
 import com.hypixel.hytale.server.core.modules.entitystats.EntityStatsModule;
+import com.hypixel.hytale.server.core.modules.entitystats.asset.DefaultEntityStatTypes;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
@@ -64,20 +65,11 @@ public class HealCommand extends AbstractPlayerCommand {
 
   private void healPlayer(@NotNull Store<EntityStore> store, @NotNull Ref<EntityStore> ref) {
     try {
-      // Access EntityStatMap via EntityStatsModule component type
-      // Following pattern from built-in EntityStatsSetToMaxCommand
       EntityStatMap statMap = store.getComponent(ref,
         EntityStatsModule.get().getEntityStatMapComponentType());
       if (statMap != null) {
-        // Maximize all stat values (health, stamina, etc.)
-        int statCount = statMap.size();
-        for (int i = 0; i < statCount; i++) {
-          try {
-            statMap.maximizeStatValue(i);
-          } catch (Exception ignored) {
-            // Some stats may not support maximization
-          }
-        }
+        // Only maximize health — maximizing all stats triggers regen visual effects
+        statMap.maximizeStatValue(DefaultEntityStatTypes.getHealth());
       }
     } catch (Exception e) {
       Logger.debug("[Utility] Failed to heal via EntityStatsModule: %s", e.getMessage());

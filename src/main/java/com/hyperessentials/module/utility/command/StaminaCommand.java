@@ -10,6 +10,7 @@ import com.hypixel.hytale.server.core.command.system.CommandContext;
 import com.hypixel.hytale.server.core.command.system.basecommands.AbstractPlayerCommand;
 import com.hypixel.hytale.server.core.modules.entitystats.EntityStatMap;
 import com.hypixel.hytale.server.core.modules.entitystats.EntityStatsModule;
+import com.hypixel.hytale.server.core.modules.entitystats.asset.DefaultEntityStatTypes;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
@@ -73,11 +74,7 @@ public class StaminaCommand extends AbstractPlayerCommand {
       EntityStatMap statMap = store.getComponent(ref,
         EntityStatsModule.get().getEntityStatMapComponentType());
       if (statMap != null) {
-        for (int i = 0; i < statMap.size(); i++) {
-          try {
-            statMap.maximizeStatValue(i);
-          } catch (Exception ignored) {}
-        }
+        statMap.maximizeStatValue(DefaultEntityStatTypes.getStamina());
       }
     } catch (Exception e) {
       Logger.debug("[Utility] Stamina maximize failed: %s", e.getMessage());
