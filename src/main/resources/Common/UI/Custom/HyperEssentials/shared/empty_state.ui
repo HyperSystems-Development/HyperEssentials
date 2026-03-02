@@ -10,7 +10,7 @@ Group {
         Anchor: (Height: 24);
         Style: (
             FontSize: 16;
-            TextColor: $S.@ColorGray;
+            TextColor: #7c8b99;
             HorizontalAlignment: Center;
         );
     };
@@ -20,7 +20,7 @@ Group {
         Anchor: (Height: 18, Top: 6);
         Style: (
             FontSize: 13;
-            TextColor: $S.@ColorMuted;
+            TextColor: #888888;
             HorizontalAlignment: Center;
         );
     };

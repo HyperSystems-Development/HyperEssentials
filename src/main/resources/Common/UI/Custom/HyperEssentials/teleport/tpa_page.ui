@@ -22,12 +22,12 @@ $C.@PageOverlay {
       Group {
         Anchor: (Height: 32, Bottom: 8);
         LayoutMode: Left;
-        Background: (Color: $S.@ColorBgCard);
+        Background: (Color: #1a2a3a);
         Padding: (Left: 12, Right: 12, Top: 4, Bottom: 4);
 
         Label #ToggleLabel {
           Text: "Accepting TPA requests";
-          Style: (FontSize: 12, TextColor: $S.@ColorGray, VerticalAlignment: Center);
+          Style: (FontSize: 12, TextColor: #7c8b99, VerticalAlignment: Center);
           Anchor: (Width: 200);
         }
 
@@ -47,7 +47,7 @@ $C.@PageOverlay {
 
         Label #RequestCount {
           Text: "0 incoming requests";
-          Style: (FontSize: 12, TextColor: $S.@ColorGray, VerticalAlignment: Center);
+          Style: (FontSize: 12, TextColor: #7c8b99, VerticalAlignment: Center);
           Anchor: (Width: 200);
         }
       }
@@ -55,7 +55,7 @@ $C.@PageOverlay {
       // Divider
       Group {
         Anchor: (Height: 1, Bottom: 8);
-        Background: (Color: $S.@ColorGold);
+        Background: (Color: #FFAA00);
       }
 
       // Scrollable request list

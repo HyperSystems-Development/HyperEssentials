@@ -7,7 +7,7 @@ Group {
 
   Label #CategoryName {
     Text: "Category";
-    Style: (FontSize: 12, TextColor: $S.@ColorGold, RenderBold: true, VerticalAlignment: Center);
+    Style: (FontSize: 12, TextColor: #FFAA00, RenderBold: true, VerticalAlignment: Center);
     Anchor: (Height: 22);
   }
 }

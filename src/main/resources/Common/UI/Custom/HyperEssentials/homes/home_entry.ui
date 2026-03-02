@@ -4,13 +4,13 @@ $S = "../shared/styles.ui";
 Group {
   LayoutMode: Left;
   Anchor: (Height: 48, Bottom: 4);
-  Background: (Color: $S.@ColorBgCard);
+  Background: (Color: #1a2a3a);
   Padding: (Left: 12, Right: 12, Top: 6, Bottom: 6);
 
   // Gold indicator bar
   Group {
     Anchor: (Width: 3, Top: 4, Bottom: 4);
-    Background: (Color: $S.@ColorGold);
+    Background: (Color: #FFAA00);
   }
 
   Group { Anchor: (Width: 8); }
@@ -22,13 +22,13 @@ Group {
 
     Label #HomeName {
       Text: "Home";
-      Style: (FontSize: 13, TextColor: $S.@ColorWhite, RenderBold: true, VerticalAlignment: Center);
+      Style: (FontSize: 13, TextColor: #FFFFFF, RenderBold: true, VerticalAlignment: Center);
       Anchor: (Height: 20);
     }
 
     Label #HomeWorld {
       Text: "World";
-      Style: (FontSize: 10, TextColor: $S.@ColorGray, VerticalAlignment: Center);
+      Style: (FontSize: 10, TextColor: #7c8b99, VerticalAlignment: Center);
       Anchor: (Height: 16);
     }
   }
@@ -36,7 +36,7 @@ Group {
   // Coordinates
   Label #HomeCoords {
     Text: "0, 0, 0";
-    Style: (FontSize: 11, TextColor: $S.@ColorMuted, VerticalAlignment: Center);
+    Style: (FontSize: 11, TextColor: #888888, VerticalAlignment: Center);
     Anchor: (Width: 120);
   }
 

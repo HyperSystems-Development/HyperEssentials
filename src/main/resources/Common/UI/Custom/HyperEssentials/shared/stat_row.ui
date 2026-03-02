@@ -11,7 +11,7 @@ Group {
         Anchor: (Width: 140, Height: 22);
         Style: (
             FontSize: 13;
-            TextColor: $S.@ColorGray;
+            TextColor: #7c8b99;
             VerticalAlignment: Center;
         );
     };
@@ -22,7 +22,7 @@ Group {
         Anchor: (Height: 22);
         Style: (
             FontSize: 13;
-            TextColor: $S.@ColorWhite;
+            TextColor: #FFFFFF;
             VerticalAlignment: Center;
         );
     }

@@ -41,7 +41,7 @@ $C.@PageOverlay {
 
         Label #PunishmentCount {
           Text: "0 punishments";
-          Style: (FontSize: 12, TextColor: $S.@ColorGray, VerticalAlignment: Center);
+          Style: (FontSize: 12, TextColor: #7c8b99, VerticalAlignment: Center);
           Anchor: (Width: 150);
         }
       }
@@ -49,7 +49,7 @@ $C.@PageOverlay {
       // Divider
       Group {
         Anchor: (Height: 1, Bottom: 8);
-        Background: (Color: $S.@ColorGold);
+        Background: (Color: #FFAA00);
       }
 
       // Scrollable punishment list

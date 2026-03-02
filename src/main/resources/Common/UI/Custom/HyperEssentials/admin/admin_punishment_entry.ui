@@ -29,13 +29,13 @@ Group {
 
       Label #PlayerName {
         Text: "";
-        Style: (FontSize: 12, TextColor: $S.@ColorWhite, VerticalAlignment: Center);
+        Style: (FontSize: 12, TextColor: #FFFFFF, VerticalAlignment: Center);
         Anchor: (Width: 120);
       }
 
       Label #IssuerName {
         Text: "";
-        Style: (FontSize: 10, TextColor: $S.@ColorGray, VerticalAlignment: Center);
+        Style: (FontSize: 10, TextColor: #7c8b99, VerticalAlignment: Center);
         Anchor: (Width: 120);
       }
     }
@@ -46,13 +46,13 @@ Group {
 
       Label #Reason {
         Text: "";
-        Style: (FontSize: 10, TextColor: $S.@ColorGray, VerticalAlignment: Center);
+        Style: (FontSize: 10, TextColor: #7c8b99, VerticalAlignment: Center);
         Anchor: (Width: 250);
       }
 
       Label #Expires {
         Text: "";
-        Style: (FontSize: 10, TextColor: $S.@ColorGray, VerticalAlignment: Center);
+        Style: (FontSize: 10, TextColor: #7c8b99, VerticalAlignment: Center);
         Anchor: (Width: 100);
       }
     }

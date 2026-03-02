@@ -16,7 +16,7 @@ Group {
 
   Label #ModuleName {
     Text: "";
-    Style: (FontSize: 12, TextColor: $S.@ColorTextPrimary, VerticalAlignment: Center);
+    Style: (FontSize: 12, TextColor: #e0e8f0, VerticalAlignment: Center);
     FlexWeight: 1;
   }
 

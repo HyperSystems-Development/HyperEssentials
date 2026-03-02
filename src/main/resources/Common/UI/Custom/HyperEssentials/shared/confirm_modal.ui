@@ -15,7 +15,7 @@ Group {
             Anchor: (Height: 22);
             Style: (
                 FontSize: 16;
-                TextColor: $S.@ColorWhite;
+                TextColor: #FFFFFF;
                 RenderBold: true;
                 HorizontalAlignment: Center;
             );
@@ -26,7 +26,7 @@ Group {
             Anchor: (Height: 36, Top: 8);
             Style: (
                 FontSize: 13;
-                TextColor: $S.@ColorGray;
+                TextColor: #7c8b99;
                 HorizontalAlignment: Center;
             );
         };

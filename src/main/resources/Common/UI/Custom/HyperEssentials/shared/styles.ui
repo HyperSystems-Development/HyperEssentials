@@ -5,23 +5,13 @@
 $C = "../../Common.ui";
 
 // =============================================================================
-// COLORS
+// COLOR REFERENCE (used as inline hex in .ui files, NOT as @variables)
 // =============================================================================
-@ColorGold = #FFAA00;
-@ColorGoldLight = #FFD700;
-@ColorGoldDark = #CC8800;
-@ColorGreen = #44cc44;
-@ColorRed = #ff5555;
-@ColorAqua = #55FFFF;
-@ColorGray = #7c8b99;
-@ColorWhite = #FFFFFF;
-@ColorMuted = #888888;
-@ColorBgDark = #0a1119;
-@ColorBgPanel = #141c26;
-@ColorBgCard = #1a2a3a;
-@ColorBgNav = #16212f;
-@ColorDivider = #2a3a4a;
-@ColorTextPrimary = #e0e8f0;
+// Brand: Gold #FFAA00, GoldLight #FFD700, GoldDark #CC8800
+// Status: Green #44cc44, Red #ff5555, Aqua #55FFFF
+// Text: White #FFFFFF, Gray #7c8b99, Muted #888888, Primary #e0e8f0
+// Backgrounds: Dark #0a1119, Panel #141c26, Card #1a2a3a, Nav #16212f
+// Divider: #2a3a4a
 
 // =============================================================================
 // LABEL STYLES

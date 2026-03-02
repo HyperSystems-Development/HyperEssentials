@@ -25,7 +25,7 @@ $C.@PageOverlay {
 
         Label #KitCount {
           Text: "0 kits available";
-          Style: (FontSize: 13, TextColor: $S.@ColorGray, VerticalAlignment: Center);
+          Style: (FontSize: 13, TextColor: #7c8b99, VerticalAlignment: Center);
           Anchor: (Width: 200);
         }
 
@@ -35,7 +35,7 @@ $C.@PageOverlay {
       // Divider
       Group {
         Anchor: (Height: 1, Bottom: 8);
-        Background: (Color: $S.@ColorGold);
+        Background: (Color: #FFAA00);
       }
 
       // Scrollable kit list

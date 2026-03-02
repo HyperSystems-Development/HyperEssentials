@@ -8,7 +8,7 @@ Group {
   // Color indicator bar
   Group #IndicatorBar {
     Anchor: (Width: 3, Height: 44);
-    Background: (Color: $S.@ColorGold);
+    Background: (Color: #FFAA00);
   }
 
   // Info section
@@ -23,7 +23,7 @@ Group {
 
       Label #SpawnName {
         Text: "";
-        Style: (FontSize: 12, TextColor: $S.@ColorWhite, VerticalAlignment: Center);
+        Style: (FontSize: 12, TextColor: #FFFFFF, VerticalAlignment: Center);
         Anchor: (Width: 150);
       }
 
@@ -40,13 +40,13 @@ Group {
 
       Label #SpawnWorld {
         Text: "";
-        Style: (FontSize: 10, TextColor: $S.@ColorGray, VerticalAlignment: Center);
+        Style: (FontSize: 10, TextColor: #7c8b99, VerticalAlignment: Center);
         Anchor: (Width: 100);
       }
 
       Label #SpawnCoords {
         Text: "";
-        Style: (FontSize: 10, TextColor: $S.@ColorGray, VerticalAlignment: Center);
+        Style: (FontSize: 10, TextColor: #7c8b99, VerticalAlignment: Center);
         Anchor: (Width: 180);
       }
     }

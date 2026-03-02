@@ -19,13 +19,13 @@ Group {
 
     Label #PlayerName {
       Text: "";
-      Style: (FontSize: 12, TextColor: $S.@ColorWhite, VerticalAlignment: Center);
+      Style: (FontSize: 12, TextColor: #FFFFFF, VerticalAlignment: Center);
       Anchor: (Height: 14);
     }
 
     Label #PlayerInfo {
       Text: "";
-      Style: (FontSize: 10, TextColor: $S.@ColorGray, VerticalAlignment: Center);
+      Style: (FontSize: 10, TextColor: #7c8b99, VerticalAlignment: Center);
       Anchor: (Height: 12);
     }
   }

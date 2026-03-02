@@ -21,14 +21,14 @@ $C.@PageOverlay {
       // Player name header
       Label #PlayerName {
         Text: "Player";
-        Style: (FontSize: 16, TextColor: $S.@ColorWhite, RenderBold: true);
+        Style: (FontSize: 16, TextColor: #FFFFFF, RenderBold: true);
         Anchor: (Height: 28, Bottom: 6);
       }
 
       // Divider
       Group {
         Anchor: (Height: 1, Bottom: 10);
-        Background: (Color: $S.@ColorGold);
+        Background: (Color: #FFAA00);
       }
 
       // Stats section
@@ -39,13 +39,13 @@ $C.@PageOverlay {
       // Divider
       Group {
         Anchor: (Height: 1, Top: 10, Bottom: 10);
-        Background: (Color: $S.@ColorDivider);
+        Background: (Color: #2a3a4a);
       }
 
       // Status section header
       Label {
         Text: "Current Status";
-        Style: (FontSize: 12, TextColor: $S.@ColorGray, RenderBold: true);
+        Style: (FontSize: 12, TextColor: #7c8b99, RenderBold: true);
         Anchor: (Height: 20, Bottom: 6);
       }
 

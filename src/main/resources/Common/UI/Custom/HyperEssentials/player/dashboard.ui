@@ -24,14 +24,14 @@ $C.@PageOverlay {
 
         Label #WelcomeText {
           Text: "Welcome!";
-          Style: (FontSize: 16, TextColor: $S.@ColorWhite, RenderBold: true, VerticalAlignment: Center);
+          Style: (FontSize: 16, TextColor: #FFFFFF, RenderBold: true, VerticalAlignment: Center);
         }
       }
 
       // Divider
       Group {
         Anchor: (Height: 1, Bottom: 10);
-        Background: (Color: $S.@ColorGold);
+        Background: (Color: #FFAA00);
       }
 
       // Stat cards row
@@ -43,19 +43,19 @@ $C.@PageOverlay {
         Group {
           FlexWeight: 1;
           Anchor: (Right: 6);
-          Background: (Color: $S.@ColorBgCard);
+          Background: (Color: #1a2a3a);
           Padding: (Left: 10, Right: 10, Top: 8, Bottom: 8);
           LayoutMode: Top;
 
           Label #HomesCount {
             Text: "0";
-            Style: (FontSize: 18, TextColor: $S.@ColorGold, RenderBold: true);
+            Style: (FontSize: 18, TextColor: #FFAA00, RenderBold: true);
             Anchor: (Height: 24);
           }
 
           Label {
             Text: "Homes";
-            Style: (FontSize: 10, TextColor: $S.@ColorGray);
+            Style: (FontSize: 10, TextColor: #7c8b99);
             Anchor: (Height: 16);
           }
         }
@@ -64,7 +64,7 @@ $C.@PageOverlay {
         Group {
           FlexWeight: 1;
           Anchor: (Left: 3, Right: 3);
-          Background: (Color: $S.@ColorBgCard);
+          Background: (Color: #1a2a3a);
           Padding: (Left: 10, Right: 10, Top: 8, Bottom: 8);
           LayoutMode: Top;
 
@@ -76,7 +76,7 @@ $C.@PageOverlay {
 
           Label {
             Text: "Online";
-            Style: (FontSize: 10, TextColor: $S.@ColorGray);
+            Style: (FontSize: 10, TextColor: #7c8b99);
             Anchor: (Height: 16);
           }
         }
@@ -85,19 +85,19 @@ $C.@PageOverlay {
         Group {
           FlexWeight: 1;
           Anchor: (Left: 6);
-          Background: (Color: $S.@ColorBgCard);
+          Background: (Color: #1a2a3a);
           Padding: (Left: 10, Right: 10, Top: 8, Bottom: 8);
           LayoutMode: Top;
 
           Label #TpaCount {
             Text: "0";
-            Style: (FontSize: 18, TextColor: $S.@ColorAqua, RenderBold: true);
+            Style: (FontSize: 18, TextColor: #55FFFF, RenderBold: true);
             Anchor: (Height: 24);
           }
 
           Label {
             Text: "TPA Requests";
-            Style: (FontSize: 10, TextColor: $S.@ColorGray);
+            Style: (FontSize: 10, TextColor: #7c8b99);
             Anchor: (Height: 16);
           }
         }
@@ -106,7 +106,7 @@ $C.@PageOverlay {
       // Quick actions header
       Label {
         Text: "Quick Actions";
-        Style: (FontSize: 12, TextColor: $S.@ColorGray, RenderBold: true);
+        Style: (FontSize: 12, TextColor: #7c8b99, RenderBold: true);
         Anchor: (Height: 20, Bottom: 6);
       }
 
@@ -141,7 +141,7 @@ $C.@PageOverlay {
       // Player info
       Group {
         Anchor: (Height: 1, Bottom: 8);
-        Background: (Color: $S.@ColorDivider);
+        Background: (Color: #2a3a4a);
       }
 
       Group {
@@ -149,13 +149,13 @@ $C.@PageOverlay {
 
         Label #PlaytimeLabel {
           Text: "Playtime: --";
-          Style: (FontSize: 11, TextColor: $S.@ColorMuted);
+          Style: (FontSize: 11, TextColor: #888888);
           Anchor: (Height: 18);
         }
 
         Label #JoinDateLabel {
           Text: "First joined: --";
-          Style: (FontSize: 11, TextColor: $S.@ColorMuted);
+          Style: (FontSize: 11, TextColor: #888888);
           Anchor: (Height: 18);
         }
       }

@@ -12,7 +12,7 @@ Group {
 
     Label #EntryNumber {
       Text: "#1";
-      Style: (FontSize: 11, TextColor: $S.@ColorGold, VerticalAlignment: Center);
+      Style: (FontSize: 11, TextColor: #FFAA00, VerticalAlignment: Center);
     }
   }
 
@@ -23,7 +23,7 @@ Group {
 
     Label #MessageText {
       Text: "";
-      Style: (FontSize: 11, TextColor: $S.@ColorTextPrimary, VerticalAlignment: Center);
+      Style: (FontSize: 11, TextColor: #e0e8f0, VerticalAlignment: Center);
     }
   }
 }

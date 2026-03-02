@@ -23,13 +23,13 @@ Group {
 
       Label #KitName {
         Text: "";
-        Style: (FontSize: 12, TextColor: $S.@ColorWhite, VerticalAlignment: Center);
+        Style: (FontSize: 12, TextColor: #FFFFFF, VerticalAlignment: Center);
         Anchor: (Width: 150);
       }
 
       Label #KitItems {
         Text: "";
-        Style: (FontSize: 10, TextColor: $S.@ColorGray, VerticalAlignment: Center);
+        Style: (FontSize: 10, TextColor: #7c8b99, VerticalAlignment: Center);
         Anchor: (Width: 80);
       }
     }
@@ -40,7 +40,7 @@ Group {
 
       Label #KitCooldown {
         Text: "";
-        Style: (FontSize: 10, TextColor: $S.@ColorGray, VerticalAlignment: Center);
+        Style: (FontSize: 10, TextColor: #7c8b99, VerticalAlignment: Center);
         Anchor: (Width: 120);
       }
 

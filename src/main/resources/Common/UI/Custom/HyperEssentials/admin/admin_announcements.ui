@@ -25,7 +25,7 @@ $C.@PageOverlay {
 
         Label #MessageCount {
           Text: "0 messages";
-          Style: (FontSize: 13, TextColor: $S.@ColorGray, VerticalAlignment: Center);
+          Style: (FontSize: 13, TextColor: #7c8b99, VerticalAlignment: Center);
           Anchor: (Width: 150);
         }
 
@@ -33,7 +33,7 @@ $C.@PageOverlay {
 
         Label #IntervalLabel {
           Text: "";
-          Style: (FontSize: 11, TextColor: $S.@ColorGray, VerticalAlignment: Center);
+          Style: (FontSize: 11, TextColor: #7c8b99, VerticalAlignment: Center);
           Anchor: (Width: 200);
         }
       }
@@ -51,13 +51,13 @@ $C.@PageOverlay {
       // Divider
       Group {
         Anchor: (Height: 1, Bottom: 8);
-        Background: (Color: $S.@ColorGold);
+        Background: (Color: #FFAA00);
       }
 
       // Info note
       Label {
         Text: "Messages are managed in announcements.json config file.";
-        Style: (FontSize: 10, TextColor: $S.@ColorGray);
+        Style: (FontSize: 10, TextColor: #7c8b99);
         Anchor: (Height: 16, Bottom: 8);
       }
 

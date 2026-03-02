@@ -24,14 +24,14 @@ $C.@PageOverlay {
 
         Label #PlayerCount {
           Text: "0 players online";
-          Style: (FontSize: 13, TextColor: $S.@ColorGray);
+          Style: (FontSize: 13, TextColor: #7c8b99);
         }
       }
 
       // Divider
       Group {
         Anchor: (Height: 1, Bottom: 8);
-        Background: (Color: $S.@ColorGold);
+        Background: (Color: #FFAA00);
       }
 
       // Scrollable player list
