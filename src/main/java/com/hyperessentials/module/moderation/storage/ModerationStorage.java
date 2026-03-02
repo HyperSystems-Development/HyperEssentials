@@ -192,6 +192,25 @@ public class ModerationStorage {
   }
 
   /**
+   * Gets all punishments across all players.
+   * @param activeOnly if true, only returns punishments that are currently effective
+   */
+  @NotNull
+  public List<Punishment> getAllPunishments(boolean activeOnly) {
+    List<Punishment> result = new ArrayList<>();
+    for (List<Punishment> list : punishments.values()) {
+      synchronized (list) {
+        for (Punishment p : list) {
+          if (!activeOnly || p.isEffective()) {
+            result.add(p);
+          }
+        }
+      }
+    }
+    return result;
+  }
+
+  /**
    * Finds a player UUID by name from stored punishment records.
    */
   @Nullable

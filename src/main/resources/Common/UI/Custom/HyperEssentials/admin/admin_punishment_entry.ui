@@ -1,0 +1,72 @@
+$S = "../shared/styles.ui";
+
+Group {
+  Anchor: (Height: 50, Bottom: 3);
+  Background: (Color: #141c26);
+  LayoutMode: Left;
+
+  // Type indicator bar
+  Group #TypeBar {
+    Anchor: (Width: 3, Height: 50);
+    Background: (Color: #ff5555);
+  }
+
+  // Info section
+  Group {
+    FlexWeight: 1;
+    Padding: (Left: 10, Top: 5, Bottom: 5);
+    LayoutMode: Top;
+
+    Group {
+      Anchor: (Height: 16);
+      LayoutMode: Left;
+
+      Label #TypeBadge {
+        Text: "BAN";
+        Style: (FontSize: 10, TextColor: #ff5555, VerticalAlignment: Center);
+        Anchor: (Width: 45);
+      }
+
+      Label #PlayerName {
+        Text: "";
+        Style: (FontSize: 12, TextColor: $S.@ColorWhite, VerticalAlignment: Center);
+        Anchor: (Width: 120);
+      }
+
+      Label #IssuerName {
+        Text: "";
+        Style: (FontSize: 10, TextColor: $S.@ColorGray, VerticalAlignment: Center);
+        Anchor: (Width: 120);
+      }
+    }
+
+    Group {
+      Anchor: (Height: 14);
+      LayoutMode: Left;
+
+      Label #Reason {
+        Text: "";
+        Style: (FontSize: 10, TextColor: $S.@ColorGray, VerticalAlignment: Center);
+        Anchor: (Width: 250);
+      }
+
+      Label #Expires {
+        Text: "";
+        Style: (FontSize: 10, TextColor: $S.@ColorGray, VerticalAlignment: Center);
+        Anchor: (Width: 100);
+      }
+    }
+  }
+
+  // Revoke button
+  Group {
+    Anchor: (Width: 75);
+    Padding: (Right: 8, Top: 13, Bottom: 13);
+
+    TextButton #RevokeBtn {
+      Text: "Revoke";
+      Style: $S.@RedButtonStyle;
+      Anchor: (Width: 65, Height: 24);
+    }
+  }
+}

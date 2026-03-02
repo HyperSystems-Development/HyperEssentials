@@ -1,0 +1,51 @@
+$C = "../../Common.ui";
+$S = "../shared/styles.ui";
+$Nav = "../shared/nav_bar.ui";
+
+$C.@PageOverlay {
+  $Nav.@HyperEssentialsNavBar #NavBar {}
+
+  $C.@Container {
+    Anchor: (Width: 580, Height: 440);
+
+    #Title {
+      $C.@Title {
+        @Text = "Online Players";
+      }
+    }
+
+    #Content {
+      LayoutMode: Top;
+      Padding: (Left: 15, Right: 15, Top: 10, Bottom: 10);
+
+      // Header with count
+      Group {
+        Anchor: (Height: 22, Bottom: 6);
+
+        Label #PlayerCount {
+          Text: "0 players online";
+          Style: (FontSize: 13, TextColor: $S.@ColorGray);
+        }
+      }
+
+      // Divider
+      Group {
+        Anchor: (Height: 1, Bottom: 8);
+        Background: (Color: $S.@ColorGold);
+      }
+
+      // Scrollable player list
+      Group #PlayerListContainer {
+        LayoutMode: TopScrolling;
+        ScrollbarStyle: $C.@DefaultScrollbarStyle;
+        FlexWeight: 1;
+
+        Group #PlayerList {
+          LayoutMode: Top;
+        }
+      }
+    }
+  }
+}
+
+$C.@BackButton {}

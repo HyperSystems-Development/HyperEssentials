@@ -1,0 +1,89 @@
+$C = "../../Common.ui";
+$S = "../shared/styles.ui";
+$Nav = "../shared/nav_bar.ui";
+
+$C.@PageOverlay {
+  $Nav.@HyperEssentialsNavBar #NavBar {}
+
+  $C.@Container {
+    Anchor: (Width: 580, Height: 440);
+
+    #Title {
+      $C.@Title {
+        @Text = "Settings";
+      }
+    }
+
+    #Content {
+      LayoutMode: Top;
+      Padding: (Left: 15, Right: 15, Top: 10, Bottom: 10);
+
+      // Version info
+      Group {
+        Anchor: (Height: 22, Bottom: 4);
+        LayoutMode: Left;
+
+        Label {
+          Text: "HyperEssentials";
+          Style: (FontSize: 14, TextColor: $S.@ColorWhite, VerticalAlignment: Center);
+          Anchor: (Width: 200);
+        }
+
+        Group { FlexWeight: 1; }
+
+        Label #VersionLabel {
+          Text: "";
+          Style: (FontSize: 12, TextColor: $S.@ColorGray, VerticalAlignment: Center);
+          Anchor: (Width: 100);
+        }
+      }
+
+      // Data directory
+      Group {
+        Anchor: (Height: 18, Bottom: 8);
+
+        Label #DataDirLabel {
+          Text: "";
+          Style: (FontSize: 10, TextColor: $S.@ColorGray);
+        }
+      }
+
+      // Divider
+      Group {
+        Anchor: (Height: 1, Bottom: 8);
+        Background: (Color: $S.@ColorGold);
+      }
+
+      // Reload button
+      Group {
+        Anchor: (Height: 32, Bottom: 10);
+
+        TextButton #ReloadBtn {
+          Text: "Reload Configuration";
+          Style: $S.@GoldButtonStyle;
+          Anchor: (Width: 180, Height: 28);
+        }
+      }
+
+      // Module toggles header
+      Label {
+        Text: "Module Status";
+        Style: (FontSize: 13, TextColor: $S.@ColorWhite);
+        Anchor: (Height: 20, Bottom: 6);
+      }
+
+      // Module toggle list
+      Group #ModuleListContainer {
+        LayoutMode: TopScrolling;
+        ScrollbarStyle: $C.@DefaultScrollbarStyle;
+        FlexWeight: 1;
+
+        Group #ModuleList {
+          LayoutMode: Top;
+        }
+      }
+    }
+  }
+}
+
+$C.@BackButton {}

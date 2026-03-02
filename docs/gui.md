@@ -1,6 +1,6 @@
 # GUI System
 
-> **Status:** All 6 player pages + 4 admin pages complete. Remaining admin pages: Players, Moderation, Announcements, Settings (Phase 5).
+> **Status:** Complete — all 14 pages implemented (6 player + 8 admin).
 
 ## Overview
 
@@ -107,6 +107,14 @@ Common/UI/Custom/HyperEssentials/
     admin_spawn_entry.ui   Spawn row: name, default badge, world, coords, Delete
     admin_kits.ui          Manage kits list with create/delete
     admin_kit_entry.ui     Kit row: name, items, cooldown, one-time, Delete
+    admin_players.ui       Online player list with search
+    admin_player_entry.ui  Player row: name, UUID preview
+    admin_moderation.ui    Punishment list with active/all filter
+    admin_punishment_entry.ui  Punishment row: type, player, reason, expires, Revoke
+    admin_announcements.ui Announcement messages and settings
+    admin_announcement_entry.ui  Message row: number, text
+    admin_settings.ui      Version info, reload button, module status
+    admin_module_toggle.ui Module row: name, status dot, enabled/disabled text
 ```
 
 ## Style System
@@ -224,6 +232,32 @@ private boolean tryOpenGui(Store store, Ref ref, PlayerRef playerRef) {
 - **Features:** List all kits with item count, cooldown, one-time badge; create from inventory, delete
 - **Create:** Captures admin's current inventory as a new kit
 - **Events:** Create button, Delete button per entry; Nav bar navigation
+
+### AdminPlayersPage
+- **File:** `gui/admin/AdminPlayersPage.java`
+- **Features:** List online players sorted by username (case-insensitive), truncated UUID display
+- **Data source:** `HyperEssentialsPlugin.getTrackedPlayers()` for currently online players
+- **Events:** Nav bar navigation
+
+### AdminModerationPage
+- **File:** `gui/admin/AdminModerationPage.java`
+- **Features:** Punishment list with active/all filter toggle, revoke functionality
+- **Type badges:** BAN (red), MUTE (gold), KICK (cyan) with matching colored indicator bars
+- **Revoke:** Active bans/mutes can be revoked (not kicks); calls `unban()`/`unmute()` on ModerationManager
+- **Filter:** Toggle between "Active Only" and "All History" views
+- **Events:** FilterActive, FilterAll, Revoke buttons; Nav bar navigation
+
+### AdminAnnouncementsPage
+- **File:** `gui/admin/AdminAnnouncementsPage.java`
+- **Features:** Read-only view of announcement messages from config, interval display, sequential/random mode
+- **Note:** Messages are config-driven only — add/remove via `announcements.json` config file
+- **Events:** Nav bar navigation
+
+### AdminSettingsPage
+- **File:** `gui/admin/AdminSettingsPage.java`
+- **Features:** Plugin version, data directory path, config reload button, module status list (enabled/disabled with color-coded dots)
+- **Reload:** Calls `ConfigManager.get().reloadAll()` and rebuilds the settings display
+- **Events:** Reload button; Nav bar navigation
 
 ## Page Implementation Pattern
 

@@ -49,6 +49,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `UtilityManager.getSessionStart()` — new public accessor for session start time
 - All 6 player GUI tabs now functional: Dashboard(0), Homes(10), Warps(20), Kits(30), TPA(40), Stats(50)
 
+#### Admin GUI Pages — Players, Moderation, Announcements, Settings
+- `AdminPlayersPage` — list online players sorted by name with UUID preview
+- `AdminModerationPage` — punishment list with active/all filter, revoke functionality; type-colored badges (BAN=red, MUTE=gold, KICK=cyan)
+- `AdminAnnouncementsPage` — read-only view of announcement messages, interval, and sequential/random mode
+- `AdminSettingsPage` — version info, data directory, config reload button, module status grid with enabled/disabled indicators
+- `ModerationManager.getAllPunishments(boolean)` — new method to query all punishments across all players (supports active-only filter)
+- `.ui` templates: `admin_players.ui`, `admin_player_entry.ui`, `admin_moderation.ui`, `admin_punishment_entry.ui`, `admin_announcements.ui`, `admin_announcement_entry.ui`, `admin_settings.ui`, `admin_module_toggle.ui`
+- Admin page registration: Players(10), Moderation(50), Announcements(60), Settings(70)
+- Complete GUI system: 14 pages (6 player + 8 admin) all functional
+
 #### New Utility Commands
 - `/motd` — display configurable message of the day
 - `/rules` — display server rules

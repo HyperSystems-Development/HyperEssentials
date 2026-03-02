@@ -140,6 +140,10 @@ com.hyperessentials/
       AdminWarpsPage.java       Warp management (create/delete)
       AdminSpawnsPage.java      Spawn management (create/delete)
       AdminKitsPage.java        Kit management (create from inventory/delete)
+      AdminPlayersPage.java     Online players list
+      AdminModerationPage.java  Punishment list, filter, revoke
+      AdminAnnouncementsPage.java  Announcement messages (read-only)
+      AdminSettingsPage.java    Version, reload, module toggles
 
   storage/
     StorageProvider.java        Top-level storage interface

@@ -3,8 +3,12 @@ package com.hyperessentials;
 import com.hyperessentials.config.ConfigManager;
 import com.hyperessentials.gui.GuiManager;
 import com.hyperessentials.gui.PageRegistry;
+import com.hyperessentials.gui.admin.AdminAnnouncementsPage;
 import com.hyperessentials.gui.admin.AdminDashboardPage;
 import com.hyperessentials.gui.admin.AdminKitsPage;
+import com.hyperessentials.gui.admin.AdminModerationPage;
+import com.hyperessentials.gui.admin.AdminPlayersPage;
+import com.hyperessentials.gui.admin.AdminSettingsPage;
 import com.hyperessentials.gui.admin.AdminSpawnsPage;
 import com.hyperessentials.gui.admin.AdminWarpsPage;
 import com.hyperessentials.gui.player.HomesPage;
@@ -314,6 +318,44 @@ public class HyperEssentials {
           true, 40
       ));
     }
+
+    // Admin Players
+    adminReg.registerEntry(new PageRegistry.Entry(
+        "players", "Players", "core", Permissions.ADMIN_GUI,
+        (player, ref, store, playerRef, gm) ->
+            new AdminPlayersPage(player, playerRef, gm),
+        true, 10
+    ));
+
+    // Admin Moderation
+    ModerationModule modModule = moduleRegistry.getModule(ModerationModule.class);
+    if (modModule != null && modModule.isEnabled() && modModule.getModerationManager() != null) {
+      adminReg.registerEntry(new PageRegistry.Entry(
+          "moderation", "Moderation", "moderation", Permissions.ADMIN_GUI,
+          (player, ref, store, playerRef, gm) ->
+              new AdminModerationPage(player, playerRef, modModule.getModerationManager(), gm),
+          true, 50
+      ));
+    }
+
+    // Admin Announcements
+    AnnouncementsModule annModule = moduleRegistry.getModule(AnnouncementsModule.class);
+    if (annModule != null && annModule.isEnabled()) {
+      adminReg.registerEntry(new PageRegistry.Entry(
+          "announcements", "Announcements", "announcements", Permissions.ADMIN_GUI,
+          (player, ref, store, playerRef, gm) ->
+              new AdminAnnouncementsPage(player, playerRef, gm),
+          true, 60
+      ));
+    }
+
+    // Admin Settings
+    adminReg.registerEntry(new PageRegistry.Entry(
+        "settings", "Settings", "core", Permissions.ADMIN_SETTINGS,
+        (player, ref, store, playerRef, gm) ->
+            new AdminSettingsPage(player, playerRef, gm, moduleRegistry, dataDir),
+        true, 70
+    ));
 
     int adminPageCount = adminReg.getEntries().size();
     if (adminPageCount > 0) {

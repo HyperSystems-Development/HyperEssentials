@@ -266,6 +266,14 @@ public class ModerationManager {
     return storage.getPunishments(playerUuid);
   }
 
+  /**
+   * Gets all punishments across all players, optionally filtered by active status.
+   */
+  @NotNull
+  public List<Punishment> getAllPunishments(boolean activeOnly) {
+    return storage.getAllPunishments(activeOnly);
+  }
+
   // === Offline Resolution ===
 
   @Nullable
