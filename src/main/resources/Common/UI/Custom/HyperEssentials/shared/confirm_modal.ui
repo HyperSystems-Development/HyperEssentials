@@ -35,23 +35,23 @@ Group {
             LayoutMode: Left;
             Anchor: (Height: 30, Top: 12);
 
-            Group { Anchor: (FlexWeight: 1); };
+            Group { FlexWeight: 1; }
 
             TextButton #ConfirmCancel {
                 Text: "CANCEL";
                 Anchor: (Width: 100, Height: 28);
                 Style: $S.@ButtonStyle;
-            };
+            }
 
-            Group { Anchor: (Width: 10); };
+            Group { Anchor: (Width: 10); }
 
             TextButton #ConfirmAccept {
                 Text: "CONFIRM";
                 Anchor: (Width: 100, Height: 28);
                 Style: $S.@FlatRedButtonStyle;
-            };
+            }
 
-            Group { Anchor: (FlexWeight: 1); };
+            Group { FlexWeight: 1; }
         };
     };
 };

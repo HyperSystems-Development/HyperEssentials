@@ -21,6 +21,7 @@ $C = "../../Common.ui";
 @ColorBgCard = #1a2a3a;
 @ColorBgNav = #16212f;
 @ColorDivider = #2a3a4a;
+@ColorTextPrimary = #e0e8f0;
 
 // =============================================================================
 // LABEL STYLES

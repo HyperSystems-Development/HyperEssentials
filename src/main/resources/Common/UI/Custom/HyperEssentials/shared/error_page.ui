@@ -1,12 +1,12 @@
 $C = "../../Common.ui";
 $S = "styles.ui";
 
-$C.@Container #ErrorPage {
+$C.@PageOverlay {}
+
+Group {
     Anchor: (Width: 400, Height: 200);
 
-    $C.@PageOverlay {};
-
-    Group {
+    $C.@DecoratedContainer {
         LayoutMode: Top;
         Padding: (Full: 20);
 
@@ -18,7 +18,7 @@ $C.@Container #ErrorPage {
                 TextColor: $S.@ColorRed;
                 HorizontalAlignment: Center;
             );
-        };
+        }
 
         Label #ErrorMessage {
             Text: "An error occurred.";
@@ -28,6 +28,6 @@ $C.@Container #ErrorPage {
                 TextColor: $S.@ColorGray;
                 HorizontalAlignment: Center;
             );
-        };
-    };
-};
+        }
+    }
+}

@@ -18,11 +18,12 @@ Group {
 
     Label #StatValue {
         Text: "Value";
-        Anchor: (FlexWeight: 1, Height: 22);
+        FlexWeight: 1;
+        Anchor: (Height: 22);
         Style: (
             FontSize: 13;
             TextColor: $S.@ColorWhite;
             VerticalAlignment: Center;
         );
-    };
+    }
 };

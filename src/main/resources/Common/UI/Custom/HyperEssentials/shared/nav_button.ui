@@ -1,7 +1,7 @@
 $NavBar = "nav_bar.ui";
 
 Group {
-    $NavBar.@NavButton #NavActionButton {
-        Text: "Button";
-    };
-};
+  $NavBar.@NavButton #NavActionButton {
+    Text: "Button";
+  }
+}

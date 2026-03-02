@@ -1,38 +1,45 @@
-$C = "../../Common.ui";
-$S = "styles.ui";
+// HyperEssentials Navigation Bar
+// Following HyperFactions pattern exactly
 
 @NavButton = MenuItem {
-    Text: "Button";
-    Anchor: (Height: 28);
-    Style: (
-        Default: (TextColor: $S.@ColorGray);
-        Hovered: (TextColor: $S.@ColorAqua);
-        Selected: (TextColor: $S.@ColorAqua);
-    );
+  Padding: (Left: 20, Right: 20, Top: 0, Bottom: 0);
+  Style: (
+    Default: (
+      LabelStyle: (FontSize: 14, TextColor: #7c8b99, VerticalAlignment: Center, RenderUppercase: true, RenderBold: true)
+    ),
+    Hovered: (
+      Background: #121a26,
+      LabelStyle: (FontSize: 14, TextColor: #FFAA00, VerticalAlignment: Center, RenderUppercase: true, RenderBold: true)
+    )
+  );
+  SelectedStyle: (
+    Default: (
+      LabelStyle: (FontSize: 14, TextColor: #FFAA00, VerticalAlignment: Center, RenderUppercase: true, RenderBold: true)
+    ),
+    Hovered: (
+      Background: #121a26,
+      LabelStyle: (FontSize: 14, TextColor: #FFAA00, VerticalAlignment: Center, RenderUppercase: true, RenderBold: true)
+    )
+  );
 };
 
 @HyperEssentialsNavBar = Group {
-    Anchor: (Height: 40);
+  Anchor: (Height: 45, Top: 0);
+  Background: #0a1119;
+  LayoutMode: Left;
+
+  Group #NavBarTitle {
+    Anchor: (Width: 170, Height: 45);
     LayoutMode: Left;
-    Background: (Color: $S.@ColorBgDark);
-    Padding: (Left: 12, Right: 12);
+    Padding: (Left: 15, Right: 0, Top: 0, Bottom: 0);
 
-    Group #NavBarTitle {
-        Anchor: (Width: 160, Height: 40);
+    Label #NavBarTitleLabel {
+      Text: "HyperEssentials";
+      Style: (FontSize: 16, TextColor: #FFAA00, RenderBold: true, VerticalAlignment: Center);
+    }
+  }
 
-        Label #NavBarTitleLabel {
-            Text: "HyperEssentials";
-            Anchor: (Height: 40);
-            Style: (
-                FontSize: 16;
-                TextColor: $S.@ColorGold;
-                VerticalAlignment: Center;
-            );
-        };
-    };
-
-    Group #NavBarButtons {
-        LayoutMode: Left;
-        Padding: (Left: 12);
-    };
+  Group #NavBarButtons {
+    LayoutMode: Left;
+  }
 };
