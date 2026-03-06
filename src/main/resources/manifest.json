@@ -3,7 +3,7 @@
   "Name": "HyperEssentials",
   "Version": "${version}",
   "Description": "Modular server essentials for Hytale. Homes, warps, spawns, TPA, kits, moderation, and more. Part of the HyperSystems plugin suite.",
-  "Website": "https://github.com/HyperSystemsDev/HyperEssentials",
+  "Website": "https://github.com/HyperSystems-Development/HyperEssentials",
   "Main": "com.hyperessentials.platform.HyperEssentialsPlugin",
   "ServerVersion": "${serverVersion}",
   "SoftDependencies": ["HyperPerms"],

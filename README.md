@@ -1,6 +1,6 @@
 # HyperEssentials
 
-Modular server essentials for Hytale. Part of the [HyperSystems](https://github.com/HyperSystemsDev) plugin suite.
+Modular server essentials for Hytale. Part of the [HyperSystems](https://github.com/HyperSystems-Development) plugin suite.
 
 ## Features
 
@@ -29,11 +29,11 @@ Each module can be independently enabled or disabled via configuration.
 
 ## Optional Dependencies
 
-- [HyperPerms](https://github.com/HyperSystemsDev/HyperPerms) - Advanced permission management
+- [HyperPerms](https://github.com/HyperSystems-Development/HyperPerms) - Advanced permission management
 
 ## Installation
 
-1. Download `HyperEssentials-<version>.jar` from [Releases](https://github.com/HyperSystemsDev/HyperEssentials/releases)
+1. Download `HyperEssentials-<version>.jar` from [Releases](https://github.com/HyperSystems-Development/HyperEssentials/releases)
 2. Place in your server's `mods/` directory
 3. Restart the server
 4. Configuration files will be generated in `mods/com.hyperessentials_HyperEssentials/`
