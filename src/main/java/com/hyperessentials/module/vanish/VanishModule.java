@@ -8,6 +8,7 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * Vanish module for HyperEssentials.
+ * Vanish functionality is currently handled by ModerationModule.
  */
 public class VanishModule extends AbstractModule {
 
@@ -26,12 +27,10 @@ public class VanishModule extends AbstractModule {
   @Override
   public void onEnable() {
     super.onEnable();
-    // TODO: Register commands, listeners, and storage
   }
 
   @Override
   public void onDisable() {
-    // TODO: Unregister commands, save data, cleanup
     super.onDisable();
   }
 

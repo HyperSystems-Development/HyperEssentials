@@ -8,6 +8,7 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * Warmup module for HyperEssentials.
+ * WarmupManager operates independently — this module manages config only.
  */
 public class WarmupModule extends AbstractModule {
 
@@ -26,12 +27,10 @@ public class WarmupModule extends AbstractModule {
   @Override
   public void onEnable() {
     super.onEnable();
-    // TODO: Register commands, listeners, and storage
   }
 
   @Override
   public void onDisable() {
-    // TODO: Unregister commands, save data, cleanup
     super.onDisable();
   }
 

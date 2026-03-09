@@ -108,6 +108,9 @@ public final class Permissions {
   public static final String BYPASS_FACTIONS = BYPASS + ".factions";
   public static final String BYPASS_FACTIONS_SETHOME = BYPASS_FACTIONS + ".sethome";
   public static final String BYPASS_FACTIONS_HOME = BYPASS_FACTIONS + ".home";
+  public static final String BYPASS_FACTIONS_WARP = BYPASS_FACTIONS + ".warp";
+  public static final String BYPASS_FACTIONS_KIT = BYPASS_FACTIONS + ".kit";
+  public static final String BYPASS_FACTIONS_BACK = BYPASS_FACTIONS + ".back";
 
   // === Notify ===
   public static final String NOTIFY_WILDCARD = ROOT + ".notify.*";
