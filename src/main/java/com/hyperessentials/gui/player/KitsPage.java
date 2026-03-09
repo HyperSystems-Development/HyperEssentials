@@ -2,14 +2,18 @@ package com.hyperessentials.gui.player;
 
 import com.hyperessentials.gui.GuiManager;
 import com.hyperessentials.gui.GuiType;
+import com.hyperessentials.integration.FactionTerritoryChecker;
+import com.hyperessentials.integration.HyperFactionsIntegration;
 import com.hyperessentials.gui.NavBarHelper;
 import com.hyperessentials.gui.UIHelper;
 import com.hyperessentials.gui.UIPaths;
+import com.hyperessentials.gui.RefreshablePage;
 import com.hyperessentials.gui.data.PlayerPageData;
 import com.hyperessentials.module.kits.KitManager;
 import com.hyperessentials.module.kits.data.Kit;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
+import com.hypixel.hytale.math.vector.Vector3d;
 import com.hypixel.hytale.protocol.packets.interface_.CustomPageLifetime;
 import com.hypixel.hytale.protocol.packets.interface_.CustomUIEventBindingType;
 import com.hypixel.hytale.server.core.entity.entities.Player;
@@ -18,6 +22,8 @@ import com.hypixel.hytale.server.core.ui.builder.EventData;
 import com.hypixel.hytale.server.core.ui.builder.UICommandBuilder;
 import com.hypixel.hytale.server.core.ui.builder.UIEventBuilder;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
+import com.hypixel.hytale.server.core.universe.Universe;
+import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import org.jetbrains.annotations.NotNull;
 
@@ -28,7 +34,7 @@ import java.util.UUID;
 /**
  * Player kits page — browse available kits, claim with cooldown, preview items.
  */
-public class KitsPage extends InteractiveCustomUIPage<PlayerPageData> {
+public class KitsPage extends InteractiveCustomUIPage<PlayerPageData> implements RefreshablePage {
 
   private final PlayerRef playerRef;
   private final Player player;
@@ -60,6 +66,18 @@ public class KitsPage extends InteractiveCustomUIPage<PlayerPageData> {
     cmd.append(UIPaths.KITS_PAGE);
     NavBarHelper.setupBar(playerRef, "kits", guiManager.getPlayerRegistry(), cmd, events);
     buildKitList(ref, store, cmd, events);
+
+    guiManager.getPageTracker().register(playerRef.getUuid(), "kits", this);
+  }
+
+  @Override
+  public void onDismiss(@NotNull Ref<EntityStore> ref, @NotNull Store<EntityStore> store) {
+    guiManager.getPageTracker().unregister(playerRef.getUuid());
+  }
+
+  @Override
+  public void refreshContent() {
+    rebuildList(lastRef, lastStore);
   }
 
   private void buildKitList(@NotNull Ref<EntityStore> ref, @NotNull Store<EntityStore> store,
@@ -79,6 +97,22 @@ public class KitsPage extends InteractiveCustomUIPage<PlayerPageData> {
       return;
     }
 
+    // Zone flag check (player's current location) — check once for all kits
+    boolean kitsZoneBlocked = false;
+    var worldUuid = playerRef.getWorldUuid();
+    if (worldUuid != null) {
+      World playerWorld = Universe.get().getWorld(worldUuid);
+      if (playerWorld != null) {
+        var transform = playerRef.getTransform();
+        if (transform != null) {
+          Vector3d pos = transform.getPosition();
+          kitsZoneBlocked = FactionTerritoryChecker.checkZoneFlag(
+              playerWorld.getName(), pos.getX(), pos.getZ(), HyperFactionsIntegration.FLAG_KITS)
+              != FactionTerritoryChecker.Result.ALLOWED;
+        }
+      }
+    }
+
     List<Kit> sorted = new ArrayList<>(kits);
     sorted.sort((a, b) -> a.displayName().compareToIgnoreCase(b.displayName()));
 
@@ -90,15 +124,31 @@ public class KitsPage extends InteractiveCustomUIPage<PlayerPageData> {
       cmd.set(idx + " #KitName.Text", kit.displayName());
       cmd.set(idx + " #KitItems.Text", kit.items().size() + " items");
 
-      // Cooldown info
+      // Cooldown info and claim button state
       long remainingMs = kitManager.getRemainingCooldown(uuid, kit.name());
+      boolean oneTimeClaimed = kit.oneTime() && hasClaimedOneTimeKit(uuid, kit.name());
+      boolean alreadyDisabled = false;
       if (remainingMs > 0) {
         int remainingSecs = (int) (remainingMs / 1000);
         cmd.set(idx + " #KitCooldown.Text", "Cooldown: " + UIHelper.formatDuration(remainingSecs));
+        cmd.set(idx + " #ClaimBtn.Disabled", true);
+        cmd.set(idx + " #ClaimBtn.Text", UIHelper.formatDuration(remainingSecs));
+        alreadyDisabled = true;
+      } else if (oneTimeClaimed) {
+        cmd.set(idx + " #KitCooldown.Text", "Already claimed");
+        cmd.set(idx + " #ClaimBtn.Disabled", true);
+        cmd.set(idx + " #ClaimBtn.Text", "CLAIMED");
+        alreadyDisabled = true;
       } else if (kit.oneTime()) {
         cmd.set(idx + " #KitCooldown.Text", "One-time kit");
       } else if (kit.cooldownSeconds() > 0) {
         cmd.set(idx + " #KitCooldown.Text", "Ready");
+      }
+
+      // Zone flag override — disable if player is in a restricted zone
+      if (kitsZoneBlocked && !alreadyDisabled) {
+        cmd.set(idx + " #ClaimBtn.Disabled", true);
+        cmd.set(idx + " #ClaimBtn.Text", "Zone Restricted");
       }
 
       events.addEventBinding(
@@ -155,6 +205,23 @@ public class KitsPage extends InteractiveCustomUIPage<PlayerPageData> {
       return;
     }
 
+    // Zone flag check (player's current location)
+    var worldUuid = playerRef.getWorldUuid();
+    if (worldUuid != null) {
+      World playerWorld = Universe.get().getWorld(worldUuid);
+      if (playerWorld != null) {
+        var transform = playerRef.getTransform();
+        if (transform != null) {
+          Vector3d pos = transform.getPosition();
+          if (FactionTerritoryChecker.checkZoneFlag(playerWorld.getName(), pos.getX(), pos.getZ(),
+              HyperFactionsIntegration.FLAG_KITS) != FactionTerritoryChecker.Result.ALLOWED) {
+            rebuildList(ref, store);
+            return;
+          }
+        }
+      }
+    }
+
     KitManager.ClaimResult result = kitManager.claimKit(uuid, playerRef, store, ref, kit);
 
     // Rebuild list to update cooldown status after claim attempt
@@ -167,10 +234,19 @@ public class KitsPage extends InteractiveCustomUIPage<PlayerPageData> {
     Kit kit = kitManager.getKit(kitName);
     if (kit == null) return;
 
-    // Preview shows kit items in chat (keeps GUI open)
-    // The PreviewKitCommand already handles this via text
-    // For GUI, we just rebuild with current state
-    rebuildList(lastRef, lastStore);
+    // Unregister from tracker to stop periodic refresh while on sub-page
+    guiManager.getPageTracker().unregister(playerRef.getUuid());
+
+    // Open kit preview sub-page
+    KitPreviewPage previewPage = new KitPreviewPage(
+        player, playerRef, kitManager, kit,
+        () -> guiManager.openPlayerPage("kits", player, lastRef, lastStore, playerRef)
+    );
+    player.getPageManager().openCustomPage(lastRef, lastStore, previewPage);
+  }
+
+  private boolean hasClaimedOneTimeKit(@NotNull UUID uuid, @NotNull String kitName) {
+    return kitManager.hasClaimedOneTimeKit(uuid, kitName);
   }
 
   private void rebuildList(@NotNull Ref<EntityStore> ref, @NotNull Store<EntityStore> store) {

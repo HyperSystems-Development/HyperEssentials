@@ -24,6 +24,7 @@ public class WarmupConfig extends ModuleConfig {
     moduleSettings.put("spawns", new ModuleWarmupSettings(3, 5));
     moduleSettings.put("teleport", new ModuleWarmupSettings(3, 5));
     moduleSettings.put("rtp", new ModuleWarmupSettings(5, 30));
+    moduleSettings.put("factionhome", new ModuleWarmupSettings(5, 10));
   }
 
   @Override protected void loadModuleSettings(@NotNull JsonObject root) {

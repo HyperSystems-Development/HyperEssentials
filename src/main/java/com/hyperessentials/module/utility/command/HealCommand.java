@@ -11,13 +11,13 @@ import com.hypixel.hytale.server.core.modules.entitystats.EntityStatMap;
 import com.hypixel.hytale.server.core.modules.entitystats.EntityStatsModule;
 import com.hypixel.hytale.server.core.modules.entitystats.asset.DefaultEntityStatTypes;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
+import com.hypixel.hytale.server.core.universe.Universe;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import org.jetbrains.annotations.NotNull;
 
 /**
  * /heal [player] - Heal self or another player to full health.
- * Uses EntityStatsModule to access EntityStatMap and maximize all stats.
  */
 public class HealCommand extends AbstractPlayerCommand {
 
@@ -52,9 +52,15 @@ public class HealCommand extends AbstractPlayerCommand {
         return;
       }
 
-      // For targeting other players, we'd need their store/ref — heal self for now
-      // TODO: Resolve target's store/ref for cross-player healing
-      healPlayer(store, ref);
+      // Resolve target's store/ref for cross-player healing
+      Ref<EntityStore> targetRef = target.getReference();
+      if (targetRef == null || !targetRef.isValid()) {
+        ctx.sendMessage(CommandUtil.error("Player '" + parts[1] + "' is not in a world."));
+        return;
+      }
+      Store<EntityStore> targetStore = targetRef.getStore();
+
+      healPlayer(targetStore, targetRef);
       ctx.sendMessage(CommandUtil.success("Healed " + target.getUsername() + "."));
       target.sendMessage(CommandUtil.success("You have been healed."));
     } else {
@@ -68,7 +74,6 @@ public class HealCommand extends AbstractPlayerCommand {
       EntityStatMap statMap = store.getComponent(ref,
         EntityStatsModule.get().getEntityStatMapComponentType());
       if (statMap != null) {
-        // Only maximize health — maximizing all stats triggers regen visual effects
         statMap.maximizeStatValue(DefaultEntityStatTypes.getHealth());
       }
     } catch (Exception e) {

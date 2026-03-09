@@ -3,10 +3,13 @@ package com.hyperessentials.gui.player;
 import com.hyperessentials.data.Location;
 import com.hyperessentials.data.Warp;
 import com.hyperessentials.gui.GuiManager;
+import com.hyperessentials.integration.FactionTerritoryChecker;
+import com.hyperessentials.integration.HyperFactionsIntegration;
 import com.hyperessentials.gui.GuiType;
 import com.hyperessentials.gui.NavBarHelper;
 import com.hyperessentials.gui.UIHelper;
 import com.hyperessentials.gui.UIPaths;
+import com.hyperessentials.gui.RefreshablePage;
 import com.hyperessentials.gui.data.PlayerPageData;
 import com.hyperessentials.module.warmup.WarmupManager;
 import com.hyperessentials.module.warps.WarpManager;
@@ -35,7 +38,7 @@ import java.util.stream.Collectors;
 /**
  * Player warps page — browse warps grouped by category, teleport to warps.
  */
-public class WarpsPage extends InteractiveCustomUIPage<PlayerPageData> {
+public class WarpsPage extends InteractiveCustomUIPage<PlayerPageData> implements RefreshablePage {
 
   private final PlayerRef playerRef;
   private final Player player;
@@ -70,6 +73,18 @@ public class WarpsPage extends InteractiveCustomUIPage<PlayerPageData> {
     cmd.append(UIPaths.WARPS_PAGE);
     NavBarHelper.setupBar(playerRef, "warps", guiManager.getPlayerRegistry(), cmd, events);
     buildWarpList(cmd, events);
+
+    guiManager.getPageTracker().register(playerRef.getUuid(), "warps", this);
+  }
+
+  @Override
+  public void onDismiss(@NotNull Ref<EntityStore> ref, @NotNull Store<EntityStore> store) {
+    guiManager.getPageTracker().unregister(playerRef.getUuid());
+  }
+
+  @Override
+  public void refreshContent() {
+    rebuildList();
   }
 
   private void buildWarpList(@NotNull UICommandBuilder cmd, @NotNull UIEventBuilder events) {
@@ -97,6 +112,9 @@ public class WarpsPage extends InteractiveCustomUIPage<PlayerPageData> {
       catWarps.sort((a, b) -> a.displayName().compareToIgnoreCase(b.displayName()));
     }
 
+    // Cooldown is module-level (same for all warps) — check once
+    int cooldownSecs = warmupManager.getRemainingCooldown(uuid, "warps", "warp");
+
     int i = 0;
     for (Map.Entry<String, List<Warp>> entry : grouped.entrySet()) {
       String category = entry.getKey();
@@ -117,6 +135,20 @@ public class WarpsPage extends InteractiveCustomUIPage<PlayerPageData> {
         cmd.set(idx + " #WarpCategory.Text", warp.category());
         cmd.set(idx + " #WarpWorld.Text", UIHelper.formatWorldName(warp.world()));
         cmd.set(idx + " #WarpCoords.Text", UIHelper.formatCoords(warp.x(), warp.y(), warp.z()));
+
+        // Zone flag check (warp destination)
+        boolean warpZoneBlocked = FactionTerritoryChecker.checkZoneFlag(
+            warp.world(), warp.x(), warp.z(), HyperFactionsIntegration.FLAG_WARPS)
+            != FactionTerritoryChecker.Result.ALLOWED;
+
+        // Disable teleport button if zone-restricted or on cooldown
+        if (warpZoneBlocked) {
+          cmd.set(idx + " #TeleportBtn.Disabled", true);
+          cmd.set(idx + " #TeleportBtn.Text", "Zone Restricted");
+        } else if (cooldownSecs > 0) {
+          cmd.set(idx + " #TeleportBtn.Disabled", true);
+          cmd.set(idx + " #TeleportBtn.Text", UIHelper.formatDuration(cooldownSecs));
+        }
 
         events.addEventBinding(
             CustomUIEventBindingType.Activating,
@@ -165,6 +197,13 @@ public class WarpsPage extends InteractiveCustomUIPage<PlayerPageData> {
       return;
     }
 
+    // Zone flag check (warp destination)
+    if (FactionTerritoryChecker.checkZoneFlag(warp.world(), warp.x(), warp.z(),
+        HyperFactionsIntegration.FLAG_WARPS) != FactionTerritoryChecker.Result.ALLOWED) {
+      rebuildList();
+      return;
+    }
+
     if (warmupManager.isOnCooldown(uuid, "warps", "warp")) {
       rebuildList();
       return;
@@ -172,7 +211,7 @@ public class WarpsPage extends InteractiveCustomUIPage<PlayerPageData> {
 
     Location dest = Location.fromWarp(warp);
     warmupManager.startWarmup(uuid, "warps", "warp", () -> {
-      World targetWorld = Universe.get().getWorld(dest.world());
+      World targetWorld = Universe.get().getWorld(UUID.fromString(dest.worldUuid()));
       if (targetWorld == null) return;
       targetWorld.execute(() -> {
         if (!ref.isValid()) return;

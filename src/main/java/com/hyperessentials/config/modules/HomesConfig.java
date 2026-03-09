@@ -15,7 +15,7 @@ public class HomesConfig extends ModuleConfig {
   private boolean factionsEnabled = true;
   private boolean allowInOwnTerritory = true;
   private boolean allowInAllyTerritory = true;
-  private boolean allowInNeutralTerritory = true;
+  private boolean allowInNeutralTerritory = false;
   private boolean allowInEnemyTerritory = false;
   private boolean allowInWilderness = true;
 

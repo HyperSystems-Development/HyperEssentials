@@ -9,7 +9,6 @@ import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.server.core.command.system.CommandContext;
 import com.hypixel.hytale.server.core.command.system.basecommands.AbstractPlayerCommand;
 import com.hypixel.hytale.server.core.entity.entities.player.movement.MovementManager;
-import com.hypixel.hytale.server.core.io.PacketHandler;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
@@ -17,7 +16,6 @@ import org.jetbrains.annotations.NotNull;
 
 /**
  * /fly [player] - Toggle flight ability without changing gamemode.
- * Sets MovementSettings.canFly and sends UpdateMovementSettings packet.
  */
 public class FlyCommand extends AbstractPlayerCommand {
 
@@ -55,9 +53,19 @@ public class FlyCommand extends AbstractPlayerCommand {
         return;
       }
 
-      // TODO: Need target's store/ref for cross-player fly toggle
-      // For now, only self-toggle is fully supported
-      ctx.sendMessage(CommandUtil.error("Toggling fly for other players is not yet supported."));
+      // Resolve target's store/ref for cross-player fly toggle
+      Ref<EntityStore> targetRef = target.getReference();
+      if (targetRef == null || !targetRef.isValid()) {
+        ctx.sendMessage(CommandUtil.error("Player '" + parts[1] + "' is not in a world."));
+        return;
+      }
+      Store<EntityStore> targetStore = targetRef.getStore();
+
+      boolean nowFlying = module.getUtilityManager().toggleFly(target.getUuid());
+      applyFly(targetStore, targetRef, target, nowFlying);
+
+      ctx.sendMessage(CommandUtil.success("Flight " + (nowFlying ? "enabled" : "disabled") + " for " + target.getUsername() + "."));
+      target.sendMessage(CommandUtil.success("Flight " + (nowFlying ? "enabled" : "disabled") + "."));
     } else {
       boolean nowFlying = module.getUtilityManager().toggleFly(playerRef.getUuid());
       applyFly(store, ref, playerRef, nowFlying);

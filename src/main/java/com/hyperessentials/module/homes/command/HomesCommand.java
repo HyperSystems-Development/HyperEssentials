@@ -5,6 +5,7 @@ import com.hyperessentials.api.HyperEssentialsAPI;
 import com.hyperessentials.command.util.CommandUtil;
 import com.hyperessentials.data.Home;
 import com.hyperessentials.gui.GuiManager;
+import com.hyperessentials.integration.HyperFactionsIntegration;
 import com.hyperessentials.module.homes.HomeManager;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
@@ -66,6 +67,17 @@ public class HomesCommand extends AbstractPlayerCommand {
     }
 
     ctx.sendMessage(CommandUtil.info("Your homes (" + count + "/" + limitStr + "):"));
+
+    // Show faction home if available
+    if (HyperFactionsIntegration.isAvailable() && HyperFactionsIntegration.hasFactionHome(uuid)) {
+      String factionWorld = HyperFactionsIntegration.getFactionHomeWorld(uuid);
+      double[] coords = HyperFactionsIntegration.getFactionHomeCoords(uuid);
+      if (factionWorld != null && coords != null) {
+        ctx.sendMessage(CommandUtil.msg("  Faction Home: " + factionWorld + " (" +
+            String.format("%.0f, %.0f, %.0f", coords[0], coords[1], coords[2]) + ")",
+            CommandUtil.COLOR_GOLD));
+      }
+    }
 
     StringBuilder sb = new StringBuilder();
     for (Home home : homes) {

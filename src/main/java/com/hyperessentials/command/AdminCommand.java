@@ -188,7 +188,7 @@ public class AdminCommand extends AbstractPlayerCommand {
       return;
     }
 
-    if (!guiManager.openAdminPage("admin_dashboard", player, ref, store, playerRef)) {
+    if (!guiManager.openAdminPage("dashboard", player, ref, store, playerRef)) {
       ctx.sendMessage(CommandUtil.error("Could not open admin dashboard."));
     }
   }

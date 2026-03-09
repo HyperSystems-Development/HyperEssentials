@@ -53,8 +53,16 @@ public class GodCommand extends AbstractPlayerCommand {
         return;
       }
 
+      // Resolve target's store/ref for cross-player god toggle
+      Ref<EntityStore> targetRef = target.getReference();
+      if (targetRef == null || !targetRef.isValid()) {
+        ctx.sendMessage(CommandUtil.error("Player '" + parts[1] + "' is not in a world."));
+        return;
+      }
+      Store<EntityStore> targetStore = targetRef.getStore();
+
       boolean nowGod = module.getUtilityManager().toggleGod(target.getUuid());
-      applyGod(store, ref, nowGod);
+      applyGod(targetStore, targetRef, nowGod);
 
       ctx.sendMessage(CommandUtil.success("God mode " + (nowGod ? "enabled" : "disabled") + " for " + target.getUsername() + "."));
       target.sendMessage(CommandUtil.success("God mode " + (nowGod ? "enabled" : "disabled") + "."));

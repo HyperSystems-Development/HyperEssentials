@@ -19,7 +19,8 @@ public final class FactionTerritoryChecker {
     BLOCKED_ALLY_TERRITORY,
     BLOCKED_ENEMY_TERRITORY,
     BLOCKED_NEUTRAL_TERRITORY,
-    BLOCKED_WILDERNESS;
+    BLOCKED_WILDERNESS,
+    BLOCKED_ZONE;
 
     /**
      * Returns a player-facing denial message for this result.
@@ -32,6 +33,7 @@ public final class FactionTerritoryChecker {
         case BLOCKED_ENEMY_TERRITORY -> "You cannot use homes in enemy territory.";
         case BLOCKED_NEUTRAL_TERRITORY -> "You cannot use homes in neutral territory.";
         case BLOCKED_WILDERNESS -> "You cannot use homes in the wilderness.";
+        case BLOCKED_ZONE -> "This action is not allowed in this zone.";
         case ALLOWED -> "";
       };
     }
@@ -49,6 +51,25 @@ public final class FactionTerritoryChecker {
    * @param z          the z coordinate
    * @return the check result
    */
+  /**
+   * Checks if a zone flag allows the action at the given location.
+   * This checks ONLY zone flags — not relation-based territory settings.
+   * Returns ALLOWED if HyperFactions is absent or zone flag allows.
+   *
+   * @param world    the world name
+   * @param x        the x coordinate
+   * @param z        the z coordinate
+   * @param flagName the zone flag name
+   * @return the check result
+   */
+  @NotNull
+  public static Result checkZoneFlag(@NotNull String world, double x, double z,
+                                     @NotNull String flagName) {
+    if (!HyperFactionsIntegration.isAvailable()) return Result.ALLOWED;
+    boolean allowed = HyperFactionsIntegration.isZoneFlagAllowed(world, x, z, flagName);
+    return allowed ? Result.ALLOWED : Result.BLOCKED_ZONE;
+  }
+
   @NotNull
   public static Result canUseHome(@NotNull UUID playerUuid, @NotNull String world,
                                   double x, double z) {
@@ -56,6 +77,10 @@ public final class FactionTerritoryChecker {
     if (!HyperFactionsIntegration.isAvailable()) {
       return Result.ALLOWED;
     }
+
+    // Zone flag check — takes priority over relation-based checks
+    Result zoneResult = checkZoneFlag(world, x, z, HyperFactionsIntegration.FLAG_HOMES);
+    if (zoneResult != Result.ALLOWED) return zoneResult;
 
     // Master toggle off — allow everything
     HomesConfig config = ConfigManager.get().homes();

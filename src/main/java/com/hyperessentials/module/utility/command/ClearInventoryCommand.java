@@ -15,7 +15,6 @@ import org.jetbrains.annotations.NotNull;
 
 /**
  * /clearinventory [player] (alias: /ci) - Clear inventory.
- * Uses Player component to access inventory (same as built-in /clear command).
  */
 public class ClearInventoryCommand extends AbstractPlayerCommand {
 
@@ -51,9 +50,15 @@ public class ClearInventoryCommand extends AbstractPlayerCommand {
         return;
       }
 
-      // For other players, we need their store/ref — clear self for now
-      // TODO: Resolve target's store/ref for cross-player inventory clearing
-      clearInventory(store, ref);
+      // Resolve target's store/ref for cross-player inventory clearing
+      Ref<EntityStore> targetRef = target.getReference();
+      if (targetRef == null || !targetRef.isValid()) {
+        ctx.sendMessage(CommandUtil.error("Player '" + parts[1] + "' is not in a world."));
+        return;
+      }
+      Store<EntityStore> targetStore = targetRef.getStore();
+
+      clearInventory(targetStore, targetRef);
       ctx.sendMessage(CommandUtil.success("Cleared " + target.getUsername() + "'s inventory."));
       target.sendMessage(CommandUtil.info("Your inventory has been cleared."));
     } else {
