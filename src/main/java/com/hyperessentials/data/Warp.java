@@ -3,13 +3,17 @@ package com.hyperessentials.data;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.UUID;
+
 /**
  * Represents a server warp location that players can teleport to.
  *
+ * @param uuid        unique identifier for file naming
  * @param name        the unique name of the warp (lowercase)
  * @param displayName the display name of the warp (can have formatting)
  * @param category    the category/group this warp belongs to
- * @param world       the world the warp is in
+ * @param world       the world display name
+ * @param worldUuid   the world UUID string for resolution
  * @param x           the x coordinate
  * @param y           the y coordinate
  * @param z           the z coordinate
@@ -21,10 +25,12 @@ import org.jetbrains.annotations.Nullable;
  * @param createdBy   UUID string of the player who created the warp
  */
 public record Warp(
+  @NotNull UUID uuid,
   @NotNull String name,
   @NotNull String displayName,
   @NotNull String category,
   @NotNull String world,
+  @NotNull String worldUuid,
   double x,
   double y,
   double z,
@@ -45,14 +51,16 @@ public record Warp(
     }
   }
 
-  public static Warp create(@NotNull String name, @NotNull String world,
+  public static Warp create(@NotNull String name, @NotNull String world, @NotNull String worldUuid,
                 double x, double y, double z, float yaw, float pitch,
                 @Nullable String createdBy) {
     return new Warp(
+      UUID.randomUUID(),
       name.toLowerCase(),
       name,
       "general",
       world,
+      worldUuid,
       x, y, z,
       yaw, pitch,
       null,
@@ -63,28 +71,29 @@ public record Warp(
   }
 
   public Warp withDisplayName(@NotNull String newDisplayName) {
-    return new Warp(name, newDisplayName, category, world, x, y, z, yaw, pitch,
+    return new Warp(uuid, name, newDisplayName, category, world, worldUuid, x, y, z, yaw, pitch,
              permission, description, createdAt, createdBy);
   }
 
   public Warp withCategory(@NotNull String newCategory) {
-    return new Warp(name, displayName, newCategory, world, x, y, z, yaw, pitch,
+    return new Warp(uuid, name, displayName, newCategory, world, worldUuid, x, y, z, yaw, pitch,
              permission, description, createdAt, createdBy);
   }
 
   public Warp withPermission(@Nullable String newPermission) {
-    return new Warp(name, displayName, category, world, x, y, z, yaw, pitch,
+    return new Warp(uuid, name, displayName, category, world, worldUuid, x, y, z, yaw, pitch,
              newPermission, description, createdAt, createdBy);
   }
 
   public Warp withDescription(@Nullable String newDescription) {
-    return new Warp(name, displayName, category, world, x, y, z, yaw, pitch,
+    return new Warp(uuid, name, displayName, category, world, worldUuid, x, y, z, yaw, pitch,
              permission, newDescription, createdAt, createdBy);
   }
 
-  public Warp withLocation(@NotNull String newWorld, double newX, double newY, double newZ,
+  public Warp withLocation(@NotNull String newWorld, @NotNull String newWorldUuid,
+               double newX, double newY, double newZ,
                float newYaw, float newPitch) {
-    return new Warp(name, displayName, category, newWorld, newX, newY, newZ, newYaw, newPitch,
+    return new Warp(uuid, name, displayName, category, newWorld, newWorldUuid, newX, newY, newZ, newYaw, newPitch,
              permission, description, createdAt, createdBy);
   }
 

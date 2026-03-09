@@ -8,11 +8,26 @@ import java.util.concurrent.CompletableFuture;
 
 /**
  * Storage interface for spawn data.
+ * Files: data/spawns/<worldUuid>.json (one spawn per world)
  */
 public interface SpawnStorage {
 
   CompletableFuture<Void> init();
   CompletableFuture<Void> shutdown();
-  CompletableFuture<Map<String, Spawn>> loadSpawns();
-  CompletableFuture<Void> saveSpawns(@NotNull Map<String, Spawn> spawns);
+
+  /**
+   * Scans data/spawns/ directory and loads all spawns.
+   * @return map keyed by world UUID string
+   */
+  CompletableFuture<Map<String, Spawn>> loadAllSpawns();
+
+  /**
+   * Saves a single spawn to data/spawns/<worldUuid>.json.
+   */
+  CompletableFuture<Void> saveSpawn(@NotNull Spawn spawn);
+
+  /**
+   * Deletes a spawn file by world UUID.
+   */
+  CompletableFuture<Void> deleteSpawn(@NotNull String worldUuid);
 }

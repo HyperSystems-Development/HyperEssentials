@@ -24,4 +24,7 @@ public interface StorageProvider {
 
   @NotNull
   PlayerDataStorage getPlayerDataStorage();
+
+  @NotNull
+  KitStorage getKitStorage();
 }
