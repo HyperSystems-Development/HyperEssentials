@@ -129,25 +129,22 @@ public class AdminWarpsPage extends InteractiveCustomUIPage<AdminPageData> {
   }
 
   private void handleCreate() {
-    // Create warp at player's current location
     var pos = playerRef.getTransform().getPosition();
     var rot = playerRef.getTransform().getRotation();
     String worldName = "";
+    String worldUuidStr = "";
 
-    HyperEssentialsPlugin plugin = HyperEssentialsPlugin.getInstance();
-    if (plugin != null) {
-      var worldUuid = playerRef.getWorldUuid();
-      if (worldUuid != null) {
-        var world = com.hypixel.hytale.server.core.universe.Universe.get().getWorld(worldUuid);
-        if (world != null) {
-          worldName = world.getName();
-        }
+    var worldUuid = playerRef.getWorldUuid();
+    if (worldUuid != null) {
+      worldUuidStr = worldUuid.toString();
+      var world = com.hypixel.hytale.server.core.universe.Universe.get().getWorld(worldUuid);
+      if (world != null) {
+        worldName = world.getName();
       }
     }
 
-    // Generate a unique name based on timestamp
     String name = "warp_" + System.currentTimeMillis() % 100000;
-    Warp warp = Warp.create(name, worldName,
+    Warp warp = Warp.create(name, worldName, worldUuidStr,
         pos.getX(), pos.getY(), pos.getZ(),
         rot.getY(), rot.getX(),
         playerRef.getUuid().toString());

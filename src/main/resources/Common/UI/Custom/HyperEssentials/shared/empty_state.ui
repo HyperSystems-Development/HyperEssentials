@@ -8,20 +8,12 @@ Group {
     Label #EmptyTitle {
         Text: "Nothing here";
         Anchor: (Height: 24);
-        Style: (
-            FontSize: 16;
-            TextColor: #7c8b99;
-            HorizontalAlignment: Center;
-        );
-    };
+        Style: (FontSize: 16, TextColor: #7c8b99, HorizontalAlignment: Center);
+    }
 
     Label #EmptyMessage {
         Text: "No items to display.";
         Anchor: (Height: 18, Top: 6);
-        Style: (
-            FontSize: 13;
-            TextColor: #888888;
-            HorizontalAlignment: Center;
-        );
-    };
-};
+        Style: (FontSize: 13, TextColor: #888888, HorizontalAlignment: Center);
+    }
+}

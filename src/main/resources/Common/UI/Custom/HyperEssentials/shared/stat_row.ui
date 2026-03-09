@@ -9,21 +9,13 @@ Group {
     Label #StatLabel {
         Text: "Label";
         Anchor: (Width: 140, Height: 22);
-        Style: (
-            FontSize: 13;
-            TextColor: #7c8b99;
-            VerticalAlignment: Center;
-        );
-    };
+        Style: (FontSize: 13, TextColor: #7c8b99, VerticalAlignment: Center);
+    }
 
     Label #StatValue {
         Text: "Value";
         FlexWeight: 1;
         Anchor: (Height: 22);
-        Style: (
-            FontSize: 13;
-            TextColor: #FFFFFF;
-            VerticalAlignment: Center;
-        );
+        Style: (FontSize: 13, TextColor: #FFFFFF, VerticalAlignment: Center);
     }
-};
+}

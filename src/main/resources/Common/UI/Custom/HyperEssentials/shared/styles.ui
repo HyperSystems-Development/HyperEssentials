@@ -82,7 +82,7 @@ $C = "../../Common.ui";
   Default: (Background: $C.@DefaultSquareButtonDefaultBackground, LabelStyle: @ButtonLabelStyle),
   Hovered: (Background: $C.@DefaultSquareButtonHoveredBackground, LabelStyle: @ButtonLabelStyle),
   Pressed: (Background: $C.@DefaultSquareButtonPressedBackground, LabelStyle: @ButtonLabelStyle),
-  Disabled: (Background: $C.@DefaultSquareButtonDisabledBackground, LabelStyle: @ButtonLabelStyle),
+  Disabled: (Background: $C.@DefaultSquareButtonDisabledBackground, LabelStyle: @DisabledLabelStyle),
   Sounds: $C.@ButtonSounds,
 );
 
@@ -91,7 +91,7 @@ $C = "../../Common.ui";
   Default: (Background: $C.@DefaultSquareButtonDefaultBackground, LabelStyle: @GoldLabelStyle),
   Hovered: (Background: $C.@DefaultSquareButtonHoveredBackground, LabelStyle: @GoldLabelStyle),
   Pressed: (Background: $C.@DefaultSquareButtonPressedBackground, LabelStyle: @GoldLabelStyle),
-  Disabled: (Background: $C.@DefaultSquareButtonDisabledBackground, LabelStyle: @GoldLabelStyle),
+  Disabled: (Background: $C.@DefaultSquareButtonDisabledBackground, LabelStyle: @DisabledLabelStyle),
   Sounds: $C.@ButtonSounds,
 );
 
@@ -100,7 +100,7 @@ $C = "../../Common.ui";
   Default: (Background: $C.@DefaultSquareButtonDefaultBackground, LabelStyle: @GreenLabelStyle),
   Hovered: (Background: $C.@DefaultSquareButtonHoveredBackground, LabelStyle: @GreenLabelStyle),
   Pressed: (Background: $C.@DefaultSquareButtonPressedBackground, LabelStyle: @GreenLabelStyle),
-  Disabled: (Background: $C.@DefaultSquareButtonDisabledBackground, LabelStyle: @GreenLabelStyle),
+  Disabled: (Background: $C.@DefaultSquareButtonDisabledBackground, LabelStyle: @DisabledLabelStyle),
   Sounds: $C.@ButtonSounds,
 );
 
@@ -109,7 +109,7 @@ $C = "../../Common.ui";
   Default: (Background: $C.@DefaultSquareButtonDefaultBackground, LabelStyle: @RedLabelStyle),
   Hovered: (Background: $C.@DefaultSquareButtonHoveredBackground, LabelStyle: @RedLabelStyle),
   Pressed: (Background: $C.@DefaultSquareButtonPressedBackground, LabelStyle: @RedLabelStyle),
-  Disabled: (Background: $C.@DefaultSquareButtonDisabledBackground, LabelStyle: @RedLabelStyle),
+  Disabled: (Background: $C.@DefaultSquareButtonDisabledBackground, LabelStyle: @DisabledLabelStyle),
   Sounds: $C.@ButtonSounds,
 );
 
@@ -118,7 +118,7 @@ $C = "../../Common.ui";
   Default: (Background: $C.@DefaultSquareButtonDefaultBackground, LabelStyle: @AquaLabelStyle),
   Hovered: (Background: $C.@DefaultSquareButtonHoveredBackground, LabelStyle: @AquaLabelStyle),
   Pressed: (Background: $C.@DefaultSquareButtonPressedBackground, LabelStyle: @AquaLabelStyle),
-  Disabled: (Background: $C.@DefaultSquareButtonDisabledBackground, LabelStyle: @AquaLabelStyle),
+  Disabled: (Background: $C.@DefaultSquareButtonDisabledBackground, LabelStyle: @DisabledLabelStyle),
   Sounds: $C.@ButtonSounds,
 );
 

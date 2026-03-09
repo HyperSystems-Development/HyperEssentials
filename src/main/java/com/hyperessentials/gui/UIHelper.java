@@ -122,7 +122,7 @@ public final class UIHelper {
   }
 
   public static String formatLimit(int limit) {
-    return limit < 0 ? "\u221E" : String.valueOf(limit);
+    return limit < 0 ? "*" : String.valueOf(limit);
   }
 
   public static String formatPlaytime(long ms) {

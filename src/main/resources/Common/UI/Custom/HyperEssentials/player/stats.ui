@@ -5,7 +5,7 @@ $Nav = "../shared/nav_bar.ui";
 $C.@PageOverlay {
   $Nav.@HyperEssentialsNavBar #NavBar {}
 
-  $C.@Container {
+  $C.@DecoratedContainer {
     Anchor: (Width: 480, Height: 380);
 
     #Title {
@@ -36,21 +36,10 @@ $C.@PageOverlay {
         LayoutMode: Top;
       }
 
-      // Divider
-      Group {
-        Anchor: (Height: 1, Top: 10, Bottom: 10);
-        Background: (Color: #2a3a4a);
-      }
-
-      // Status section header
-      Label {
-        Text: "Current Status";
-        Style: (FontSize: 12, TextColor: #7c8b99, RenderBold: true);
-        Anchor: (Height: 20, Bottom: 6);
-      }
-
+      // Hidden status section (kept for compatibility)
       Group #StatusList {
         LayoutMode: Top;
+        Anchor: (Height: 0);
       }
     }
   }

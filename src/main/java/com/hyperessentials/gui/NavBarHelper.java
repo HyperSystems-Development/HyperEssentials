@@ -40,26 +40,7 @@ public final class NavBarHelper {
 
     cmd.set("#NavBar #NavBarTitle #NavBarTitleLabel.Text", "HyperEssentials");
     cmd.appendInline("#NavBar #NavBarButtons", "Group #NavCards { LayoutMode: Left; }");
-
-    int index = 0;
-    for (PageRegistry.Entry entry : entries) {
-      if (entry.id().equals(currentPage)) {
-        cmd.append("#NavCards", "HyperEssentials/shared/nav_button_active.ui");
-      } else {
-        cmd.append("#NavCards", "HyperEssentials/shared/nav_button.ui");
-      }
-
-      cmd.set("#NavCards[" + index + "] #NavActionButton.Text", entry.displayName());
-
-      events.addEventBinding(
-          CustomUIEventBindingType.Activating,
-          "#NavCards[" + index + "] #NavActionButton",
-          EventData.of("Button", "Nav").append("NavTarget", entry.id()),
-          false
-      );
-
-      index++;
-    }
+    buildButtons(entries, cmd, events);
   }
 
   /**
@@ -80,15 +61,21 @@ public final class NavBarHelper {
 
     cmd.set("#NavBar #NavBarTitle #NavBarTitleLabel.Text", "HE Admin");
     cmd.appendInline("#NavBar #NavBarButtons", "Group #NavCards { LayoutMode: Left; }");
+    buildButtons(entries, cmd, events);
+  }
 
+  /**
+   * Builds navigation buttons using a single template for all entries.
+   * Follows HyperFactions NavBarUtil pattern: one template, same element ID.
+   */
+  private static void buildButtons(
+      @NotNull List<PageRegistry.Entry> entries,
+      @NotNull UICommandBuilder cmd,
+      @NotNull UIEventBuilder events
+  ) {
     int index = 0;
     for (PageRegistry.Entry entry : entries) {
-      if (entry.id().equals(currentPage)) {
-        cmd.append("#NavCards", "HyperEssentials/shared/nav_button_active.ui");
-      } else {
-        cmd.append("#NavCards", "HyperEssentials/shared/nav_button.ui");
-      }
-
+      cmd.append("#NavCards", UIPaths.NAV_BUTTON);
       cmd.set("#NavCards[" + index + "] #NavActionButton.Text", entry.displayName());
 
       events.addEventBinding(
@@ -167,6 +154,9 @@ public final class NavBarHelper {
     );
 
     if (page != null) {
+      // Unregister current page from tracker before opening new page,
+      // preventing stale refresh ticks from sending commands to a replaced page
+      guiManager.getPageTracker().unregister(playerRef.getUuid());
       player.getPageManager().openCustomPage(ref, store, page);
     }
 

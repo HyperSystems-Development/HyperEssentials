@@ -1,7 +1,7 @@
 $C = "../../Common.ui";
 $S = "styles.ui";
 
-$C.@PageOverlay {};
+$C.@PageOverlay {}
 
 Group {
     Anchor: (Width: 340, Height: 160);
@@ -13,23 +13,14 @@ Group {
         Label #ConfirmTitle {
             Text: "Confirm Action";
             Anchor: (Height: 22);
-            Style: (
-                FontSize: 16;
-                TextColor: #FFFFFF;
-                RenderBold: true;
-                HorizontalAlignment: Center;
-            );
-        };
+            Style: (FontSize: 16, TextColor: #FFFFFF, RenderBold: true, HorizontalAlignment: Center);
+        }
 
         Label #ConfirmMessage {
             Text: "Are you sure?";
             Anchor: (Height: 36, Top: 8);
-            Style: (
-                FontSize: 13;
-                TextColor: #7c8b99;
-                HorizontalAlignment: Center;
-            );
-        };
+            Style: (FontSize: 13, TextColor: #7c8b99, HorizontalAlignment: Center);
+        }
 
         Group {
             LayoutMode: Left;
@@ -52,6 +43,6 @@ Group {
             }
 
             Group { FlexWeight: 1; }
-        };
-    };
-};
+        }
+    }
+}

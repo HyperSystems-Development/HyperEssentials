@@ -5,7 +5,7 @@ $Nav = "../shared/nav_bar.ui";
 $C.@PageOverlay {
   $Nav.@HyperEssentialsNavBar #NavBar {}
 
-  $C.@Container {
+  $C.@DecoratedContainer {
     Anchor: (Width: 580, Height: 450);
 
     #Title {

@@ -1,6 +1,5 @@
 package com.hyperessentials.gui.player;
 
-import com.hyperessentials.data.PlayerStats;
 import com.hyperessentials.gui.GuiManager;
 import com.hyperessentials.gui.GuiType;
 import com.hyperessentials.gui.NavBarHelper;
@@ -69,12 +68,10 @@ public class StatsPage extends InteractiveCustomUIPage<PlayerPageData> {
     int statIdx = 0;
 
     if (utilityManager != null) {
-      PlayerStats stats = utilityManager.getPlayerStats(uuid);
-
       // First join date
-      if (stats != null) {
-        appendStatRow(cmd, statIdx++, "First Joined", DATE_FORMAT.format(stats.firstJoin()));
-        appendStatRow(cmd, statIdx++, "Last Login", DATE_FORMAT.format(stats.lastJoin()));
+      Instant firstJoin = utilityManager.getFirstJoin(uuid);
+      if (firstJoin != null) {
+        appendStatRow(cmd, statIdx++, "First Joined", DATE_FORMAT.format(firstJoin));
       }
 
       // Total playtime
@@ -89,16 +86,8 @@ public class StatsPage extends InteractiveCustomUIPage<PlayerPageData> {
       }
     }
 
-    // Status indicators
+    // Hide unused status section
     cmd.clear("#StatusList");
-    int statusIdx = 0;
-
-    if (utilityManager != null) {
-      appendStatusRow(cmd, statusIdx++, "AFK", utilityManager.isAfk(uuid));
-      appendStatusRow(cmd, statusIdx++, "Fly Mode", utilityManager.isFlying(uuid));
-      appendStatusRow(cmd, statusIdx++, "God Mode", utilityManager.isGod(uuid));
-      appendStatusRow(cmd, statusIdx++, "Infinite Stamina", utilityManager.isInfiniteStamina(uuid));
-    }
   }
 
   private void appendStatRow(@NotNull UICommandBuilder cmd, int index, String label, String value) {
@@ -106,16 +95,6 @@ public class StatsPage extends InteractiveCustomUIPage<PlayerPageData> {
     String idx = "#StatsList[" + index + "]";
     cmd.set(idx + " #StatLabel.Text", label);
     cmd.set(idx + " #StatValue.Text", value);
-  }
-
-  private void appendStatusRow(@NotNull UICommandBuilder cmd, int index, String label, boolean active) {
-    cmd.append("#StatusList", UIPaths.STAT_ROW);
-    String idx = "#StatusList[" + index + "]";
-    cmd.set(idx + " #StatLabel.Text", label);
-    cmd.set(idx + " #StatValue.Text", active ? "Active" : "Inactive");
-    if (active) {
-      cmd.set(idx + " #StatValue.Style.TextColor", "#4aff7f");
-    }
   }
 
   @Override

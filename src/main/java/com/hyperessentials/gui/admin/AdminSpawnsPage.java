@@ -8,7 +8,6 @@ import com.hyperessentials.gui.UIHelper;
 import com.hyperessentials.gui.UIPaths;
 import com.hyperessentials.gui.data.AdminPageData;
 import com.hyperessentials.module.spawns.SpawnManager;
-import com.hyperessentials.platform.HyperEssentialsPlugin;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.protocol.packets.interface_.CustomPageLifetime;
@@ -28,7 +27,7 @@ import java.util.Comparator;
 import java.util.List;
 
 /**
- * Admin spawns page — list all spawns with create/delete.
+ * Admin spawns page — list all world spawns with create/delete.
  */
 public class AdminSpawnsPage extends InteractiveCustomUIPage<AdminPageData> {
 
@@ -68,9 +67,9 @@ public class AdminSpawnsPage extends InteractiveCustomUIPage<AdminPageData> {
         EventData.of("Button", "Create"), false
     );
 
-    // Build spawn list sorted by default status then name
+    // Build spawn list sorted by global status then world name
     List<Spawn> sorted = new ArrayList<>(allSpawns);
-    sorted.sort(Comparator.comparing(Spawn::isDefault).reversed().thenComparing(Spawn::name));
+    sorted.sort(Comparator.comparing(Spawn::isGlobal).reversed().thenComparing(Spawn::worldName));
 
     cmd.clear("#SpawnList");
     cmd.appendInline("#SpawnList", "Group #IndexCards { LayoutMode: Top; }");
@@ -87,15 +86,15 @@ public class AdminSpawnsPage extends InteractiveCustomUIPage<AdminPageData> {
       cmd.append("#IndexCards", UIPaths.ADMIN_SPAWN_ENTRY);
       String idx = "#IndexCards[" + i + "]";
 
-      cmd.set(idx + " #SpawnName.Text", spawn.name());
-      cmd.set(idx + " #DefaultBadge.Text", spawn.isDefault() ? "DEFAULT" : "");
-      cmd.set(idx + " #SpawnWorld.Text", UIHelper.formatWorldName(spawn.world()));
+      cmd.set(idx + " #SpawnName.Text", spawn.worldName());
+      cmd.set(idx + " #DefaultBadge.Text", spawn.isGlobal() ? "GLOBAL" : "");
+      cmd.set(idx + " #SpawnWorld.Text", UIHelper.formatWorldName(spawn.worldName()));
       cmd.set(idx + " #SpawnCoords.Text", UIHelper.formatCoords(spawn.x(), spawn.y(), spawn.z()));
 
       events.addEventBinding(
           CustomUIEventBindingType.Activating,
           idx + " #DeleteBtn",
-          EventData.of("Button", "Delete").append("Target", spawn.name()),
+          EventData.of("Button", "Delete").append("Target", spawn.worldUuid()),
           false
       );
 
@@ -132,20 +131,18 @@ public class AdminSpawnsPage extends InteractiveCustomUIPage<AdminPageData> {
     var pos = playerRef.getTransform().getPosition();
     var rot = playerRef.getTransform().getRotation();
     String worldName = "";
+    String worldUuidStr = "";
 
-    HyperEssentialsPlugin plugin = HyperEssentialsPlugin.getInstance();
-    if (plugin != null) {
-      var worldUuid = playerRef.getWorldUuid();
-      if (worldUuid != null) {
-        var world = com.hypixel.hytale.server.core.universe.Universe.get().getWorld(worldUuid);
-        if (world != null) {
-          worldName = world.getName();
-        }
+    var worldUuid = playerRef.getWorldUuid();
+    if (worldUuid != null) {
+      worldUuidStr = worldUuid.toString();
+      var world = com.hypixel.hytale.server.core.universe.Universe.get().getWorld(worldUuid);
+      if (world != null) {
+        worldName = world.getName();
       }
     }
 
-    String name = "spawn_" + System.currentTimeMillis() % 100000;
-    Spawn spawn = Spawn.create(name, worldName,
+    Spawn spawn = Spawn.create(worldUuidStr, worldName,
         pos.getX(), pos.getY(), pos.getZ(),
         rot.getY(), rot.getX(),
         playerRef.getUuid().toString());
@@ -154,9 +151,9 @@ public class AdminSpawnsPage extends InteractiveCustomUIPage<AdminPageData> {
     rebuildList();
   }
 
-  private void handleDelete(String spawnName) {
-    if (spawnName == null) return;
-    spawnManager.deleteSpawn(spawnName);
+  private void handleDelete(String worldUuid) {
+    if (worldUuid == null) return;
+    spawnManager.deleteSpawn(worldUuid);
     rebuildList();
   }
 

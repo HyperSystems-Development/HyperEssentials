@@ -13,21 +13,13 @@ Group {
         Label #ErrorTitle {
             Text: "Error";
             Anchor: (Height: 30);
-            Style: (
-                FontSize: 18;
-                TextColor: #ff5555;
-                HorizontalAlignment: Center;
-            );
+            Style: (FontSize: 18, TextColor: #ff5555, HorizontalAlignment: Center);
         }
 
         Label #ErrorMessage {
             Text: "An error occurred.";
             Anchor: (Height: 20);
-            Style: (
-                FontSize: 14;
-                TextColor: #7c8b99;
-                HorizontalAlignment: Center;
-            );
+            Style: (FontSize: 14, TextColor: #7c8b99, HorizontalAlignment: Center);
         }
     }
 }

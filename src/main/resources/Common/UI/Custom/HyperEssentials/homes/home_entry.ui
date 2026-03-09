@@ -1,60 +1,152 @@
+// Home Entry - Expandable
 $C = "../../Common.ui";
 $S = "../shared/styles.ui";
 
 Group {
-  LayoutMode: Left;
-  Anchor: (Height: 48, Bottom: 4);
-  Background: (Color: #1a2a3a);
-  Padding: (Left: 12, Right: 12, Top: 6, Bottom: 6);
+  LayoutMode: Top;
+  Anchor: (Bottom: 4);
 
-  // Gold indicator bar
-  Group {
-    Anchor: (Width: 3, Top: 4, Bottom: 4);
-    Background: (Color: #FFAA00);
+  // Header wrapper - contains content, clickable overlay, and TP button
+  Group #HeaderWrapper {
+    Anchor: (Height: 44);
+
+    // Header content (visual layout)
+    Group #HeaderContent {
+      Anchor: (Left: 0, Right: 0, Top: 0, Bottom: 0);
+      Background: (Color: #1a2a3a);
+      Padding: (Left: 12, Right: 12, Top: 6, Bottom: 6);
+      LayoutMode: Left;
+
+      // Gold indicator bar
+      Group #HomeIndicator {
+        Anchor: (Width: 3, Top: 4, Bottom: 4);
+        Background: (Color: #FFAA00);
+      }
+
+      Group { Anchor: (Width: 8); }
+
+      // Name and world
+      Group {
+        Anchor: (Width: 150);
+        LayoutMode: Top;
+
+        Label #HomeName {
+          Text: "Home";
+          Style: (FontSize: 13, TextColor: #FFFFFF, RenderBold: true, VerticalAlignment: Center);
+          Anchor: (Height: 20);
+        }
+
+        Label #HomeWorld {
+          Text: "World";
+          Style: (FontSize: 10, TextColor: #7c8b99, VerticalAlignment: Center);
+          Anchor: (Height: 16);
+        }
+      }
+
+      // Cooldown info (hidden by default, shown when on cooldown)
+      Label #HomeCooldown {
+        Text: "";
+        Style: (FontSize: 11, TextColor: #888888, VerticalAlignment: Center);
+        Anchor: (Width: 120);
+        Visible: false;
+      }
+
+      // Coordinates (hidden when cooldown is showing)
+      Label #HomeCoords {
+        Text: "0, 0, 0";
+        Style: (FontSize: 11, TextColor: #888888, VerticalAlignment: Center);
+        Anchor: (Width: 120);
+      }
+
+      Group { FlexWeight: 1; }
+
+      // Default badge (shown when this home is the default)
+      Label #DefaultBadge {
+        Text: "DEFAULT";
+        Style: (FontSize: 9, TextColor: #FFAA00, RenderBold: true, VerticalAlignment: Center, HorizontalAlignment: Center);
+        Anchor: (Width: 55);
+        Visible: false;
+      }
+
+      // TP button placeholder (maintains spacing for overlay alignment)
+      Group { Anchor: (Width: 50); }
+
+      Group { Anchor: (Width: 8); }
+
+      // Expand indicators
+      Label #ExpandIcon {
+        Text: ">";
+        Style: (FontSize: 14, TextColor: #666666, VerticalAlignment: Center, HorizontalAlignment: Center);
+        Anchor: (Width: 20);
+      }
+      Label #CollapseIcon {
+        Text: "v";
+        Style: (FontSize: 14, TextColor: #FFAA00, VerticalAlignment: Center, HorizontalAlignment: Center);
+        Anchor: (Width: 20);
+        Visible: false;
+      }
+    }
+
+    // Clickable overlay button for expand/collapse
+    TextButton #Header {
+      Text: "";
+      Anchor: (Left: 0, Right: 0, Top: 0, Bottom: 0);
+      Style: $S.@InvisibleButtonStyle;
+    }
+
+    // TP button (on top of overlay so clicks reach it)
+    TextButton #TeleportBtn {
+      Text: "TP";
+      Anchor: (Right: 40, Top: 8, Width: 50, Height: 28);
+      Style: $S.@GoldButtonStyle;
+    }
   }
 
-  Group { Anchor: (Width: 8); }
-
-  // Name and world
-  Group {
-    Anchor: (Width: 160);
+  // Expanded content
+  Group #ExtendedInfo {
     LayoutMode: Top;
+    Background: (Color: #0d1520);
+    Padding: (Left: 25, Right: 12, Top: 8, Bottom: 10);
+    Visible: false;
 
-    Label #HomeName {
-      Text: "Home";
-      Style: (FontSize: 13, TextColor: #FFFFFF, RenderBold: true, VerticalAlignment: Center);
-      Anchor: (Height: 20);
+    // Action buttons
+    Group #ActionButtons {
+      LayoutMode: Left;
+      Anchor: (Height: 32);
+
+      TextButton #SetDefaultBtn {
+        Text: "SET DEFAULT";
+        Anchor: (Height: 28, Width: 100);
+        Style: $S.@ButtonStyle;
+      }
+
+      Group { Anchor: (Width: 6); }
+
+      // Disabled badge shown when already default
+      TextButton #DefaultLabel {
+        Text: "DEFAULT";
+        Anchor: (Height: 28, Width: 80);
+        Style: $S.@DisabledButtonStyle;
+        Disabled: true;
+        Visible: false;
+      }
+
+      Group #ShareSpacer { Anchor: (Width: 6); }
+
+      TextButton #ShareBtn {
+        Text: "SHARE";
+        Anchor: (Height: 28, Width: 65);
+        Style: $S.@AquaButtonStyle;
+        Visible: false;
+      }
+
+      Group { FlexWeight: 1; }
+
+      TextButton #DeleteBtn {
+        Text: "DELETE";
+        Anchor: (Height: 28, Width: 70);
+        Style: $S.@RedButtonStyle;
+      }
     }
-
-    Label #HomeWorld {
-      Text: "World";
-      Style: (FontSize: 10, TextColor: #7c8b99, VerticalAlignment: Center);
-      Anchor: (Height: 16);
-    }
-  }
-
-  // Coordinates
-  Label #HomeCoords {
-    Text: "0, 0, 0";
-    Style: (FontSize: 11, TextColor: #888888, VerticalAlignment: Center);
-    Anchor: (Width: 120);
-  }
-
-  Group { FlexWeight: 1; }
-
-  // Teleport button
-  TextButton #TeleportBtn {
-    Text: "TELEPORT";
-    Anchor: (Width: 90, Height: 28);
-    Style: $S.@GoldButtonStyle;
-  }
-
-  Group { Anchor: (Width: 6); }
-
-  // Delete button
-  TextButton #DeleteBtn {
-    Text: "DELETE";
-    Anchor: (Width: 70, Height: 28);
-    Style: $S.@RedButtonStyle;
   }
 }

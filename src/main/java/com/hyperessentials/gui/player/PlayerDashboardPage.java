@@ -1,11 +1,11 @@
 package com.hyperessentials.gui.player;
 
-import com.hyperessentials.data.PlayerStats;
 import com.hyperessentials.gui.GuiManager;
 import com.hyperessentials.gui.GuiType;
 import com.hyperessentials.gui.NavBarHelper;
 import com.hyperessentials.gui.UIHelper;
 import com.hyperessentials.gui.UIPaths;
+import com.hyperessentials.gui.RefreshablePage;
 import com.hyperessentials.gui.data.PlayerPageData;
 import com.hyperessentials.module.homes.HomeManager;
 import com.hyperessentials.module.teleport.TpaManager;
@@ -33,7 +33,7 @@ import java.util.UUID;
 /**
  * Player dashboard page — welcome screen with stat cards and quick actions.
  */
-public class PlayerDashboardPage extends InteractiveCustomUIPage<PlayerPageData> {
+public class PlayerDashboardPage extends InteractiveCustomUIPage<PlayerPageData> implements RefreshablePage {
 
   private static final DateTimeFormatter DATE_FORMAT =
       DateTimeFormatter.ofPattern("MMM d, yyyy").withZone(ZoneId.systemDefault());
@@ -68,6 +68,21 @@ public class PlayerDashboardPage extends InteractiveCustomUIPage<PlayerPageData>
     cmd.append(UIPaths.PLAYER_DASHBOARD);
     NavBarHelper.setupBar(playerRef, "dashboard", guiManager.getPlayerRegistry(), cmd, events);
     populateDashboard(cmd, events);
+
+    guiManager.getPageTracker().register(playerRef.getUuid(), "dashboard", this);
+  }
+
+  @Override
+  public void onDismiss(@NotNull Ref<EntityStore> ref, @NotNull Store<EntityStore> store) {
+    guiManager.getPageTracker().unregister(playerRef.getUuid());
+  }
+
+  @Override
+  public void refreshContent() {
+    UICommandBuilder cmd = new UICommandBuilder();
+    UIEventBuilder events = new UIEventBuilder();
+    populateDashboard(cmd, events);
+    sendUpdate(cmd, events, false);
   }
 
   private void populateDashboard(@NotNull UICommandBuilder cmd, @NotNull UIEventBuilder events) {
@@ -112,9 +127,9 @@ public class PlayerDashboardPage extends InteractiveCustomUIPage<PlayerPageData>
       long playtimeMs = utilityManager.getTotalPlaytimeMs(uuid);
       cmd.set("#PlaytimeLabel.Text", "Playtime: " + UIHelper.formatPlaytime(playtimeMs));
 
-      PlayerStats stats = utilityManager.getPlayerStats(uuid);
-      if (stats != null) {
-        cmd.set("#JoinDateLabel.Text", "First joined: " + DATE_FORMAT.format(stats.firstJoin()));
+      Instant firstJoin = utilityManager.getFirstJoin(uuid);
+      if (firstJoin != null) {
+        cmd.set("#JoinDateLabel.Text", "First joined: " + DATE_FORMAT.format(firstJoin));
       }
     }
   }
