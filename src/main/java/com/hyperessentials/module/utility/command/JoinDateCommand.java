@@ -2,7 +2,6 @@ package com.hyperessentials.module.utility.command;
 
 import com.hyperessentials.Permissions;
 import com.hyperessentials.command.util.CommandUtil;
-import com.hyperessentials.data.PlayerStats;
 import com.hyperessentials.module.utility.UtilityModule;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
@@ -13,6 +12,7 @@ import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import org.jetbrains.annotations.NotNull;
 
+import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 
@@ -43,12 +43,12 @@ public class JoinDateCommand extends AbstractPlayerCommand {
       return;
     }
 
-    PlayerStats stats = module.getUtilityManager().getPlayerStats(playerRef.getUuid());
-    if (stats == null) {
+    Instant firstJoin = module.getUtilityManager().getFirstJoin(playerRef.getUuid());
+    if (firstJoin == null) {
       ctx.sendMessage(CommandUtil.error("No join data available."));
       return;
     }
 
-    ctx.sendMessage(CommandUtil.success("You first joined: " + FORMATTER.format(stats.firstJoin())));
+    ctx.sendMessage(CommandUtil.success("You first joined: " + FORMATTER.format(firstJoin)));
   }
 }

@@ -1,8 +1,6 @@
 package com.hyperessentials.module.spawns;
 
-import com.hyperessentials.config.modules.SpawnsConfig;
 import com.hyperessentials.data.Spawn;
-import com.hyperessentials.integration.PermissionManager;
 import com.hyperessentials.storage.SpawnStorage;
 import com.hyperessentials.util.Logger;
 import com.hypixel.hytale.math.vector.Transform;
@@ -17,25 +15,23 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 
 /**
- * Manages server spawns - loading, saving, and CRUD operations.
+ * Manages server spawns — one spawn per world, keyed by world UUID.
+ * Each spawn is stored as an individual file (data/spawns/<worldUuid>.json).
  */
 public class SpawnManager {
 
   private final SpawnStorage storage;
-  private final SpawnsConfig config;
-  private final Map<String, Spawn> spawns;
+  private final Map<String, Spawn> spawns; // keyed by worldUuid
 
-  public SpawnManager(@NotNull SpawnStorage storage, @NotNull SpawnsConfig config) {
+  public SpawnManager(@NotNull SpawnStorage storage) {
     this.storage = storage;
-    this.config = config;
     this.spawns = new ConcurrentHashMap<>();
   }
 
   public CompletableFuture<Void> loadSpawns() {
-    return storage.loadSpawns().thenAccept(loaded -> {
+    return storage.loadAllSpawns().thenAccept(loaded -> {
       spawns.clear();
       spawns.putAll(loaded);
       Logger.info("[Spawns] Loaded %d spawns", spawns.size());
@@ -56,11 +52,6 @@ public class SpawnManager {
 
   /**
    * Imports world spawn points from the Hytale server's WorldConfig spawn providers.
-   * Creates or updates spawn records for each world that has a configured spawn point.
-   * Existing user-created spawns that don't match a world name are preserved.
-   * The default world's spawn is marked as default if no default exists yet.
-   *
-   * @return the number of spawns imported
    */
   public int importWorldSpawns() {
     try {
@@ -77,58 +68,51 @@ public class SpawnManager {
       }
 
       World defaultWorld = universe.getDefaultWorld();
-      String defaultWorldName = defaultWorld != null ? defaultWorld.getName() : null;
-      boolean hasExistingDefault = getDefaultSpawn() != null;
+      String defaultWorldUuid = defaultWorld != null
+          ? defaultWorld.getWorldConfig().getUuid().toString() : null;
+      boolean hasExistingGlobal = getGlobalSpawn() != null;
       int imported = 0;
 
       for (World world : worlds.values()) {
         ISpawnProvider provider = world.getWorldConfig().getSpawnProvider();
-        if (provider == null) {
-          Logger.debug("[Spawns] World '%s' has no spawn provider, skipping", world.getName());
-          continue;
-        }
+        if (provider == null) continue;
 
         @SuppressWarnings("deprecation")
         Transform[] spawnPoints = provider.getSpawnPoints();
-        if (spawnPoints == null || spawnPoints.length == 0) {
-          Logger.debug("[Spawns] World '%s' spawn provider returned no spawn points, skipping", world.getName());
-          continue;
-        }
+        if (spawnPoints == null || spawnPoints.length == 0) continue;
 
         Transform transform = spawnPoints[0];
         Vector3d pos = transform.getPosition();
         Vector3f rot = transform.getRotation();
 
-        String spawnName = world.getName().toLowerCase();
-        boolean isDefault = !hasExistingDefault
-          && defaultWorldName != null
-          && world.getName().equalsIgnoreCase(defaultWorldName);
+        String worldUuid = world.getWorldConfig().getUuid().toString();
+        boolean isGlobal = !hasExistingGlobal
+          && defaultWorldUuid != null
+          && worldUuid.equals(defaultWorldUuid);
 
         Spawn spawn = new Spawn(
-          spawnName,
+          worldUuid,
           world.getName(),
           pos.getX(), pos.getY(), pos.getZ(),
-          rot.getY(), rot.getX(),  // yaw = rotation.y, pitch = rotation.x
-          null,   // no permission
-          null,   // no group permission
-          isDefault,
+          rot.getY(), rot.getX(),
+          isGlobal,
           System.currentTimeMillis(),
-          "server" // created by server import
+          "server"
         );
 
-        boolean isUpdate = spawns.containsKey(spawnName);
-        spawns.put(spawnName, spawn);
-        if (isDefault) hasExistingDefault = true;
+        boolean isUpdate = spawns.containsKey(worldUuid);
+        spawns.put(worldUuid, spawn);
+        storage.saveSpawn(spawn);
+        if (isGlobal) hasExistingGlobal = true;
         imported++;
 
         Logger.info("[Spawns] %s spawn for world '%s' at %.1f, %.1f, %.1f%s",
           isUpdate ? "Updated" : "Imported",
           world.getName(), pos.getX(), pos.getY(), pos.getZ(),
-          isDefault ? " (default)" : "");
+          isGlobal ? " (global)" : "");
       }
 
       if (imported > 0) {
-        saveSpawns();
         Logger.info("[Spawns] Imported %d world spawn(s)", imported);
       }
       return imported;
@@ -138,73 +122,83 @@ public class SpawnManager {
     }
   }
 
-  public CompletableFuture<Void> saveSpawns() {
-    return storage.saveSpawns(new ConcurrentHashMap<>(spawns));
-  }
-
-  public boolean setSpawn(@NotNull Spawn spawn) {
-    if (spawn.isDefault()) {
+  /**
+   * Sets/updates a spawn for a world.
+   */
+  public void setSpawn(@NotNull Spawn spawn) {
+    if (spawn.isGlobal()) {
+      // Clear old global
       for (Map.Entry<String, Spawn> entry : spawns.entrySet()) {
-        if (entry.getValue().isDefault() && !entry.getKey().equals(spawn.name())) {
-          spawns.put(entry.getKey(), entry.getValue().withDefault(false));
+        if (entry.getValue().isGlobal() && !entry.getKey().equals(spawn.worldUuid())) {
+          Spawn old = entry.getValue().withGlobal(false);
+          spawns.put(entry.getKey(), old);
+          storage.saveSpawn(old);
         }
       }
     }
 
-    boolean isNew = !spawns.containsKey(spawn.name());
-    spawns.put(spawn.name(), spawn);
-    saveSpawns();
-    Logger.info("[Spawns] Spawn '%s' %s%s", spawn.name(), isNew ? "created" : "updated",
-           spawn.isDefault() ? " (default)" : "");
-    return isNew;
+    spawns.put(spawn.worldUuid(), spawn);
+    storage.saveSpawn(spawn);
+    Logger.info("[Spawns] Spawn set for world '%s'%s", spawn.worldName(), spawn.isGlobal() ? " (global)" : "");
   }
 
-  @Nullable
-  public Spawn getSpawn(@NotNull String name) {
-    return spawns.get(name.toLowerCase());
-  }
-
-  public boolean deleteSpawn(@NotNull String name) {
-    Spawn removed = spawns.remove(name.toLowerCase());
+  /**
+   * Deletes the spawn for a world.
+   */
+  public boolean deleteSpawn(@NotNull String worldUuid) {
+    Spawn removed = spawns.remove(worldUuid);
     if (removed != null) {
-      saveSpawns();
-      Logger.info("[Spawns] Spawn '%s' deleted", name);
+      storage.deleteSpawn(worldUuid);
+      Logger.info("[Spawns] Spawn deleted for world '%s'", removed.worldName());
       return true;
     }
     return false;
   }
 
+  /**
+   * Gets the spawn for a specific world by UUID.
+   */
   @Nullable
-  public Spawn getDefaultSpawn() {
-    for (Spawn spawn : spawns.values()) {
-      if (spawn.isDefault()) {
-        return spawn;
-      }
-    }
-    String defaultName = config.getDefaultSpawnName();
-    return spawns.get(defaultName.toLowerCase());
+  public Spawn getSpawnForWorld(@NotNull String worldUuid) {
+    return spawns.get(worldUuid);
   }
 
+  /**
+   * Gets the global spawn (the one marked isGlobal=true).
+   * Falls back to any spawn if none is explicitly global.
+   */
   @Nullable
-  public Spawn getSpawnForPlayer(@NotNull UUID playerUuid) {
+  public Spawn getGlobalSpawn() {
     for (Spawn spawn : spawns.values()) {
-      if (spawn.isGroupRestricted()) {
-        if (PermissionManager.get().hasPermission(playerUuid, spawn.groupPermission())) {
-          return spawn;
-        }
-      }
+      if (spawn.isGlobal()) return spawn;
     }
-    return getDefaultSpawn();
-  }
-
-  @Nullable
-  public Spawn getSpawnForWorld(@NotNull String worldName) {
-    for (Spawn spawn : spawns.values()) {
-      if (spawn.world().equalsIgnoreCase(worldName)) {
-        return spawn;
-      }
-    }
+    // Fallback: return any spawn if only one exists
+    if (spawns.size() == 1) return spawns.values().iterator().next();
     return null;
+  }
+
+  /**
+   * Sets a world's spawn as the global spawn.
+   */
+  public boolean setGlobalSpawn(@NotNull String worldUuid) {
+    Spawn spawn = spawns.get(worldUuid);
+    if (spawn == null) return false;
+
+    // Clear old global
+    for (Map.Entry<String, Spawn> entry : spawns.entrySet()) {
+      if (entry.getValue().isGlobal()) {
+        Spawn old = entry.getValue().withGlobal(false);
+        spawns.put(entry.getKey(), old);
+        storage.saveSpawn(old);
+      }
+    }
+
+    // Set new global
+    Spawn newGlobal = spawn.withGlobal(true);
+    spawns.put(worldUuid, newGlobal);
+    storage.saveSpawn(newGlobal);
+    Logger.info("[Spawns] Global spawn set to world '%s'", newGlobal.worldName());
+    return true;
   }
 
   @NotNull
@@ -212,47 +206,15 @@ public class SpawnManager {
     return Collections.unmodifiableCollection(spawns.values());
   }
 
-  @NotNull
-  public List<Spawn> getAccessibleSpawns(@NotNull UUID playerUuid) {
-    return spawns.values().stream()
-      .filter(spawn -> canAccess(playerUuid, spawn))
-      .collect(Collectors.toList());
-  }
-
-  public boolean canAccess(@NotNull UUID playerUuid, @NotNull Spawn spawn) {
-    if (!spawn.requiresPermission()) {
-      return true;
-    }
-    return PermissionManager.get().hasPermission(playerUuid, spawn.permission());
-  }
-
-  public boolean spawnExists(@NotNull String name) {
-    return spawns.containsKey(name.toLowerCase());
-  }
-
-  public boolean setDefaultSpawn(@NotNull String name) {
-    Spawn spawn = spawns.get(name.toLowerCase());
-    if (spawn == null) {
-      return false;
-    }
-
-    for (Map.Entry<String, Spawn> entry : spawns.entrySet()) {
-      if (entry.getValue().isDefault()) {
-        spawns.put(entry.getKey(), entry.getValue().withDefault(false));
-      }
-    }
-
-    spawns.put(spawn.name(), spawn.withDefault(true));
-    saveSpawns();
-    return true;
-  }
-
-  @NotNull
-  public List<String> getSpawnNames() {
-    return new ArrayList<>(spawns.keySet());
-  }
-
   public int getSpawnCount() {
     return spawns.size();
+  }
+
+  /**
+   * Gets all world UUIDs that have spawns.
+   */
+  @NotNull
+  public Set<String> getSpawnWorldUuids() {
+    return Collections.unmodifiableSet(spawns.keySet());
   }
 }

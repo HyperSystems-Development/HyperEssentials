@@ -4,10 +4,12 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Represents a kit definition.
  *
+ * @param uuid            unique identifier for file naming
  * @param name            unique lowercase identifier
  * @param displayName     display name shown to players
  * @param items           items included in the kit
@@ -16,6 +18,7 @@ import java.util.List;
  * @param permission      custom permission override, or null for default
  */
 public record Kit(
+  @NotNull UUID uuid,
   @NotNull String name,
   @NotNull String displayName,
   @NotNull List<KitItem> items,

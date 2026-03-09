@@ -7,5 +7,5 @@
   "Main": "com.hyperessentials.platform.HyperEssentialsPlugin",
   "ServerVersion": "${serverVersion}",
   "SoftDependencies": ["HyperPerms", "VaultUnlocked", "LuckPerms", "HyperFactions"],
-  "IncludesAssetPack": false
+  "IncludesAssetPack": true
 }

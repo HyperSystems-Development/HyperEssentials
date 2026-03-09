@@ -65,21 +65,21 @@ public final class HyperEssentialsAPI {
   // ========== Spawn API ==========
 
   @Nullable
-  public static Spawn getSpawn(@NotNull String name) {
+  public static Spawn getSpawnForWorld(@NotNull String worldUuid) {
     SpawnManager sm = getSpawnManager();
-    return sm != null ? sm.getSpawn(name) : null;
+    return sm != null ? sm.getSpawnForWorld(worldUuid) : null;
   }
 
   @Nullable
-  public static Spawn getDefaultSpawn() {
+  public static Spawn getGlobalSpawn() {
     SpawnManager sm = getSpawnManager();
-    return sm != null ? sm.getDefaultSpawn() : null;
+    return sm != null ? sm.getGlobalSpawn() : null;
   }
 
-  @Nullable
-  public static Spawn getSpawnForPlayer(@NotNull UUID uuid) {
+  @NotNull
+  public static Collection<Spawn> getAllSpawns() {
     SpawnManager sm = getSpawnManager();
-    return sm != null ? sm.getSpawnForPlayer(uuid) : null;
+    return sm != null ? sm.getAllSpawns() : Collections.emptyList();
   }
 
   // ========== Back API ==========

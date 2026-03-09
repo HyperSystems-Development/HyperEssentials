@@ -2,7 +2,7 @@ package com.hyperessentials.module.teleport;
 
 import com.hyperessentials.Permissions;
 import com.hyperessentials.config.modules.TeleportConfig;
-import com.hyperessentials.data.PlayerTeleportData;
+import com.hyperessentials.data.PlayerData;
 import com.hyperessentials.data.TeleportRequest;
 import com.hyperessentials.integration.PermissionManager;
 import com.hyperessentials.storage.PlayerDataStorage;
@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
 
 /**
  * Manages TPA (teleport ask) requests between players.
@@ -25,9 +26,10 @@ public class TpaManager {
 
   private final PlayerDataStorage storage;
   private final TeleportConfig config;
-  private final Map<UUID, PlayerTeleportData> playerCache;
+  private final Map<UUID, PlayerData> playerCache;
   private final Map<UUID, List<TeleportRequest>> incomingRequests; // target -> list of requests
   private final Map<UUID, TeleportRequest> outgoingRequests; // requester -> their pending request
+  @Nullable private Consumer<UUID> onTpaChanged;
 
   public TpaManager(@NotNull PlayerDataStorage storage, @NotNull TeleportConfig config) {
     this.storage = storage;
@@ -37,9 +39,21 @@ public class TpaManager {
     this.outgoingRequests = new ConcurrentHashMap<>();
   }
 
-  public CompletableFuture<PlayerTeleportData> loadPlayer(@NotNull UUID uuid, @NotNull String username) {
+  public void setOnTpaChanged(@Nullable Consumer<UUID> callback) {
+    this.onTpaChanged = callback;
+  }
+
+  private void fireTpaChanged(@NotNull UUID uuid) {
+    if (onTpaChanged != null) {
+      try {
+        onTpaChanged.accept(uuid);
+      } catch (Exception ignored) {}
+    }
+  }
+
+  public CompletableFuture<PlayerData> loadPlayer(@NotNull UUID uuid, @NotNull String username) {
     return storage.loadPlayerData(uuid).thenApply(opt -> {
-      PlayerTeleportData data = opt.orElseGet(() -> new PlayerTeleportData(uuid, username));
+      PlayerData data = opt.orElseGet(() -> new PlayerData(uuid, username));
       data.setUsername(username);
       playerCache.put(uuid, data);
       Logger.debug("Loaded teleport data for %s", username);
@@ -48,7 +62,7 @@ public class TpaManager {
   }
 
   public CompletableFuture<Void> savePlayer(@NotNull UUID uuid) {
-    PlayerTeleportData data = playerCache.get(uuid);
+    PlayerData data = playerCache.get(uuid);
     if (data == null) {
       return CompletableFuture.completedFuture(null);
     }
@@ -70,29 +84,30 @@ public class TpaManager {
   }
 
   @Nullable
-  public PlayerTeleportData getPlayerData(@NotNull UUID uuid) {
+  public PlayerData getPlayerData(@NotNull UUID uuid) {
     return playerCache.get(uuid);
   }
 
   @NotNull
-  public PlayerTeleportData getOrCreatePlayerData(@NotNull UUID uuid, @NotNull String username) {
-    return playerCache.computeIfAbsent(uuid, k -> new PlayerTeleportData(uuid, username));
+  public PlayerData getOrCreatePlayerData(@NotNull UUID uuid, @NotNull String username) {
+    return playerCache.computeIfAbsent(uuid, k -> new PlayerData(uuid, username));
   }
 
   // ========== TPA Toggle ==========
 
   public boolean isAcceptingRequests(@NotNull UUID uuid) {
-    PlayerTeleportData data = playerCache.get(uuid);
+    PlayerData data = playerCache.get(uuid);
     return data == null || data.isTpToggle();
   }
 
   public boolean toggleTpToggle(@NotNull UUID uuid) {
-    PlayerTeleportData data = playerCache.get(uuid);
+    PlayerData data = playerCache.get(uuid);
     if (data == null) {
       return true;
     }
     boolean newState = data.toggleTpToggle();
     savePlayer(uuid);
+    fireTpaChanged(uuid);
     return newState;
   }
 
@@ -116,7 +131,7 @@ public class TpaManager {
       return null;
     }
 
-    PlayerTeleportData requesterData = playerCache.get(requesterUuid);
+    PlayerData requesterData = playerCache.get(requesterUuid);
     if (requesterData != null) {
       long lastRequest = requesterData.getLastTpaRequest();
       long cooldownMs = config.getTpaCooldown() * 1000L;
@@ -135,6 +150,8 @@ public class TpaManager {
       savePlayer(requesterUuid);
     }
 
+    fireTpaChanged(requesterUuid);
+    fireTpaChanged(targetUuid);
     Logger.debug("TPA request created: %s -> %s (%s)", requesterUuid, targetUuid, type);
     return request;
   }
@@ -189,11 +206,15 @@ public class TpaManager {
 
   public void acceptRequest(@NotNull TeleportRequest request) {
     removeRequest(request);
+    fireTpaChanged(request.requester());
+    fireTpaChanged(request.target());
     Logger.debug("TPA request accepted: %s -> %s", request.requester(), request.target());
   }
 
   public void denyRequest(@NotNull TeleportRequest request) {
     removeRequest(request);
+    fireTpaChanged(request.requester());
+    fireTpaChanged(request.target());
     Logger.debug("TPA request denied: %s -> %s", request.requester(), request.target());
   }
 
@@ -205,6 +226,8 @@ public class TpaManager {
       if (targetIncoming != null) {
         targetIncoming.remove(request);
       }
+      fireTpaChanged(request.requester());
+      fireTpaChanged(request.target());
       Logger.debug("TPA request cancelled: %s -> %s", request.requester(), request.target());
     }
     return request;
@@ -230,7 +253,7 @@ public class TpaManager {
   }
 
   public long getRemainingTpaCooldown(@NotNull UUID uuid) {
-    PlayerTeleportData data = playerCache.get(uuid);
+    PlayerData data = playerCache.get(uuid);
     if (data == null) {
       return 0;
     }

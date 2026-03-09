@@ -7,7 +7,7 @@ import com.hyperessentials.config.ModuleConfig;
 import com.hyperessentials.module.AbstractModule;
 import com.hyperessentials.module.moderation.command.*;
 import com.hyperessentials.module.moderation.listener.ModerationListener;
-import com.hyperessentials.module.moderation.storage.ModerationStorage;
+import com.hyperessentials.module.moderation.storage.IpBanStorage;
 import com.hyperessentials.platform.HyperEssentialsPlugin;
 import com.hyperessentials.util.Logger;
 import com.hypixel.hytale.server.core.event.events.player.PlayerChatEvent;
@@ -26,7 +26,7 @@ import java.util.function.Consumer;
  */
 public class ModerationModule extends AbstractModule {
 
-  private ModerationStorage storage;
+  private IpBanStorage ipBanStorage;
   private ModerationManager moderationManager;
   private FreezeManager freezeManager;
   private VanishManager vanishManager;
@@ -53,12 +53,12 @@ public class ModerationModule extends AbstractModule {
     HyperEssentials core = HyperEssentialsAPI.getInstance();
     if (core == null) return;
 
-    // Initialize storage
-    storage = new ModerationStorage(core.getDataDir());
-    storage.load();
+    // Initialize IP ban storage
+    ipBanStorage = new IpBanStorage(core.getDataDir());
+    ipBanStorage.load();
 
-    // Initialize managers
-    moderationManager = new ModerationManager(storage);
+    // Initialize managers — ModerationManager gets TpaManager later via initManager()
+    moderationManager = new ModerationManager(ipBanStorage, core.getStorageProvider().getPlayerDataStorage());
     freezeManager = new FreezeManager();
     vanishManager = new VanishManager();
 

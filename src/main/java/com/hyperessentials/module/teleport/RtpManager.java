@@ -129,7 +129,8 @@ public class RtpManager {
       // Center player on block
       double finalX = blockX + 0.5;
       double finalZ = blockZ + 0.5;
-      Location location = new Location(worldName, finalX, safeY, finalZ, 0, 0);
+      String worldUuid = world.getWorldConfig().getUuid().toString();
+      Location location = new Location(worldName, worldUuid, finalX, safeY, finalZ, 0, 0);
 
       Logger.debugRtp("RTP success on attempt %d: (%.1f, %d, %.1f)", attempt, finalX, safeY, finalZ);
       return new RtpResult.Success(location);

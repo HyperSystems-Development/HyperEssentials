@@ -3,11 +3,14 @@ package com.hyperessentials.module.moderation;
 import com.hyperessentials.Permissions;
 import com.hyperessentials.command.util.CommandUtil;
 import com.hyperessentials.config.ConfigManager;
+import com.hyperessentials.data.PlayerData;
 import com.hyperessentials.module.moderation.data.IpBan;
 import com.hyperessentials.module.moderation.data.Punishment;
 import com.hyperessentials.module.moderation.data.PunishmentType;
-import com.hyperessentials.module.moderation.storage.ModerationStorage;
+import com.hyperessentials.module.moderation.storage.IpBanStorage;
+import com.hyperessentials.module.teleport.TpaManager;
 import com.hyperessentials.platform.HyperEssentialsPlugin;
+import com.hyperessentials.storage.PlayerDataStorage;
 import com.hyperessentials.util.DurationParser;
 import com.hyperessentials.util.Logger;
 import com.hypixel.hytale.server.core.Message;
@@ -17,21 +20,76 @@ import org.jetbrains.annotations.Nullable;
 
 import java.net.InetSocketAddress;
 import java.time.Instant;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Manages ban, mute, and kick operations.
+ * Punishments are stored in PlayerData (per-player files).
+ * IP bans are stored separately in IpBanStorage.
  */
 public class ModerationManager {
 
-  private final ModerationStorage storage;
+  private final IpBanStorage ipBanStorage;
+  private final PlayerDataStorage playerDataStorage;
+  @Nullable private TpaManager tpaManager;
   private final Map<UUID, String> playerIps = new ConcurrentHashMap<>();
 
-  public ModerationManager(@NotNull ModerationStorage storage) {
-    this.storage = storage;
+  public ModerationManager(@NotNull IpBanStorage ipBanStorage,
+               @NotNull PlayerDataStorage playerDataStorage) {
+    this.ipBanStorage = ipBanStorage;
+    this.playerDataStorage = playerDataStorage;
+  }
+
+  /**
+   * Sets the TpaManager for accessing cached online player data.
+   * When set, punishments for online players are read/written through
+   * the same cached PlayerData objects to avoid cache divergence.
+   */
+  public void setTpaManager(@Nullable TpaManager tpaManager) {
+    this.tpaManager = tpaManager;
+  }
+
+  /**
+   * Gets PlayerData for a player.
+   * Prefers TpaManager cache (online), falls back to direct storage load (offline).
+   */
+  @Nullable
+  private PlayerData getPlayerData(@NotNull UUID uuid) {
+    if (tpaManager != null) {
+      PlayerData data = tpaManager.getPlayerData(uuid);
+      if (data != null) return data;
+    }
+    // Offline: load directly from storage
+    try {
+      return playerDataStorage.loadPlayerData(uuid).join().orElse(null);
+    } catch (Exception e) {
+      Logger.warn("[Moderation] Failed to load player data for %s: %s", uuid, e.getMessage());
+      return null;
+    }
+  }
+
+  /**
+   * Gets or creates PlayerData for a player (for adding punishments to new players).
+   */
+  @NotNull
+  private PlayerData getOrCreatePlayerData(@NotNull UUID uuid, @NotNull String playerName) {
+    PlayerData data = getPlayerData(uuid);
+    if (data != null) return data;
+    return new PlayerData(uuid, playerName);
+  }
+
+  /**
+   * Saves player data, preferring TpaManager for online players.
+   */
+  private void savePlayerData(@NotNull UUID uuid, @NotNull PlayerData data) {
+    if (tpaManager != null && tpaManager.getPlayerData(uuid) != null) {
+      // Online player: save via TpaManager (same cached object)
+      tpaManager.savePlayer(uuid);
+    } else {
+      // Offline player: save directly
+      playerDataStorage.savePlayerData(data);
+    }
   }
 
   // === IP Tracking ===
@@ -61,9 +119,9 @@ public class ModerationManager {
    * Checks if a player's IP is banned. Auto-removes expired bans.
    */
   public boolean isIpBanned(@NotNull String ip) {
-    IpBan ban = storage.getIpBan(ip);
+    IpBan ban = ipBanStorage.getIpBan(ip);
     if (ban != null && ban.hasExpired()) {
-      storage.removeIpBan(ip);
+      ipBanStorage.removeIpBan(ip);
       return false;
     }
     return ban != null && ban.isEffective();
@@ -74,7 +132,7 @@ public class ModerationManager {
             @Nullable String reason, @Nullable Long durationMs) {
     Instant expiresAt = durationMs != null ? Instant.now().plusMillis(durationMs) : null;
     IpBan ban = new IpBan(ip, reason, issuerUuid, issuerName, Instant.now(), expiresAt);
-    storage.addIpBan(ban);
+    ipBanStorage.addIpBan(ban);
 
     notifyStaff(Permissions.NOTIFY_BAN, issuerName + " IP banned " + ip
       + (ban.isPermanent() ? " permanently" : " for " + DurationParser.formatHuman(durationMs)));
@@ -83,7 +141,7 @@ public class ModerationManager {
   }
 
   public boolean ipUnban(@NotNull String ip) {
-    boolean removed = storage.removeIpBan(ip);
+    boolean removed = ipBanStorage.removeIpBan(ip);
     if (removed) {
       notifyStaff(Permissions.NOTIFY_BAN, "IP " + ip + " was unbanned");
     }
@@ -110,10 +168,12 @@ public class ModerationManager {
   public Punishment ban(@NotNull UUID playerUuid, @NotNull String playerName,
               @Nullable UUID issuerUuid, @NotNull String issuerName,
               @Nullable String reason, @Nullable Long durationMs) {
+    PlayerData data = getOrCreatePlayerData(playerUuid, playerName);
+
     // Revoke any existing active ban first
-    Punishment existing = storage.getActiveBan(playerUuid);
+    Punishment existing = data.getActiveBan();
     if (existing != null) {
-      storage.updatePunishment(existing.revoke(issuerUuid, issuerName));
+      data.revokePunishment(existing.id(), issuerUuid, issuerName);
     }
 
     String effectiveReason = reason != null ? reason
@@ -127,7 +187,8 @@ public class ModerationManager {
       expiresAt, true, null, null
     );
 
-    storage.addPunishment(punishment);
+    data.addPunishment(punishment);
+    savePlayerData(playerUuid, data);
 
     // Kick the player if online
     kickOnlinePlayer(playerUuid, buildBanMessage(punishment));
@@ -144,19 +205,27 @@ public class ModerationManager {
   }
 
   public boolean unban(@NotNull UUID playerUuid, @Nullable UUID revokerUuid, @NotNull String revokerName) {
-    Punishment ban = storage.getActiveBan(playerUuid);
+    PlayerData data = getPlayerData(playerUuid);
+    if (data == null) return false;
+
+    Punishment ban = data.getActiveBan();
     if (ban == null) return false;
 
-    storage.updatePunishment(ban.revoke(revokerUuid, revokerName));
+    data.revokePunishment(ban.id(), revokerUuid, revokerName);
+    savePlayerData(playerUuid, data);
 
     notifyStaff(Permissions.NOTIFY_BAN, revokerName + " unbanned " + ban.playerName());
     return true;
   }
 
   public boolean isBanned(@NotNull UUID playerUuid) {
-    Punishment ban = storage.getActiveBan(playerUuid);
+    PlayerData data = getPlayerData(playerUuid);
+    if (data == null) return false;
+
+    Punishment ban = data.getActiveBan();
     if (ban != null && ban.hasExpired()) {
-      storage.updatePunishment(ban.revoke(null, "System"));
+      data.revokePunishment(ban.id(), null, "System");
+      savePlayerData(playerUuid, data);
       return false;
     }
     return ban != null;
@@ -164,7 +233,8 @@ public class ModerationManager {
 
   @Nullable
   public Punishment getActiveBan(@NotNull UUID playerUuid) {
-    return storage.getActiveBan(playerUuid);
+    PlayerData data = getPlayerData(playerUuid);
+    return data != null ? data.getActiveBan() : null;
   }
 
   // === Mute Operations ===
@@ -173,9 +243,11 @@ public class ModerationManager {
   public Punishment mute(@NotNull UUID playerUuid, @NotNull String playerName,
                @Nullable UUID issuerUuid, @NotNull String issuerName,
                @Nullable String reason, @Nullable Long durationMs) {
-    Punishment existing = storage.getActiveMute(playerUuid);
+    PlayerData data = getOrCreatePlayerData(playerUuid, playerName);
+
+    Punishment existing = data.getActiveMute();
     if (existing != null) {
-      storage.updatePunishment(existing.revoke(issuerUuid, issuerName));
+      data.revokePunishment(existing.id(), issuerUuid, issuerName);
     }
 
     String effectiveReason = reason != null ? reason
@@ -189,7 +261,8 @@ public class ModerationManager {
       expiresAt, true, null, null
     );
 
-    storage.addPunishment(punishment);
+    data.addPunishment(punishment);
+    savePlayerData(playerUuid, data);
 
     // Notify the muted player if online
     PlayerRef target = findOnlinePlayer(playerUuid);
@@ -209,10 +282,14 @@ public class ModerationManager {
   }
 
   public boolean unmute(@NotNull UUID playerUuid, @Nullable UUID revokerUuid, @NotNull String revokerName) {
-    Punishment mute = storage.getActiveMute(playerUuid);
+    PlayerData data = getPlayerData(playerUuid);
+    if (data == null) return false;
+
+    Punishment mute = data.getActiveMute();
     if (mute == null) return false;
 
-    storage.updatePunishment(mute.revoke(revokerUuid, revokerName));
+    data.revokePunishment(mute.id(), revokerUuid, revokerName);
+    savePlayerData(playerUuid, data);
 
     PlayerRef target = findOnlinePlayer(playerUuid);
     if (target != null) {
@@ -224,9 +301,13 @@ public class ModerationManager {
   }
 
   public boolean isMuted(@NotNull UUID playerUuid) {
-    Punishment mute = storage.getActiveMute(playerUuid);
+    PlayerData data = getPlayerData(playerUuid);
+    if (data == null) return false;
+
+    Punishment mute = data.getActiveMute();
     if (mute != null && mute.hasExpired()) {
-      storage.updatePunishment(mute.revoke(null, "System"));
+      data.revokePunishment(mute.id(), null, "System");
+      savePlayerData(playerUuid, data);
       return false;
     }
     return mute != null;
@@ -247,7 +328,10 @@ public class ModerationManager {
       null, false, null, null
     );
 
-    storage.addPunishment(punishment);
+    // Store kick in player's punishment history
+    PlayerData data = getOrCreatePlayerData(playerUuid, playerName);
+    data.addPunishment(punishment);
+    savePlayerData(playerUuid, data);
 
     kickOnlinePlayer(playerUuid, effectiveReason);
 
@@ -263,15 +347,30 @@ public class ModerationManager {
 
   @NotNull
   public List<Punishment> getHistory(@NotNull UUID playerUuid) {
-    return storage.getPunishments(playerUuid);
+    PlayerData data = getPlayerData(playerUuid);
+    return data != null ? data.getPunishments() : List.of();
   }
 
   /**
    * Gets all punishments across all players, optionally filtered by active status.
+   * Expensive operation — scans all player data files.
    */
   @NotNull
   public List<Punishment> getAllPunishments(boolean activeOnly) {
-    return storage.getAllPunishments(activeOnly);
+    List<Punishment> result = new ArrayList<>();
+    try {
+      List<PlayerData> allData = playerDataStorage.loadAllPlayerData().join();
+      for (PlayerData data : allData) {
+        for (Punishment p : data.getPunishments()) {
+          if (!activeOnly || p.isEffective()) {
+            result.add(p);
+          }
+        }
+      }
+    } catch (Exception e) {
+      Logger.warn("[Moderation] Failed to scan all punishments: %s", e.getMessage());
+    }
+    return result;
   }
 
   // === Offline Resolution ===
@@ -284,18 +383,28 @@ public class ModerationManager {
       PlayerRef online = plugin.findOnlinePlayer(name);
       if (online != null) return online.getUuid();
     }
-    // Check stored records
-    return storage.findPlayerUuid(name);
+    // Scan player data files for matching username
+    try {
+      List<PlayerData> allData = playerDataStorage.loadAllPlayerData().join();
+      for (PlayerData data : allData) {
+        if (data.getUsername().equalsIgnoreCase(name)) {
+          return data.getUuid();
+        }
+      }
+    } catch (Exception e) {
+      Logger.warn("[Moderation] Failed to search for player %s: %s", name, e.getMessage());
+    }
+    return null;
   }
 
   @Nullable
   public String getStoredPlayerName(@NotNull UUID uuid) {
-    List<Punishment> list = storage.getPunishments(uuid);
-    return list.isEmpty() ? null : list.getFirst().playerName();
+    PlayerData data = getPlayerData(uuid);
+    return data != null ? data.getUsername() : null;
   }
 
   public void shutdown() {
-    storage.save();
+    ipBanStorage.save();
   }
 
   // === Helpers ===

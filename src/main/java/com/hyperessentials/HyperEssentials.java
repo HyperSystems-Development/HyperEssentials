@@ -3,6 +3,7 @@ package com.hyperessentials;
 import com.hyperessentials.config.ConfigManager;
 import com.hyperessentials.gui.GuiManager;
 import com.hyperessentials.gui.PageRegistry;
+import com.hyperessentials.gui.GuiUpdateService;
 import com.hyperessentials.gui.admin.AdminAnnouncementsPage;
 import com.hyperessentials.gui.admin.AdminDashboardPage;
 import com.hyperessentials.gui.admin.AdminKitsPage;
@@ -29,6 +30,7 @@ import com.hyperessentials.module.kits.KitsModule;
 import com.hyperessentials.module.moderation.ModerationModule;
 import com.hyperessentials.module.spawns.SpawnsModule;
 import com.hyperessentials.module.teleport.TeleportModule;
+import com.hyperessentials.module.teleport.TpaManager;
 import com.hyperessentials.module.utility.UtilityManager;
 import com.hyperessentials.module.utility.UtilityModule;
 import com.hyperessentials.module.warmup.WarmupManager;
@@ -64,6 +66,7 @@ public class HyperEssentials {
   private WarmupManager warmupManager;
   private StorageProvider storageProvider;
   private VaultEconomyProvider vaultEconomy;
+  private GuiUpdateService guiUpdateService;
   private final CopyOnWriteArrayList<Consumer<UUID>> disconnectHandlers = new CopyOnWriteArrayList<>();
   private final CopyOnWriteArrayList<BiConsumer<UUID, String>> connectHandlers = new CopyOnWriteArrayList<>();
 
@@ -105,6 +108,7 @@ public class HyperEssentials {
 
     // Initialize GUI
     guiManager = new GuiManager();
+    registerDisconnectHandler(uuid -> guiManager.getPageTracker().unregister(uuid));
 
     // Initialize warmup manager
     warmupManager = new WarmupManager();
@@ -145,6 +149,11 @@ public class HyperEssentials {
     // Shutdown storage
     if (storageProvider != null) {
       storageProvider.shutdown().join();
+    }
+
+    // Shutdown GUI update service
+    if (guiUpdateService != null) {
+      guiUpdateService.shutdown();
     }
 
     // Shutdown GUI
@@ -195,6 +204,20 @@ public class HyperEssentials {
     TeleportModule teleport = getTeleportModule();
     if (teleport != null && teleport.isEnabled()) {
       teleport.initManagers(storageProvider.getPlayerDataStorage());
+    }
+
+    // Wire TpaManager reference to UtilityManager and ModerationManager
+    TpaManager tpaMgr = (teleport != null && teleport.isEnabled()) ? teleport.getTpaManager() : null;
+
+    UtilityModule utilityModule = moduleRegistry.getModule(UtilityModule.class);
+    if (utilityModule != null && utilityModule.isEnabled() && utilityModule.getUtilityManager() != null) {
+      utilityModule.getUtilityManager().setTpaManager(tpaMgr);
+      utilityModule.getUtilityManager().setPlayerDataStorage(storageProvider.getPlayerDataStorage());
+    }
+
+    ModerationModule modModule = moduleRegistry.getModule(ModerationModule.class);
+    if (modModule != null && modModule.isEnabled() && modModule.getModerationManager() != null) {
+      modModule.getModerationManager().setTpaManager(tpaMgr);
     }
   }
 
@@ -361,6 +384,25 @@ public class HyperEssentials {
     if (adminPageCount > 0) {
       Logger.info("[GUI] Registered %d admin page(s)", adminPageCount);
     }
+
+    // Wire real-time update service
+    guiUpdateService = new GuiUpdateService(guiManager.getPageTracker());
+
+    if (homes != null && homes.isEnabled() && homes.getHomeManager() != null) {
+      homes.getHomeManager().setOnHomeChanged(guiUpdateService::onHomeChanged);
+    }
+    if (warps != null && warps.isEnabled() && warps.getWarpManager() != null) {
+      warps.getWarpManager().setOnWarpChanged(guiUpdateService::onWarpChanged);
+    }
+    if (kitsModule != null && kitsModule.isEnabled() && kitsModule.getKitManager() != null) {
+      kitsModule.getKitManager().setOnKitClaimed(guiUpdateService::onKitClaimed);
+    }
+    if (teleport != null && teleport.isEnabled() && teleport.getTpaManager() != null) {
+      teleport.getTpaManager().setOnTpaChanged(guiUpdateService::onTpaRequestChanged);
+    }
+
+    // Start periodic cooldown refresh for GUI pages
+    guiUpdateService.start();
   }
 
   /**
@@ -371,6 +413,10 @@ public class HyperEssentials {
       Files.createDirectories(dataDir.resolve("config"));
       Files.createDirectories(dataDir.resolve("data"));
       Files.createDirectories(dataDir.resolve("data/players"));
+      Files.createDirectories(dataDir.resolve("data/homes"));
+      Files.createDirectories(dataDir.resolve("data/kits"));
+      Files.createDirectories(dataDir.resolve("data/spawns"));
+      Files.createDirectories(dataDir.resolve("data/warps"));
       Files.createDirectories(dataDir.resolve("backups"));
 
       // Write .version marker if it doesn't exist

@@ -34,8 +34,7 @@ public class SpawnsModule extends AbstractModule {
   }
 
   public void initManager(@NotNull SpawnStorage storage) {
-    SpawnsConfig config = ConfigManager.get().spawns();
-    this.spawnManager = new SpawnManager(storage, config);
+    this.spawnManager = new SpawnManager(storage);
     spawnManager.loadSpawns().join();
 
     // On first startup (no spawns configured), auto-detect from server world configs
@@ -46,9 +45,7 @@ public class SpawnsModule extends AbstractModule {
 
   @Override
   public void onDisable() {
-    if (spawnManager != null) {
-      spawnManager.saveSpawns().join();
-    }
+    // Spawns are saved individually on each create/update/delete — no bulk save needed
     super.onDisable();
   }
 

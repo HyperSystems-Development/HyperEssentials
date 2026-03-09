@@ -6,8 +6,8 @@ import com.hyperessentials.config.ConfigManager;
 import com.hyperessentials.config.ModuleConfig;
 import com.hyperessentials.module.AbstractModule;
 import com.hyperessentials.module.kits.command.*;
-import com.hyperessentials.module.kits.storage.KitStorage;
 import com.hyperessentials.platform.HyperEssentialsPlugin;
+import com.hyperessentials.storage.KitStorage;
 import com.hyperessentials.util.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -18,7 +18,6 @@ import org.jetbrains.annotations.Nullable;
  */
 public class KitsModule extends AbstractModule {
 
-  private KitStorage kitStorage;
   private KitManager kitManager;
 
   @Override
@@ -40,10 +39,10 @@ public class KitsModule extends AbstractModule {
     HyperEssentials core = HyperEssentialsAPI.getInstance();
     if (core == null) return;
 
-    // Initialize storage and manager
-    kitStorage = new KitStorage(core.getDataDir());
-    kitStorage.load();
+    // Initialize manager with StorageProvider's KitStorage
+    KitStorage kitStorage = core.getStorageProvider().getKitStorage();
     kitManager = new KitManager(kitStorage);
+    kitManager.loadKits().join();
 
     // Register commands
     HyperEssentialsPlugin plugin = HyperEssentialsPlugin.getInstance();

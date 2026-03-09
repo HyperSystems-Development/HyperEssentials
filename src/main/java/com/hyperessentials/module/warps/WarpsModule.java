@@ -46,9 +46,7 @@ public class WarpsModule extends AbstractModule {
 
   @Override
   public void onDisable() {
-    if (warpManager != null) {
-      warpManager.saveWarps().join();
-    }
+    // Warps are saved individually on each create/update/delete — no bulk save needed
     super.onDisable();
   }
 

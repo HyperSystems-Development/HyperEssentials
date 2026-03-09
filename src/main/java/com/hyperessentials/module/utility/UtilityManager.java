@@ -3,9 +3,10 @@ package com.hyperessentials.module.utility;
 import com.hyperessentials.command.util.CommandUtil;
 import com.hyperessentials.config.ConfigManager;
 import com.hyperessentials.config.modules.UtilityConfig;
-import com.hyperessentials.data.PlayerStats;
+import com.hyperessentials.data.PlayerData;
+import com.hyperessentials.module.teleport.TpaManager;
 import com.hyperessentials.platform.HyperEssentialsPlugin;
-import com.hyperessentials.storage.PlayerStatsStorage;
+import com.hyperessentials.storage.PlayerDataStorage;
 import com.hyperessentials.util.Logger;
 import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
@@ -14,7 +15,6 @@ import com.hypixel.hytale.server.core.universe.world.World;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.nio.file.Path;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Map;
@@ -27,7 +27,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Manages session-only states for utility commands (fly, god, AFK, stamina)
- * and persistent player stats (playtime, join date).
+ * and persistent player stats (playtime, join date) via PlayerData.
  */
 public class UtilityManager {
 
@@ -39,16 +39,30 @@ public class UtilityManager {
   private final Map<UUID, Instant> sessionStartTimes = new ConcurrentHashMap<>();
   private final Map<UUID, double[]> lastKnownPositions = new ConcurrentHashMap<>();
 
-  private PlayerStatsStorage statsStorage;
+  @Nullable private TpaManager tpaManager;
+  @Nullable private PlayerDataStorage playerDataStorage;
   private ScheduledExecutorService scheduler;
 
   /**
-   * Initializes stats storage and starts the periodic task scheduler.
+   * Sets the TpaManager reference for accessing cached PlayerData.
+   * When available, stats are read/written through the same cached objects
+   * that TpaManager uses, avoiding cache divergence.
    */
-  public void init(@NotNull Path dataDir) {
-    statsStorage = new PlayerStatsStorage(dataDir);
-    statsStorage.load();
+  public void setTpaManager(@Nullable TpaManager tpaManager) {
+    this.tpaManager = tpaManager;
+  }
 
+  /**
+   * Sets the PlayerDataStorage for direct access when TpaManager is unavailable.
+   */
+  public void setPlayerDataStorage(@Nullable PlayerDataStorage playerDataStorage) {
+    this.playerDataStorage = playerDataStorage;
+  }
+
+  /**
+   * Initializes the periodic task scheduler.
+   */
+  public void init() {
     scheduler = Executors.newSingleThreadScheduledExecutor(r -> {
       Thread t = new Thread(r, "HyperEssentials-Utility");
       t.setDaemon(true);
@@ -252,18 +266,33 @@ public class UtilityManager {
 
   // === Player Stats ===
 
+  /**
+   * Gets the PlayerData for a player, preferring TpaManager's cache.
+   * Falls back to direct storage load for offline/uncached players.
+   */
+  @Nullable
+  private PlayerData getPlayerData(@NotNull UUID uuid) {
+    // Prefer TpaManager's cached copy to avoid divergence
+    if (tpaManager != null) {
+      PlayerData data = tpaManager.getPlayerData(uuid);
+      if (data != null) return data;
+    }
+    return null;
+  }
+
   public void onPlayerConnect(@NotNull UUID uuid, @NotNull String username) {
     sessionStartTimes.put(uuid, Instant.now());
     lastActivityTimes.put(uuid, Instant.now());
 
-    if (statsStorage != null) {
-      PlayerStats existing = statsStorage.getStats(uuid);
+    PlayerData data = getPlayerData(uuid);
+    if (data != null) {
       Instant now = Instant.now();
-      if (existing == null) {
-        statsStorage.updateStats(new PlayerStats(uuid, username, now, 0L, now));
-      } else {
-        statsStorage.updateStats(new PlayerStats(uuid, username, existing.firstJoin(), existing.totalPlaytimeMs(), now));
+      // Only set firstJoin if this is a brand-new PlayerData (default matches "now")
+      if (Duration.between(data.getFirstJoin(), now).toMillis() < 1000) {
+        data.setFirstJoin(now);
       }
+      data.setLastJoin(now);
+      savePlayerData(uuid);
     }
   }
 
@@ -277,29 +306,31 @@ public class UtilityManager {
 
     // Accumulate session playtime
     Instant sessionStart = sessionStartTimes.remove(uuid);
-    if (sessionStart != null && statsStorage != null) {
+    if (sessionStart != null) {
       long sessionMs = Duration.between(sessionStart, Instant.now()).toMillis();
-      PlayerStats existing = statsStorage.getStats(uuid);
-      if (existing != null) {
-        statsStorage.updateStats(new PlayerStats(
-          uuid, existing.username(), existing.firstJoin(),
-          existing.totalPlaytimeMs() + sessionMs, existing.lastJoin()
-        ));
+      PlayerData data = getPlayerData(uuid);
+      if (data != null) {
+        data.addPlaytimeMs(sessionMs);
+        savePlayerData(uuid);
       }
     }
   }
 
+  /**
+   * Gets the first join time for a player from their PlayerData.
+   */
   @Nullable
-  public PlayerStats getPlayerStats(@NotNull UUID uuid) {
-    return statsStorage != null ? statsStorage.getStats(uuid) : null;
+  public Instant getFirstJoin(@NotNull UUID uuid) {
+    PlayerData data = getPlayerData(uuid);
+    return data != null ? data.getFirstJoin() : null;
   }
 
   /**
    * Gets total playtime including the current session.
    */
   public long getTotalPlaytimeMs(@NotNull UUID uuid) {
-    PlayerStats stats = getPlayerStats(uuid);
-    long total = stats != null ? stats.totalPlaytimeMs() : 0L;
+    PlayerData data = getPlayerData(uuid);
+    long total = data != null ? data.getTotalPlaytimeMs() : 0L;
 
     Instant sessionStart = sessionStartTimes.get(uuid);
     if (sessionStart != null) {
@@ -316,27 +347,29 @@ public class UtilityManager {
     return sessionStartTimes.get(uuid);
   }
 
-  @Nullable
-  public PlayerStatsStorage getStatsStorage() {
-    return statsStorage;
+  private void savePlayerData(@NotNull UUID uuid) {
+    if (tpaManager != null) {
+      tpaManager.savePlayer(uuid);
+    } else if (playerDataStorage != null) {
+      PlayerData data = getPlayerData(uuid);
+      if (data != null) {
+        playerDataStorage.savePlayerData(data);
+      }
+    }
   }
 
   // === Cleanup ===
 
   public void shutdown() {
     // Save all active session playtimes
-    if (statsStorage != null) {
-      for (Map.Entry<UUID, Instant> entry : sessionStartTimes.entrySet()) {
-        UUID uuid = entry.getKey();
-        Instant sessionStart = entry.getValue();
-        long sessionMs = Duration.between(sessionStart, Instant.now()).toMillis();
-        PlayerStats existing = statsStorage.getStats(uuid);
-        if (existing != null) {
-          statsStorage.updateStats(new PlayerStats(
-            uuid, existing.username(), existing.firstJoin(),
-            existing.totalPlaytimeMs() + sessionMs, existing.lastJoin()
-          ));
-        }
+    for (Map.Entry<UUID, Instant> entry : sessionStartTimes.entrySet()) {
+      UUID uuid = entry.getKey();
+      Instant sessionStart = entry.getValue();
+      long sessionMs = Duration.between(sessionStart, Instant.now()).toMillis();
+      PlayerData data = getPlayerData(uuid);
+      if (data != null) {
+        data.addPlaytimeMs(sessionMs);
+        savePlayerData(uuid);
       }
     }
 

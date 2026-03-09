@@ -17,7 +17,7 @@ import java.util.Collection;
 import java.util.UUID;
 
 /**
- * /spawns - List all spawns.
+ * /spawns - List all world spawns.
  */
 public class SpawnsCommand extends AbstractPlayerCommand {
 
@@ -46,7 +46,7 @@ public class SpawnsCommand extends AbstractPlayerCommand {
 
     if (spawns.isEmpty()) {
       ctx.sendMessage(CommandUtil.info("No spawns have been set."));
-      ctx.sendMessage(CommandUtil.msg("Use /setspawn [name] to create one.", CommandUtil.COLOR_GRAY));
+      ctx.sendMessage(CommandUtil.msg("Use /setspawn to create one.", CommandUtil.COLOR_GRAY));
       return;
     }
 
@@ -54,23 +54,15 @@ public class SpawnsCommand extends AbstractPlayerCommand {
 
     for (Spawn spawn : spawns) {
       StringBuilder sb = new StringBuilder();
-      sb.append(spawn.name());
-      if (spawn.isDefault()) {
-        sb.append(" (default)");
+      sb.append(spawn.worldName());
+      if (spawn.isGlobal()) {
+        sb.append(" (global)");
       }
-      sb.append(" - ").append(spawn.world());
       sb.append(String.format(" (%.0f, %.0f, %.0f)", spawn.x(), spawn.y(), spawn.z()));
-
-      if (spawn.requiresPermission()) {
-        boolean hasAccess = spawnManager.canAccess(uuid, spawn);
-        if (!hasAccess) {
-          sb.append(" [no access]");
-        }
-      }
 
       ctx.sendMessage(CommandUtil.msg("  " + sb, CommandUtil.COLOR_GRAY));
     }
 
-    ctx.sendMessage(CommandUtil.msg("Use /spawn [name] to teleport.", CommandUtil.COLOR_GRAY));
+    ctx.sendMessage(CommandUtil.msg("Use /spawn [world] to teleport.", CommandUtil.COLOR_GRAY));
   }
 }

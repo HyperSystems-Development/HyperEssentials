@@ -92,6 +92,7 @@ public class SetHomeCommand extends AbstractPlayerCommand {
     }
 
     Home home = Home.create(homeName, currentWorld.getName(),
+        currentWorld.getWorldConfig().getUuid().toString(),
         pos.getX(), pos.getY(), pos.getZ(),
         rot.getY(), rot.getX());
 

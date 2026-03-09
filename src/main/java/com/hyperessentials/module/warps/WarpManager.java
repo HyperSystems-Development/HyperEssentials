@@ -14,33 +14,50 @@ import java.util.stream.Collectors;
 
 /**
  * Manages server warps - loading, saving, and CRUD operations.
+ * Each warp is stored as an individual file (data/warps/<uuid>.json).
  */
 public class WarpManager {
 
   private final WarpStorage storage;
   private final Map<String, Warp> warps;
+  @Nullable private Runnable onWarpChanged;
 
   public WarpManager(@NotNull WarpStorage storage) {
     this.storage = storage;
     this.warps = new ConcurrentHashMap<>();
   }
 
+  public void setOnWarpChanged(@Nullable Runnable callback) {
+    this.onWarpChanged = callback;
+  }
+
+  private void fireWarpChanged() {
+    if (onWarpChanged != null) {
+      try { onWarpChanged.run(); } catch (Exception ignored) {}
+    }
+  }
+
   public CompletableFuture<Void> loadWarps() {
-    return storage.loadWarps().thenAccept(loaded -> {
+    return storage.loadAllWarps().thenAccept(loaded -> {
       warps.clear();
       warps.putAll(loaded);
       Logger.info("[Warps] Loaded %d warps", warps.size());
     });
   }
 
-  public CompletableFuture<Void> saveWarps() {
-    return storage.saveWarps(new ConcurrentHashMap<>(warps));
-  }
-
   public boolean setWarp(@NotNull Warp warp) {
     boolean isNew = !warps.containsKey(warp.name());
+
+    // If updating an existing warp with a different name (shouldn't happen), remove the old
+    Warp existing = warps.get(warp.name());
+    if (existing != null && !existing.uuid().equals(warp.uuid())) {
+      // Name collision with different UUID — delete the old file
+      storage.deleteWarp(existing.uuid());
+    }
+
     warps.put(warp.name(), warp);
-    saveWarps();
+    storage.saveWarp(warp);
+    fireWarpChanged();
     Logger.info("[Warps] Warp '%s' %s", warp.name(), isNew ? "created" : "updated");
     return isNew;
   }
@@ -53,7 +70,8 @@ public class WarpManager {
   public boolean deleteWarp(@NotNull String name) {
     Warp removed = warps.remove(name.toLowerCase());
     if (removed != null) {
-      saveWarps();
+      storage.deleteWarp(removed.uuid());
+      fireWarpChanged();
       Logger.info("[Warps] Warp '%s' deleted", name);
       return true;
     }
@@ -95,9 +113,7 @@ public class WarpManager {
   }
 
   public boolean canAccess(@NotNull UUID playerUuid, @NotNull Warp warp) {
-    if (!warp.requiresPermission()) {
-      return true;
-    }
+    if (!warp.requiresPermission()) return true;
     return PermissionManager.get().hasPermission(playerUuid, warp.permission());
   }
 

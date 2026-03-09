@@ -5,7 +5,7 @@ import com.hyperessentials.command.util.CommandUtil;
 import com.hyperessentials.config.ConfigManager;
 import com.hyperessentials.module.kits.data.Kit;
 import com.hyperessentials.module.kits.data.KitItem;
-import com.hyperessentials.module.kits.storage.KitStorage;
+import com.hyperessentials.storage.KitStorage;
 import com.hyperessentials.util.Logger;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
@@ -19,11 +19,14 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
 
 /**
  * Manages kit operations: CRUD, cooldowns, claiming.
  * Supports hotbar, storage, armor, and utility inventory sections.
+ * Kits are stored as individual files via StorageProvider's KitStorage.
  */
 public class KitManager {
 
@@ -37,27 +40,50 @@ public class KitManager {
   }
 
   private final KitStorage storage;
+  private final Map<String, Kit> kits = new ConcurrentHashMap<>();
   private final Map<String, Long> cooldowns = new ConcurrentHashMap<>();
   private final Set<String> oneTimeClaims = ConcurrentHashMap.newKeySet();
+  @Nullable private Consumer<UUID> onKitClaimed;
 
   public KitManager(@NotNull KitStorage storage) {
     this.storage = storage;
   }
 
+  public void setOnKitClaimed(@Nullable Consumer<UUID> callback) {
+    this.onKitClaimed = callback;
+  }
+
+  private void fireKitClaimed(@NotNull UUID uuid) {
+    if (onKitClaimed != null) {
+      try { onKitClaimed.accept(uuid); } catch (Exception ignored) {}
+    }
+  }
+
+  /**
+   * Loads all kits from storage on startup.
+   */
+  public CompletableFuture<Void> loadKits() {
+    return storage.loadAllKits().thenAccept(loaded -> {
+      kits.clear();
+      kits.putAll(loaded);
+      Logger.info("[Kits] Loaded %d kits", kits.size());
+    });
+  }
+
   @Nullable
   public Kit getKit(@NotNull String name) {
-    return storage.getKit(name);
+    return kits.get(name.toLowerCase());
   }
 
   @NotNull
   public Collection<Kit> getAllKits() {
-    return storage.getKits().values();
+    return Collections.unmodifiableCollection(kits.values());
   }
 
   @NotNull
   public List<Kit> getAvailableKits(@NotNull UUID playerUuid) {
     List<Kit> available = new ArrayList<>();
-    for (Kit kit : getAllKits()) {
+    for (Kit kit : kits.values()) {
       if (canUseKit(playerUuid, kit)) {
         available.add(kit);
       }
@@ -74,51 +100,37 @@ public class KitManager {
   public ClaimResult claimKit(@NotNull UUID playerUuid, @NotNull PlayerRef playerRef,
                 @NotNull Store<EntityStore> store, @NotNull Ref<EntityStore> ref,
                 @NotNull Kit kit) {
-    // Permission check
-    if (!canUseKit(playerUuid, kit)) {
-      return ClaimResult.NO_PERMISSION;
-    }
+    if (!canUseKit(playerUuid, kit)) return ClaimResult.NO_PERMISSION;
 
-    // One-time check
     if (kit.oneTime()) {
       String key = playerUuid + ":" + kit.name();
-      if (oneTimeClaims.contains(key)) {
-        return ClaimResult.ALREADY_CLAIMED;
-      }
+      if (oneTimeClaims.contains(key)) return ClaimResult.ALREADY_CLAIMED;
     }
 
-    // Cooldown check
     if (!CommandUtil.hasPermission(playerUuid, Permissions.BYPASS_KIT_COOLDOWN)) {
-      if (isOnCooldown(playerUuid, kit.name())) {
-        return ClaimResult.ON_COOLDOWN;
-      }
+      if (isOnCooldown(playerUuid, kit.name())) return ClaimResult.ON_COOLDOWN;
     }
 
-    // Space check before giving items
     Player playerComponent = store.getComponent(ref, Player.getComponentType());
     if (playerComponent == null) {
       Logger.warn("[KitManager] Player component not found");
       return ClaimResult.KIT_NOT_FOUND;
     }
 
-    if (!hasSpaceForKit(playerComponent.getInventory(), kit)) {
-      return ClaimResult.INSUFFICIENT_SPACE;
-    }
+    if (!hasSpaceForKit(playerComponent.getInventory(), kit)) return ClaimResult.INSUFFICIENT_SPACE;
 
-    // Give items
     giveItems(playerComponent.getInventory(), kit);
 
-    // Track cooldown
     if (kit.cooldownSeconds() > 0) {
       String cooldownKey = playerUuid + ":" + kit.name();
       cooldowns.put(cooldownKey, System.currentTimeMillis() + (kit.cooldownSeconds() * 1000L));
     }
 
-    // Track one-time
     if (kit.oneTime()) {
       oneTimeClaims.add(playerUuid + ":" + kit.name());
     }
 
+    fireKitClaimed(playerUuid);
     return ClaimResult.SUCCESS;
   }
 
@@ -131,6 +143,10 @@ public class KitManager {
       return false;
     }
     return true;
+  }
+
+  public boolean hasClaimedOneTimeKit(@NotNull UUID playerUuid, @NotNull String kitName) {
+    return oneTimeClaims.contains(playerUuid + ":" + kitName);
   }
 
   public long getRemainingCooldown(@NotNull UUID playerUuid, @NotNull String kitName) {
@@ -150,17 +166,9 @@ public class KitManager {
       Player playerComponent = store.getComponent(ref, Player.getComponentType());
       if (playerComponent != null) {
         Inventory inventory = playerComponent.getInventory();
-
-        // Capture hotbar items
         captureContainer(inventory.getHotbar(), items, KitItem.HOTBAR);
-
-        // Capture storage items
         captureContainer(inventory.getStorage(), items, KitItem.STORAGE);
-
-        // Capture armor items
         captureContainer(inventory.getArmor(), items, KitItem.ARMOR);
-
-        // Capture utility items
         captureContainer(inventory.getUtility(), items, KitItem.UTILITY);
       }
     } catch (Exception e) {
@@ -170,13 +178,19 @@ public class KitManager {
     int defaultCooldown = ConfigManager.get().kits().getDefaultCooldownSeconds();
     boolean defaultOneTime = ConfigManager.get().kits().isOneTimeDefault();
 
-    Kit kit = new Kit(kitName.toLowerCase(), kitName, items, defaultCooldown, defaultOneTime, null);
-    storage.addKit(kit);
+    Kit kit = new Kit(UUID.randomUUID(), kitName.toLowerCase(), kitName, items, defaultCooldown, defaultOneTime, null);
+    kits.put(kit.name(), kit);
+    storage.saveKit(kit);
     return kit;
   }
 
   public boolean deleteKit(@NotNull String name) {
-    return storage.removeKit(name);
+    Kit removed = kits.remove(name.toLowerCase());
+    if (removed != null) {
+      storage.deleteKit(removed.uuid());
+      return true;
+    }
+    return false;
   }
 
   public void clearPlayerCooldowns(@NotNull UUID playerUuid) {
@@ -185,15 +199,10 @@ public class KitManager {
   }
 
   public void shutdown() {
-    storage.save();
     cooldowns.clear();
     oneTimeClaims.clear();
   }
 
-  /**
-   * Checks if the player has enough inventory space for the kit.
-   * Displaced armor/utility items need room in hotbar/storage.
-   */
   private boolean hasSpaceForKit(@NotNull Inventory inventory, @NotNull Kit kit) {
     ItemContainer hotbar = inventory.getHotbar();
     ItemContainer storageContainer = inventory.getStorage();
@@ -205,56 +214,33 @@ public class KitManager {
     for (KitItem kitItem : kit.items()) {
       switch (kitItem.section()) {
         case KitItem.ARMOR -> {
-          // If armor slot is occupied, existing item needs to move to hotbar/storage
           if (kitItem.slot() >= 0 && kitItem.slot() < armor.getCapacity()) {
             ItemStack existing = armor.getItemStack((short) kitItem.slot());
-            if (!ItemStack.isEmpty(existing)) {
-              slotsNeeded++;
-            }
+            if (!ItemStack.isEmpty(existing)) slotsNeeded++;
           }
         }
         case KitItem.UTILITY -> {
-          // If utility slot is occupied, existing item needs to move to hotbar/storage
           if (kitItem.slot() >= 0 && kitItem.slot() < utility.getCapacity()) {
             ItemStack existing = utility.getItemStack((short) kitItem.slot());
-            if (!ItemStack.isEmpty(existing)) {
-              slotsNeeded++;
-            }
+            if (!ItemStack.isEmpty(existing)) slotsNeeded++;
           }
         }
         case KitItem.HOTBAR, KitItem.STORAGE -> {
-          // Specific slot items overwrite — no extra space needed
-          // But slot=-1 items need a free slot
-          if (kitItem.slot() < 0) {
-            slotsNeeded++;
-          }
+          if (kitItem.slot() < 0) slotsNeeded++;
         }
       }
     }
 
-    if (slotsNeeded == 0) {
-      return true;
-    }
+    if (slotsNeeded == 0) return true;
 
-    // Count free slots in hotbar + storage
     int freeSlots = countFreeSlots(hotbar) + countFreeSlots(storageContainer);
 
-    // Subtract slots that will be taken by kit items with specific hotbar/storage slots
-    // going into currently-empty slots (those free slots will no longer be available)
     for (KitItem kitItem : kit.items()) {
       if (kitItem.slot() >= 0) {
-        if (kitItem.section().equals(KitItem.HOTBAR)
-            && kitItem.slot() < hotbar.getCapacity()) {
-          ItemStack existing = hotbar.getItemStack((short) kitItem.slot());
-          if (ItemStack.isEmpty(existing)) {
-            freeSlots--; // This free slot will be used by the kit item
-          }
-        } else if (kitItem.section().equals(KitItem.STORAGE)
-            && kitItem.slot() < storageContainer.getCapacity()) {
-          ItemStack existing = storageContainer.getItemStack((short) kitItem.slot());
-          if (ItemStack.isEmpty(existing)) {
-            freeSlots--; // This free slot will be used by the kit item
-          }
+        if (kitItem.section().equals(KitItem.HOTBAR) && kitItem.slot() < hotbar.getCapacity()) {
+          if (ItemStack.isEmpty(hotbar.getItemStack((short) kitItem.slot()))) freeSlots--;
+        } else if (kitItem.section().equals(KitItem.STORAGE) && kitItem.slot() < storageContainer.getCapacity()) {
+          if (ItemStack.isEmpty(storageContainer.getItemStack((short) kitItem.slot()))) freeSlots--;
         }
       }
     }
@@ -265,9 +251,7 @@ public class KitManager {
   private int countFreeSlots(@NotNull ItemContainer container) {
     int free = 0;
     for (short i = 0; i < container.getCapacity(); i++) {
-      if (ItemStack.isEmpty(container.getItemStack(i))) {
-        free++;
-      }
+      if (ItemStack.isEmpty(container.getItemStack(i))) free++;
     }
     return free;
   }
@@ -279,16 +263,9 @@ public class KitManager {
       try {
         ItemStack stack = container.getItemStack(i);
         if (!ItemStack.isEmpty(stack)) {
-          items.add(new KitItem(
-            stack.getItemId(),
-            stack.getQuantity(),
-            i,
-            section
-          ));
+          items.add(new KitItem(stack.getItemId(), stack.getQuantity(), i, section));
         }
-      } catch (Exception e) {
-        // Skip slot on error
-      }
+      } catch (Exception e) { /* Skip slot on error */ }
     }
   }
 
@@ -298,7 +275,6 @@ public class KitManager {
     ItemContainer armor = inventory.getArmor();
     ItemContainer utility = inventory.getUtility();
 
-    // Collect displaced items that need to go to hotbar/storage
     List<ItemStack> displaced = new ArrayList<>();
 
     for (KitItem kitItem : kit.items()) {
@@ -310,18 +286,14 @@ public class KitManager {
           case KitItem.ARMOR -> {
             if (slot >= 0 && slot < armor.getCapacity()) {
               ItemStack existing = armor.getItemStack((short) slot);
-              if (!ItemStack.isEmpty(existing)) {
-                displaced.add(existing);
-              }
+              if (!ItemStack.isEmpty(existing)) displaced.add(existing);
               armor.setItemStackForSlot((short) slot, stack);
             }
           }
           case KitItem.UTILITY -> {
             if (slot >= 0 && slot < utility.getCapacity()) {
               ItemStack existing = utility.getItemStack((short) slot);
-              if (!ItemStack.isEmpty(existing)) {
-                displaced.add(existing);
-              }
+              if (!ItemStack.isEmpty(existing)) displaced.add(existing);
               utility.setItemStackForSlot((short) slot, stack);
             }
           }
@@ -345,15 +317,11 @@ public class KitManager {
       }
     }
 
-    // Place displaced armor/utility items into hotbar/storage
     for (ItemStack item : displaced) {
       placeInFirstAvailable(hotbar, storageContainer, item);
     }
   }
 
-  /**
-   * Places an item in the first available slot, checking hotbar then storage.
-   */
   private void placeInFirstAvailable(@NotNull ItemContainer hotbar,
                     @NotNull ItemContainer storage,
                     @NotNull ItemStack stack) {

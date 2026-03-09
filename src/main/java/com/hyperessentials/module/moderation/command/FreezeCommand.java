@@ -69,6 +69,7 @@ public class FreezeCommand extends AbstractPlayerCommand {
       Vector3d pos = transform.getPosition();
       Location loc = new Location(
         world.getName(),
+        world.getWorldConfig().getUuid().toString(),
         pos.getX(),
         pos.getY(),
         pos.getZ(),

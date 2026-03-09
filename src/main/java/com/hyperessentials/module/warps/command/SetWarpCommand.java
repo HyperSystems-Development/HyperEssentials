@@ -86,6 +86,7 @@ public class SetWarpCommand extends AbstractPlayerCommand {
       Warp existing = warpManager.getWarp(warpName);
       warp = existing.withLocation(
         currentWorld.getName(),
+        currentWorld.getWorldConfig().getUuid().toString(),
         pos.getX(), pos.getY(), pos.getZ(),
         rot.getY(), rot.getX()
       );
@@ -96,6 +97,7 @@ public class SetWarpCommand extends AbstractPlayerCommand {
       warp = Warp.create(
         warpName,
         currentWorld.getName(),
+        currentWorld.getWorldConfig().getUuid().toString(),
         pos.getX(), pos.getY(), pos.getZ(),
         rot.getY(), rot.getX(),
         uuid.toString()

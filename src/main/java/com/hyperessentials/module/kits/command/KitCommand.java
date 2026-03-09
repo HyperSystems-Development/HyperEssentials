@@ -2,14 +2,18 @@ package com.hyperessentials.module.kits.command;
 
 import com.hyperessentials.Permissions;
 import com.hyperessentials.command.util.CommandUtil;
+import com.hyperessentials.integration.FactionTerritoryChecker;
+import com.hyperessentials.integration.HyperFactionsIntegration;
 import com.hyperessentials.module.kits.KitManager;
 import com.hyperessentials.module.kits.KitsModule;
 import com.hyperessentials.module.kits.data.Kit;
 import com.hyperessentials.util.DurationParser;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
+import com.hypixel.hytale.math.vector.Vector3d;
 import com.hypixel.hytale.server.core.command.system.CommandContext;
 import com.hypixel.hytale.server.core.command.system.basecommands.AbstractPlayerCommand;
+import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
@@ -37,6 +41,21 @@ public class KitCommand extends AbstractPlayerCommand {
     if (!CommandUtil.hasPermission(playerRef.getUuid(), Permissions.KIT_USE)) {
       ctx.sendMessage(CommandUtil.error("You don't have permission to use kits."));
       return;
+    }
+
+    // Zone flag check (player's current location)
+    if (!CommandUtil.hasPermission(playerRef.getUuid(), Permissions.BYPASS_FACTIONS_KIT)
+        && !CommandUtil.hasPermission(playerRef.getUuid(), Permissions.BYPASS_FACTIONS)) {
+      TransformComponent transform = store.getComponent(ref, TransformComponent.getComponentType());
+      if (transform != null) {
+        Vector3d pos = transform.getPosition();
+        FactionTerritoryChecker.Result zoneResult = FactionTerritoryChecker.checkZoneFlag(
+            world.getName(), pos.getX(), pos.getZ(), HyperFactionsIntegration.FLAG_KITS);
+        if (zoneResult != FactionTerritoryChecker.Result.ALLOWED) {
+          ctx.sendMessage(CommandUtil.error("You cannot claim kits in this zone."));
+          return;
+        }
+      }
     }
 
     String input = ctx.getInputString();

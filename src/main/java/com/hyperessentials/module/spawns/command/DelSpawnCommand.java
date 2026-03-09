@@ -2,6 +2,7 @@ package com.hyperessentials.module.spawns.command;
 
 import com.hyperessentials.Permissions;
 import com.hyperessentials.command.util.CommandUtil;
+import com.hyperessentials.data.Spawn;
 import com.hyperessentials.module.spawns.SpawnManager;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
@@ -15,7 +16,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.UUID;
 
 /**
- * /delspawn &lt;name&gt; - Delete a spawn.
+ * /delspawn [world] - Delete spawn for a world (default: current world).
  */
 public class DelSpawnCommand extends AbstractPlayerCommand {
 
@@ -45,17 +46,32 @@ public class DelSpawnCommand extends AbstractPlayerCommand {
     String input = ctx.getInputString();
     String[] parts = input != null ? input.trim().split("\\s+") : new String[0];
 
-    if (parts.length < 2) {
-      ctx.sendMessage(CommandUtil.error("Usage: /delspawn <name>"));
-      return;
+    String worldUuid;
+    String worldName;
+    if (parts.length >= 2) {
+      String arg = parts[1];
+      Spawn found = null;
+      for (Spawn s : spawnManager.getAllSpawns()) {
+        if (s.worldName().equalsIgnoreCase(arg)) {
+          found = s;
+          break;
+        }
+      }
+      if (found == null) {
+        ctx.sendMessage(CommandUtil.error("No spawn found for world '" + arg + "'."));
+        return;
+      }
+      worldUuid = found.worldUuid();
+      worldName = found.worldName();
+    } else {
+      worldUuid = currentWorld.getWorldConfig().getUuid().toString();
+      worldName = currentWorld.getName();
     }
 
-    String spawnName = parts[1].toLowerCase();
-
-    if (spawnManager.deleteSpawn(spawnName)) {
-      ctx.sendMessage(CommandUtil.success("Spawn '" + spawnName + "' has been deleted."));
+    if (spawnManager.deleteSpawn(worldUuid)) {
+      ctx.sendMessage(CommandUtil.success("Spawn for world '" + worldName + "' has been deleted."));
     } else {
-      ctx.sendMessage(CommandUtil.error("Spawn '" + spawnName + "' not found."));
+      ctx.sendMessage(CommandUtil.error("No spawn set for world '" + worldName + "'."));
     }
   }
 }

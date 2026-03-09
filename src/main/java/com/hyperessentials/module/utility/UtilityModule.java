@@ -50,7 +50,7 @@ public class UtilityModule extends AbstractModule {
     if (core == null) return;
 
     utilityManager = new UtilityManager();
-    utilityManager.init(core.getDataDir());
+    utilityManager.init();
 
     // Register connect handler for session/stats tracking
     connectHandler = (uuid, username) -> utilityManager.onPlayerConnect(uuid, username);
