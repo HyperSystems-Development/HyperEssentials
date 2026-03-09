@@ -5,9 +5,11 @@ import com.hyperessentials.api.HyperEssentialsAPI;
 import com.hyperessentials.command.util.CommandUtil;
 import com.hyperessentials.config.ConfigManager;
 import com.hyperessentials.config.modules.TeleportConfig;
+import com.hyperessentials.data.BackEntry;
 import com.hyperessentials.data.Location;
 import com.hyperessentials.gui.GuiManager;
 import com.hyperessentials.gui.player.BackPage;
+import com.hyperessentials.integration.FactionTerritoryChecker;
 import com.hyperessentials.module.teleport.BackManager;
 import com.hyperessentials.module.warmup.WarmupManager;
 import com.hyperessentials.module.warmup.WarmupTask;
@@ -57,7 +59,7 @@ public class BackCommand extends AbstractPlayerCommand {
       return;
     }
 
-    List<Location> history = backManager.getBackHistory(uuid);
+    List<BackEntry> history = backManager.getBackHistory(uuid);
     if (history.isEmpty()) {
       ctx.sendMessage(CommandUtil.error("No back location found."));
       return;
@@ -73,10 +75,32 @@ public class BackCommand extends AbstractPlayerCommand {
     }
 
     // Default behavior: pop the most recent back location
-    Location backLocation = backManager.popBackLocation(uuid);
-    if (backLocation == null) {
+    BackEntry backEntry = backManager.popBackEntry(uuid);
+    if (backEntry == null) {
       ctx.sendMessage(CommandUtil.error("No back location found."));
       return;
+    }
+
+    Location destination = backEntry.location();
+
+    // Territory/zone check on destination
+    if (!CommandUtil.hasPermission(uuid, Permissions.BYPASS_FACTIONS)
+        && !CommandUtil.hasPermission(uuid, Permissions.BYPASS_FACTIONS_BACK)) {
+      FactionTerritoryChecker.Result result = FactionTerritoryChecker.canUseBack(
+          uuid, destination.world(), destination.x(), destination.z());
+      if (result != FactionTerritoryChecker.Result.ALLOWED) {
+        String msg = switch (result) {
+          case BLOCKED_OWN_TERRITORY -> "You cannot teleport back to your faction's territory.";
+          case BLOCKED_ALLY_TERRITORY -> "You cannot teleport back to allied territory.";
+          case BLOCKED_ENEMY_TERRITORY -> "You cannot teleport back to enemy territory.";
+          case BLOCKED_NEUTRAL_TERRITORY -> "You cannot teleport back to neutral territory.";
+          case BLOCKED_WILDERNESS -> "You cannot teleport back to the wilderness.";
+          case BLOCKED_ZONE -> "You cannot teleport back to that zone.";
+          default -> "You cannot teleport back to that location.";
+        };
+        ctx.sendMessage(CommandUtil.error(msg));
+        return;
+      }
     }
 
     if (warmupManager.isOnCooldown(uuid, "teleport", "back")) {
@@ -84,8 +108,6 @@ public class BackCommand extends AbstractPlayerCommand {
       ctx.sendMessage(CommandUtil.error("On cooldown. " + remaining + "s remaining."));
       return;
     }
-
-    Location destination = backLocation;
 
     WarmupTask task = warmupManager.startWarmup(uuid, "teleport", "back", () -> {
       executeTeleport(ref, destination, () -> {

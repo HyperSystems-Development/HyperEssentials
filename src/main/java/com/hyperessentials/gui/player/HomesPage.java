@@ -597,7 +597,7 @@ public class HomesPage extends InteractiveCustomUIPage<PlayerPageData> implement
         Location currentLoc = new Location(world.getName(),
             world.getWorldConfig().getUuid().toString(),
             pos.getX(), pos.getY(), pos.getZ(), 0, 0);
-        bm.onTeleport(uuid, currentLoc);
+        bm.onTeleport(uuid, currentLoc, "home");
       }
     } catch (Exception ignored) {}
   }

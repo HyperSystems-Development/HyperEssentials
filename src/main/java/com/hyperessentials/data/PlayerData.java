@@ -21,7 +21,7 @@ public class PlayerData {
 
   // === Teleport ===
   private boolean tpToggle; // true = accepting TPA requests
-  private List<Location> backHistory;
+  private List<BackEntry> backHistory;
   private long lastTpaRequest;
   private long lastTeleport;
 
@@ -69,37 +69,37 @@ public class PlayerData {
   public void setLastTeleport(long lastTeleport) { this.lastTeleport = lastTeleport; }
 
   @NotNull
-  public List<Location> getBackHistory() {
+  public List<BackEntry> getBackHistory() {
     return Collections.unmodifiableList(backHistory);
   }
 
   @Nullable
-  public Location getLastBackLocation() {
+  public BackEntry getLastBackEntry() {
     return backHistory.isEmpty() ? null : backHistory.getFirst();
   }
 
-  public void addBackLocation(@NotNull Location location, int maxSize) {
-    backHistory.addFirst(location);
+  public void addBackEntry(@NotNull BackEntry entry, int maxSize) {
+    backHistory.addFirst(entry);
     while (backHistory.size() > maxSize) {
       backHistory.removeLast();
     }
   }
 
   @Nullable
-  public Location popBackLocation() {
+  public BackEntry popBackEntry() {
     if (backHistory.isEmpty()) return null;
     return backHistory.removeFirst();
   }
 
   @Nullable
-  public Location removeBackLocation(int index) {
+  public BackEntry removeBackEntry(int index) {
     if (index < 0 || index >= backHistory.size()) return null;
     return backHistory.remove(index);
   }
 
   public void clearBackHistory() { backHistory.clear(); }
 
-  public void setBackHistory(@NotNull List<Location> history) {
+  public void setBackHistory(@NotNull List<BackEntry> history) {
     this.backHistory = new ArrayList<>(history);
   }
 

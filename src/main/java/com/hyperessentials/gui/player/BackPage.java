@@ -1,6 +1,7 @@
 package com.hyperessentials.gui.player;
 
 import com.hyperessentials.command.util.CommandUtil;
+import com.hyperessentials.data.BackEntry;
 import com.hyperessentials.data.Location;
 import com.hyperessentials.gui.GuiManager;
 import com.hyperessentials.gui.UIHelper;
@@ -77,7 +78,7 @@ public class BackPage extends InteractiveCustomUIPage<PlayerPageData> {
 
   private void buildEntryList(@NotNull UICommandBuilder cmd, @NotNull UIEventBuilder events) {
     UUID uuid = playerRef.getUuid();
-    List<Location> history = backManager.getBackHistory(uuid);
+    List<BackEntry> history = backManager.getBackHistory(uuid);
 
     cmd.set("#BackCount.Text", history.size() + " location(s)");
     cmd.clear("#BackList");
@@ -86,12 +87,12 @@ public class BackPage extends InteractiveCustomUIPage<PlayerPageData> {
     boolean onCooldown = warmupManager.isOnCooldown(uuid, "teleport", "back");
 
     for (int i = 0; i < history.size(); i++) {
-      Location loc = history.get(i);
+      BackEntry entry = history.get(i);
+      Location loc = entry.location();
       cmd.append("#IndexCards", UIPaths.BACK_ENTRY);
       String idx = "#IndexCards[" + i + "]";
 
-      String label = (i == 0) ? "Most Recent" : "#" + (i + 1);
-      cmd.set(idx + " #BackLabel.Text", label);
+      cmd.set(idx + " #BackLabel.Text", entry.sourceLabel());
       cmd.set(idx + " #BackWorld.Text", UIHelper.formatWorldName(loc.world()));
       cmd.set(idx + " #BackCoords.Text", UIHelper.formatCoords(loc.x(), loc.y(), loc.z()));
 
@@ -141,12 +142,13 @@ public class BackPage extends InteractiveCustomUIPage<PlayerPageData> {
       return;
     }
 
-    Location dest = backManager.removeBackEntry(uuid, index);
-    if (dest == null) {
+    BackEntry entry = backManager.removeBackEntry(uuid, index);
+    if (entry == null) {
       rebuildList();
       return;
     }
 
+    Location dest = entry.location();
     WarmupTask task = warmupManager.startWarmup(uuid, "teleport", "back", () -> {
       World targetWorld = Universe.get().getWorld(UUID.fromString(dest.worldUuid()));
       if (targetWorld == null) return;

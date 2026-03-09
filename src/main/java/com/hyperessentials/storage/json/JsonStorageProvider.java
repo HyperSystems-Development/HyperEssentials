@@ -595,10 +595,16 @@ public class JsonStorageProvider implements StorageProvider {
           data.setLastTeleport(root.has("lastTeleport") ? root.get("lastTeleport").getAsLong() : 0);
 
           if (root.has("backHistory") && root.get("backHistory").isJsonArray()) {
-            List<Location> history = new ArrayList<>();
+            List<com.hyperessentials.data.BackEntry> history = new ArrayList<>();
             for (var element : root.getAsJsonArray("backHistory")) {
               if (element.isJsonObject()) {
-                history.add(deserializeLocation(element.getAsJsonObject()));
+                JsonObject entryObj = element.getAsJsonObject();
+                Location loc = deserializeLocation(entryObj);
+                String source = entryObj.has("source") ? entryObj.get("source").getAsString()
+                    : com.hyperessentials.data.BackEntry.SOURCE_UNKNOWN;
+                long timestamp = entryObj.has("timestamp") ? entryObj.get("timestamp").getAsLong()
+                    : System.currentTimeMillis();
+                history.add(new com.hyperessentials.data.BackEntry(loc, source, timestamp));
               }
             }
             data.setBackHistory(history);
@@ -651,8 +657,11 @@ public class JsonStorageProvider implements StorageProvider {
           root.addProperty("lastTeleport", data.getLastTeleport());
 
           JsonArray historyArray = new JsonArray();
-          for (Location loc : data.getBackHistory()) {
-            historyArray.add(serializeLocation(loc));
+          for (com.hyperessentials.data.BackEntry entry : data.getBackHistory()) {
+            JsonObject entryObj = serializeLocation(entry.location());
+            entryObj.addProperty("source", entry.source());
+            entryObj.addProperty("timestamp", entry.timestamp());
+            historyArray.add(entryObj);
           }
           root.add("backHistory", historyArray);
 

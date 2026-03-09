@@ -127,7 +127,7 @@ public class TpAcceptCommand extends AbstractPlayerCommand {
           Location ourLoc = new Location(currentWorld.getName(),
               currentWorld.getWorldConfig().getUuid().toString(),
               ourPos.getX(), ourPos.getY(), ourPos.getZ(), 0, 0);
-          backManager.onTeleport(uuid, ourLoc);
+          backManager.onTeleport(uuid, ourLoc, "tpa");
         }
       }
 
@@ -189,7 +189,7 @@ public class TpAcceptCommand extends AbstractPlayerCommand {
       Location loc = new Location(world.getName(),
           world.getWorldConfig().getUuid().toString(),
           pos.getX(), pos.getY(), pos.getZ(), 0, 0);
-      backManager.onTeleport(player.getUuid(), loc);
+      backManager.onTeleport(player.getUuid(), loc, "tpa");
     } catch (Exception ignored) {}
   }
 

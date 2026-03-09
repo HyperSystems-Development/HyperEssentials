@@ -22,6 +22,14 @@ public class TeleportConfig extends ModuleConfig {
   private boolean saveBackOnTeleport = true;
   private boolean backAllowSelectAny = true;
 
+  // Back faction territory restrictions (destination check)
+  private boolean backFactionsEnabled = true;
+  private boolean backAllowInOwnTerritory = true;
+  private boolean backAllowInAllyTerritory = true;
+  private boolean backAllowInNeutralTerritory = false;
+  private boolean backAllowInEnemyTerritory = false;
+  private boolean backAllowInWilderness = true;
+
   // RTP settings
   private int rtpCenterX = 0;
   private int rtpCenterZ = 0;
@@ -64,6 +72,17 @@ public class TeleportConfig extends ModuleConfig {
     saveBackOnDeath = getBool(root, "saveBackOnDeath", saveBackOnDeath);
     saveBackOnTeleport = getBool(root, "saveBackOnTeleport", saveBackOnTeleport);
     backAllowSelectAny = getBool(root, "backAllowSelectAny", backAllowSelectAny);
+
+    // Back faction restrictions subsection
+    if (hasSection(root, "backFactions")) {
+      JsonObject bf = root.getAsJsonObject("backFactions");
+      backFactionsEnabled = getBool(bf, "enabled", backFactionsEnabled);
+      backAllowInOwnTerritory = getBool(bf, "allowInOwnTerritory", backAllowInOwnTerritory);
+      backAllowInAllyTerritory = getBool(bf, "allowInAllyTerritory", backAllowInAllyTerritory);
+      backAllowInNeutralTerritory = getBool(bf, "allowInNeutralTerritory", backAllowInNeutralTerritory);
+      backAllowInEnemyTerritory = getBool(bf, "allowInEnemyTerritory", backAllowInEnemyTerritory);
+      backAllowInWilderness = getBool(bf, "allowInWilderness", backAllowInWilderness);
+    }
 
     // RTP subsection
     if (hasSection(root, "rtp")) {
@@ -112,6 +131,16 @@ public class TeleportConfig extends ModuleConfig {
     root.addProperty("saveBackOnTeleport", saveBackOnTeleport);
     root.addProperty("backAllowSelectAny", backAllowSelectAny);
 
+    // Back faction restrictions
+    JsonObject bf = new JsonObject();
+    bf.addProperty("enabled", backFactionsEnabled);
+    bf.addProperty("allowInOwnTerritory", backAllowInOwnTerritory);
+    bf.addProperty("allowInAllyTerritory", backAllowInAllyTerritory);
+    bf.addProperty("allowInNeutralTerritory", backAllowInNeutralTerritory);
+    bf.addProperty("allowInEnemyTerritory", backAllowInEnemyTerritory);
+    bf.addProperty("allowInWilderness", backAllowInWilderness);
+    root.add("backFactions", bf);
+
     // RTP subsection
     JsonObject rtp = new JsonObject();
     rtp.addProperty("centerX", rtpCenterX);
@@ -152,6 +181,14 @@ public class TeleportConfig extends ModuleConfig {
   public boolean isSaveBackOnDeath() { return saveBackOnDeath; }
   public boolean isSaveBackOnTeleport() { return saveBackOnTeleport; }
   public boolean isBackAllowSelectAny() { return backAllowSelectAny; }
+
+  // Back faction territory getters
+  public boolean isBackFactionsEnabled() { return backFactionsEnabled; }
+  public boolean isBackAllowInOwnTerritory() { return backAllowInOwnTerritory; }
+  public boolean isBackAllowInAllyTerritory() { return backAllowInAllyTerritory; }
+  public boolean isBackAllowInNeutralTerritory() { return backAllowInNeutralTerritory; }
+  public boolean isBackAllowInEnemyTerritory() { return backAllowInEnemyTerritory; }
+  public boolean isBackAllowInWilderness() { return backAllowInWilderness; }
 
   // RTP getters
   public int getRtpCenterX() { return rtpCenterX; }

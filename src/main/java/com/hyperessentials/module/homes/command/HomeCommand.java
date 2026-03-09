@@ -215,7 +215,7 @@ public class HomeCommand extends AbstractPlayerCommand {
         Location currentLoc = new Location(currentWorld.getName(),
             currentWorld.getWorldConfig().getUuid().toString(),
             pos.getX(), pos.getY(), pos.getZ(), 0, 0);
-        backManager.onTeleport(uuid, currentLoc);
+        backManager.onTeleport(uuid, currentLoc, source);
       }
     } catch (Exception ignored) {}
   }

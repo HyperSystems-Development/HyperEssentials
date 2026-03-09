@@ -1,6 +1,7 @@
 package com.hyperessentials.module.teleport;
 
 import com.hyperessentials.config.modules.TeleportConfig;
+import com.hyperessentials.data.BackEntry;
 import com.hyperessentials.data.Location;
 import com.hyperessentials.data.PlayerData;
 import com.hyperessentials.util.Logger;
@@ -24,7 +25,7 @@ public class BackManager {
     this.config = config;
   }
 
-  public void saveBackLocation(@NotNull UUID uuid, @NotNull Location location) {
+  public void saveBackLocation(@NotNull UUID uuid, @NotNull Location location, @NotNull String source) {
     PlayerData data = tpaManager.getPlayerData(uuid);
     if (data == null) {
       Logger.debug("Cannot save back location - player %s not loaded", uuid);
@@ -32,54 +33,54 @@ public class BackManager {
     }
 
     int maxSize = config.getBackHistorySize();
-    data.addBackLocation(location, maxSize);
+    data.addBackEntry(BackEntry.of(location, source), maxSize);
     tpaManager.savePlayer(uuid);
 
-    Logger.debug("Saved back location for %s: %s %.0f, %.0f, %.0f",
-      uuid, location.world(), location.x(), location.y(), location.z());
+    Logger.debug("Saved back location for %s [%s]: %s %.0f, %.0f, %.0f",
+      uuid, source, location.world(), location.x(), location.y(), location.z());
   }
 
-  public void onTeleport(@NotNull UUID uuid, @NotNull Location location) {
+  public void onTeleport(@NotNull UUID uuid, @NotNull Location location, @NotNull String source) {
     if (config.isSaveBackOnTeleport()) {
-      saveBackLocation(uuid, location);
+      saveBackLocation(uuid, location, source);
     }
   }
 
   public void onDeath(@NotNull UUID uuid, @NotNull Location location) {
     if (config.isSaveBackOnDeath()) {
-      saveBackLocation(uuid, location);
+      saveBackLocation(uuid, location, BackEntry.SOURCE_DEATH);
     }
   }
 
   @Nullable
-  public Location getBackLocation(@NotNull UUID uuid) {
+  public BackEntry getBackEntry(@NotNull UUID uuid) {
     PlayerData data = tpaManager.getPlayerData(uuid);
     if (data == null) {
       return null;
     }
-    return data.getLastBackLocation();
+    return data.getLastBackEntry();
   }
 
   @Nullable
-  public Location popBackLocation(@NotNull UUID uuid) {
+  public BackEntry popBackEntry(@NotNull UUID uuid) {
     PlayerData data = tpaManager.getPlayerData(uuid);
     if (data == null) {
       return null;
     }
 
-    Location location = data.popBackLocation();
-    if (location != null) {
+    BackEntry entry = data.popBackEntry();
+    if (entry != null) {
       tpaManager.savePlayer(uuid);
       Logger.debug("Popped back location for %s", uuid);
     }
-    return location;
+    return entry;
   }
 
   /**
    * Returns the full back history for the player (most recent first).
    */
   @NotNull
-  public List<Location> getBackHistory(@NotNull UUID uuid) {
+  public List<BackEntry> getBackHistory(@NotNull UUID uuid) {
     PlayerData data = tpaManager.getPlayerData(uuid);
     return data != null ? data.getBackHistory() : List.of();
   }
@@ -88,10 +89,10 @@ public class BackManager {
    * Removes a back entry at the given index and returns it.
    */
   @Nullable
-  public Location removeBackEntry(@NotNull UUID uuid, int index) {
+  public BackEntry removeBackEntry(@NotNull UUID uuid, int index) {
     PlayerData data = tpaManager.getPlayerData(uuid);
     if (data == null) return null;
-    Location removed = data.removeBackLocation(index);
+    BackEntry removed = data.removeBackEntry(index);
     if (removed != null) {
       tpaManager.savePlayer(uuid);
     }

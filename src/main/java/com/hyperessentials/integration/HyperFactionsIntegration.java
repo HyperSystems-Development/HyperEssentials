@@ -192,7 +192,7 @@ public final class HyperFactionsIntegration {
           double srcZ = (double) sourceZMethod.invoke(event);
 
           Location backLoc = new Location(srcWorld, "", srcX, srcY, srcZ, 0, 0);
-          bm.onTeleport(uuid, backLoc);
+          bm.onTeleport(uuid, backLoc, "factionhome");
           Logger.debug("[Integration] Saved back location for %s from /f home teleport", uuid);
         } catch (Exception e) {
           Logger.debug("[Integration] Failed to save back location from /f home: %s", e.getMessage());

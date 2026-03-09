@@ -2,6 +2,7 @@ package com.hyperessentials.integration;
 
 import com.hyperessentials.config.ConfigManager;
 import com.hyperessentials.config.modules.HomesConfig;
+import com.hyperessentials.config.modules.TeleportConfig;
 import com.hyperessentials.util.Logger;
 import org.jetbrains.annotations.NotNull;
 
@@ -114,6 +115,47 @@ public final class FactionTerritoryChecker {
       case "ENEMY" -> config.isAllowInEnemyTerritory()
           ? Result.ALLOWED : Result.BLOCKED_ENEMY_TERRITORY;
       default -> config.isAllowInNeutralTerritory()
+          ? Result.ALLOWED : Result.BLOCKED_NEUTRAL_TERRITORY;
+    };
+  }
+
+  /**
+   * Checks whether a player can use /back to teleport to the given location.
+   * Returns ALLOWED if HyperFactions is absent or faction checks are disabled.
+   */
+  @NotNull
+  public static Result canUseBack(@NotNull UUID playerUuid, @NotNull String world,
+                                  double x, double z) {
+    if (!HyperFactionsIntegration.isAvailable()) return Result.ALLOWED;
+
+    // Zone flag check
+    Result zoneResult = checkZoneFlag(world, x, z, HyperFactionsIntegration.FLAG_BACK);
+    if (zoneResult != Result.ALLOWED) return zoneResult;
+
+    // Master toggle
+    TeleportConfig config = ConfigManager.get().teleport();
+    if (!config.isBackFactionsEnabled()) return Result.ALLOWED;
+
+    // Wilderness check
+    String factionName = HyperFactionsIntegration.getFactionAtLocation(world, x, z);
+    if (factionName == null) {
+      if (config.isBackAllowInWilderness()) return Result.ALLOWED;
+      Logger.debug("[Factions] Blocked /back in wilderness for %s", playerUuid);
+      return Result.BLOCKED_WILDERNESS;
+    }
+
+    // Relation check
+    String relation = HyperFactionsIntegration.getRelationAtLocation(playerUuid, world, x, z);
+    if (relation == null) relation = "NEUTRAL";
+
+    return switch (relation) {
+      case "OWN" -> config.isBackAllowInOwnTerritory()
+          ? Result.ALLOWED : Result.BLOCKED_OWN_TERRITORY;
+      case "ALLY" -> config.isBackAllowInAllyTerritory()
+          ? Result.ALLOWED : Result.BLOCKED_ALLY_TERRITORY;
+      case "ENEMY" -> config.isBackAllowInEnemyTerritory()
+          ? Result.ALLOWED : Result.BLOCKED_ENEMY_TERRITORY;
+      default -> config.isBackAllowInNeutralTerritory()
           ? Result.ALLOWED : Result.BLOCKED_NEUTRAL_TERRITORY;
     };
   }
