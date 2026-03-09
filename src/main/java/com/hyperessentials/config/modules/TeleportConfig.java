@@ -20,6 +20,7 @@ public class TeleportConfig extends ModuleConfig {
   private int backHistorySize = 5;
   private boolean saveBackOnDeath = true;
   private boolean saveBackOnTeleport = true;
+  private boolean backAllowSelectAny = true;
 
   // RTP settings
   private int rtpCenterX = 0;
@@ -62,6 +63,7 @@ public class TeleportConfig extends ModuleConfig {
     backHistorySize = getInt(root, "backHistorySize", backHistorySize);
     saveBackOnDeath = getBool(root, "saveBackOnDeath", saveBackOnDeath);
     saveBackOnTeleport = getBool(root, "saveBackOnTeleport", saveBackOnTeleport);
+    backAllowSelectAny = getBool(root, "backAllowSelectAny", backAllowSelectAny);
 
     // RTP subsection
     if (hasSection(root, "rtp")) {
@@ -108,6 +110,7 @@ public class TeleportConfig extends ModuleConfig {
     root.addProperty("backHistorySize", backHistorySize);
     root.addProperty("saveBackOnDeath", saveBackOnDeath);
     root.addProperty("saveBackOnTeleport", saveBackOnTeleport);
+    root.addProperty("backAllowSelectAny", backAllowSelectAny);
 
     // RTP subsection
     JsonObject rtp = new JsonObject();
@@ -148,6 +151,7 @@ public class TeleportConfig extends ModuleConfig {
   public int getBackHistorySize() { return backHistorySize; }
   public boolean isSaveBackOnDeath() { return saveBackOnDeath; }
   public boolean isSaveBackOnTeleport() { return saveBackOnTeleport; }
+  public boolean isBackAllowSelectAny() { return backAllowSelectAny; }
 
   // RTP getters
   public int getRtpCenterX() { return rtpCenterX; }

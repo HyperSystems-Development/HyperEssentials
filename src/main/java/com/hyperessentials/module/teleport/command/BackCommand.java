@@ -1,8 +1,13 @@
 package com.hyperessentials.module.teleport.command;
 
 import com.hyperessentials.Permissions;
+import com.hyperessentials.api.HyperEssentialsAPI;
 import com.hyperessentials.command.util.CommandUtil;
+import com.hyperessentials.config.ConfigManager;
+import com.hyperessentials.config.modules.TeleportConfig;
 import com.hyperessentials.data.Location;
+import com.hyperessentials.gui.GuiManager;
+import com.hyperessentials.gui.player.BackPage;
 import com.hyperessentials.module.teleport.BackManager;
 import com.hyperessentials.module.warmup.WarmupManager;
 import com.hyperessentials.module.warmup.WarmupTask;
@@ -12,6 +17,7 @@ import com.hypixel.hytale.math.vector.Vector3d;
 import com.hypixel.hytale.math.vector.Vector3f;
 import com.hypixel.hytale.server.core.command.system.CommandContext;
 import com.hypixel.hytale.server.core.command.system.basecommands.AbstractPlayerCommand;
+import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.modules.entity.teleport.Teleport;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.Universe;
@@ -19,10 +25,12 @@ import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
 import java.util.UUID;
 
 /**
  * /back - Return to your previous location.
+ * When backAllowSelectAny is enabled and multiple entries exist, opens a GUI.
  */
 public class BackCommand extends AbstractPlayerCommand {
 
@@ -49,7 +57,23 @@ public class BackCommand extends AbstractPlayerCommand {
       return;
     }
 
-    Location backLocation = backManager.getBackLocation(uuid);
+    List<Location> history = backManager.getBackHistory(uuid);
+    if (history.isEmpty()) {
+      ctx.sendMessage(CommandUtil.error("No back location found."));
+      return;
+    }
+
+    // If backAllowSelectAny is enabled and >1 entry, try opening GUI
+    TeleportConfig teleportConfig = ConfigManager.get().teleport();
+    if (teleportConfig.isBackAllowSelectAny() && history.size() > 1) {
+      if (tryOpenGui(store, ref, playerRef)) {
+        return;
+      }
+      // GUI unavailable, fall through to text list + pop latest
+    }
+
+    // Default behavior: pop the most recent back location
+    Location backLocation = backManager.popBackLocation(uuid);
     if (backLocation == null) {
       ctx.sendMessage(CommandUtil.error("No back location found."));
       return;
@@ -60,9 +84,6 @@ public class BackCommand extends AbstractPlayerCommand {
       ctx.sendMessage(CommandUtil.error("On cooldown. " + remaining + "s remaining."));
       return;
     }
-
-    // Pop the back location (remove from history since we're using it)
-    backManager.popBackLocation(uuid);
 
     Location destination = backLocation;
 
@@ -77,8 +98,22 @@ public class BackCommand extends AbstractPlayerCommand {
     }
   }
 
+  private boolean tryOpenGui(@NotNull Store<EntityStore> store,
+                              @NotNull Ref<EntityStore> ref,
+                              @NotNull PlayerRef playerRef) {
+    if (!HyperEssentialsAPI.isAvailable()) return false;
+
+    Player player = store.getComponent(ref, Player.getComponentType());
+    if (player == null) return false;
+
+    GuiManager guiManager = HyperEssentialsAPI.getInstance().getGuiManager();
+    BackPage backPage = new BackPage(player, playerRef, backManager, warmupManager, guiManager);
+    player.getPageManager().openCustomPage(ref, store, backPage);
+    return true;
+  }
+
   private void executeTeleport(Ref<EntityStore> ref, Location dest, Runnable onComplete) {
-    World targetWorld = Universe.get().getWorld(dest.world());
+    World targetWorld = Universe.get().getWorld(UUID.fromString(dest.worldUuid()));
     if (targetWorld == null) {
       return;
     }

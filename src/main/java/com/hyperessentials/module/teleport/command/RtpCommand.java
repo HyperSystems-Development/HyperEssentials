@@ -3,6 +3,7 @@ package com.hyperessentials.module.teleport.command;
 import com.hyperessentials.Permissions;
 import com.hyperessentials.command.util.CommandUtil;
 import com.hyperessentials.data.Location;
+import com.hyperessentials.module.teleport.BackManager;
 import com.hyperessentials.module.teleport.RtpManager;
 import com.hyperessentials.module.teleport.RtpManager.RtpResult;
 import com.hyperessentials.module.warmup.WarmupManager;
@@ -20,6 +21,7 @@ import com.hypixel.hytale.server.core.universe.Universe;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 
@@ -30,11 +32,14 @@ public class RtpCommand extends AbstractPlayerCommand {
 
   private final RtpManager rtpManager;
   private final WarmupManager warmupManager;
+  private final BackManager backManager;
 
-  public RtpCommand(@NotNull RtpManager rtpManager, @NotNull WarmupManager warmupManager) {
+  public RtpCommand(@NotNull RtpManager rtpManager, @NotNull WarmupManager warmupManager,
+                    @Nullable BackManager backManager) {
     super("rtp", "Teleport to a random location");
     this.rtpManager = rtpManager;
     this.warmupManager = warmupManager;
+    this.backManager = backManager;
     addAliases("randomtp", "randomteleport");
   }
 
@@ -76,6 +81,9 @@ public class RtpCommand extends AbstractPlayerCommand {
     double playerX = pos.x;
     double playerZ = pos.z;
 
+    // Save back location before teleport
+    saveBackLocation(uuid, pos, currentWorld);
+
     boolean bypassFactions = CommandUtil.hasPermission(uuid, Permissions.RTP_BYPASS_FACTIONS);
 
     ctx.sendMessage(CommandUtil.info("Searching for a safe random location..."));
@@ -108,8 +116,18 @@ public class RtpCommand extends AbstractPlayerCommand {
     });
   }
 
+  private void saveBackLocation(@NotNull UUID uuid, @NotNull Vector3d pos, @NotNull World currentWorld) {
+    if (backManager == null) return;
+    try {
+      Location currentLoc = new Location(currentWorld.getName(),
+          currentWorld.getWorldConfig().getUuid().toString(),
+          pos.getX(), pos.getY(), pos.getZ(), 0, 0);
+      backManager.onTeleport(uuid, currentLoc);
+    } catch (Exception ignored) {}
+  }
+
   private void executeTeleport(Ref<EntityStore> ref, Location dest, Runnable onComplete) {
-    World targetWorld = Universe.get().getWorld(dest.world());
+    World targetWorld = Universe.get().getWorld(UUID.fromString(dest.worldUuid()));
     if (targetWorld == null) {
       return;
     }

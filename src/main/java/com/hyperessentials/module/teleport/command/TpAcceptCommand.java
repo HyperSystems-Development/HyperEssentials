@@ -7,7 +7,6 @@ import com.hyperessentials.data.TeleportRequest;
 import com.hyperessentials.module.teleport.BackManager;
 import com.hyperessentials.module.teleport.TpaManager;
 import com.hyperessentials.module.warmup.WarmupManager;
-import com.hyperessentials.module.warmup.WarmupTask;
 import com.hyperessentials.platform.HyperEssentialsPlugin;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
@@ -98,58 +97,100 @@ public class TpAcceptCommand extends AbstractPlayerCommand {
       return;
     }
 
-    // Get the destination (the player being teleported TO)
-    // For TPA: requester teleports to target (us), so destination is our location
-    // For TPAHERE: target (us) teleports to requester, so destination is requester's location
-    // In both cases the accepting player is us, but the destination depends on type.
-    // The actual teleport location must come from the destination player's current position.
-    // Since we only have our own store/ref, we send the accept message and
-    // the actual teleport is executed via the warmup system on the teleporting player's side.
-
-    TransformComponent transform = store.getComponent(ref, TransformComponent.getComponentType());
-    if (transform == null) {
-      ctx.sendMessage(CommandUtil.error("Could not determine position."));
-      return;
-    }
-
-    Vector3d pos = transform.getPosition();
-    Location ourLocation = new Location(currentWorld.getName(), pos.getX(), pos.getY(), pos.getZ(), 0, 0);
-
     ctx.sendMessage(CommandUtil.success("Teleport request accepted."));
     teleportingRef.sendMessage(CommandUtil.success("Request accepted! Teleporting..."));
 
     if (request.type() == TeleportRequest.Type.TPA) {
-      // Requester teleports to us - we use our location as destination
-      // Save requester's back location (done via their player data, best effort)
-      backManager.onTeleport(request.requester(), ourLocation);
+      // TPA: Requester teleports to us (the acceptor)
+      // Save requester's current location as back
+      saveBackForPlayer(teleportingRef);
 
-      // Execute teleport on the teleporting player
-      // Note: We don't have access to requester's store/ref, so we use the
-      // destination world thread to perform the teleport via Universe
-      executeTeleportToLocation(teleportingRef, ourLocation);
+      // Our location is the destination
+      TransformComponent transform = store.getComponent(ref, TransformComponent.getComponentType());
+      if (transform == null) {
+        ctx.sendMessage(CommandUtil.error("Could not determine position."));
+        return;
+      }
+      Vector3d pos = transform.getPosition();
+      Location dest = new Location(currentWorld.getName(),
+          currentWorld.getWorldConfig().getUuid().toString(),
+          pos.getX(), pos.getY(), pos.getZ(), 0, 0);
+
+      executeTeleportPlayer(teleportingRef, dest);
     } else {
-      // TPAHERE: We (target) teleport to requester
-      // Our current location is saved as back
-      backManager.onTeleport(uuid, ourLocation);
+      // TPAHERE: We (acceptor/target) teleport to requester
+      // Save our current location as back
+      if (backManager != null) {
+        TransformComponent ourTransform = store.getComponent(ref, TransformComponent.getComponentType());
+        if (ourTransform != null) {
+          Vector3d ourPos = ourTransform.getPosition();
+          Location ourLoc = new Location(currentWorld.getName(),
+              currentWorld.getWorldConfig().getUuid().toString(),
+              ourPos.getX(), ourPos.getY(), ourPos.getZ(), 0, 0);
+          backManager.onTeleport(uuid, ourLoc);
+        }
+      }
 
-      // We need the requester's current location, but we don't have their store.
-      // Since the requester is the destination, we inform them and handle via message.
-      // For now, we send a message - actual cross-player teleport requires platform support.
-      // The teleporting player (us) will be teleported via the store/ref we have.
+      // Get requester's current position
+      Ref<EntityStore> requesterEntityRef = destinationRef.getReference();
+      if (requesterEntityRef == null || !requesterEntityRef.isValid()) {
+        ctx.sendMessage(CommandUtil.error("Could not locate the requesting player."));
+        return;
+      }
+      Store<EntityStore> requesterStore = requesterEntityRef.getStore();
+      TransformComponent requesterTransform = requesterStore.getComponent(
+          requesterEntityRef, TransformComponent.getComponentType());
+      if (requesterTransform == null) {
+        ctx.sendMessage(CommandUtil.error("Could not determine the requesting player's position."));
+        return;
+      }
+
+      Vector3d reqPos = requesterTransform.getPosition();
+      World requesterWorld = requesterStore.getExternalData().getWorld();
+      Location dest = new Location(requesterWorld.getName(),
+          requesterWorld.getWorldConfig().getUuid().toString(),
+          reqPos.getX(), reqPos.getY(), reqPos.getZ(), 0, 0);
+
+      // Teleport us (the acceptor) to the requester
+      executeTeleportPlayer(playerRef, dest);
+
       destinationRef.sendMessage(CommandUtil.info("Teleporting " + playerRef.getUsername() + " to you..."));
     }
   }
 
-  private void executeTeleportToLocation(PlayerRef teleportingRef, Location dest) {
-    World targetWorld = Universe.get().getWorld(dest.world());
-    if (targetWorld == null) {
-      return;
-    }
-    // Queue teleport on the target world thread
-    // Note: Full cross-player teleport is wired in Task 8 via platform events
+  private void executeTeleportPlayer(PlayerRef teleportingPlayer, Location dest) {
+    World targetWorld = Universe.get().getWorld(UUID.fromString(dest.worldUuid()));
+    if (targetWorld == null) return;
+
     targetWorld.execute(() -> {
-      // The teleport will be handled by the platform layer
+      Ref<EntityStore> tpRef = teleportingPlayer.getReference();
+      if (tpRef == null || !tpRef.isValid()) return;
+      Store<EntityStore> tpStore = tpRef.getStore();
+
+      Vector3d position = new Vector3d(dest.x(), dest.y(), dest.z());
+      Vector3f rotation = new Vector3f(dest.pitch(), dest.yaw(), 0);
+      Teleport teleport = Teleport.createForPlayer(targetWorld, position, rotation);
+      tpStore.addComponent(tpRef, Teleport.getComponentType(), teleport);
     });
+  }
+
+  private void saveBackForPlayer(PlayerRef player) {
+    if (backManager == null) return;
+    try {
+      Ref<EntityStore> playerEntityRef = player.getReference();
+      if (playerEntityRef == null || !playerEntityRef.isValid()) return;
+      Store<EntityStore> playerStore = playerEntityRef.getStore();
+      TransformComponent transform = playerStore.getComponent(
+          playerEntityRef, TransformComponent.getComponentType());
+      if (transform == null) return;
+
+      Vector3d pos = transform.getPosition();
+      World world = playerStore.getExternalData().getWorld();
+      Location loc = new Location(world.getName(),
+          world.getWorldConfig().getUuid().toString(),
+          pos.getX(), pos.getY(), pos.getZ(), 0, 0);
+      backManager.onTeleport(player.getUuid(), loc);
+    } catch (Exception ignored) {}
   }
 
   private PlayerRef findPlayer(String name) {

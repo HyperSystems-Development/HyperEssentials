@@ -8,7 +8,7 @@ import com.hyperessentials.config.ConfigManager;
 import com.hyperessentials.config.modules.SpawnsConfig;
 import com.hyperessentials.config.modules.TeleportConfig;
 import com.hyperessentials.config.modules.WarpsConfig;
-import com.hyperessentials.listener.DeathListener;
+import com.hyperessentials.ecs.PlayerDeathTrackingSystem;
 import com.hyperessentials.module.homes.HomeManager;
 import com.hyperessentials.module.homes.HomesModule;
 import com.hyperessentials.module.homes.command.DelHomeCommand;
@@ -56,7 +56,6 @@ public class HyperEssentialsPlugin extends JavaPlugin {
   }
 
   private HyperEssentials hyperEssentials;
-  private DeathListener deathListener;
   private final Map<UUID, PlayerRef> trackedPlayers = new ConcurrentHashMap<>();
 
   public HyperEssentialsPlugin(JavaPluginInit init) {
@@ -81,8 +80,8 @@ public class HyperEssentialsPlugin extends JavaPlugin {
     // Enable core (loads config, integrations, modules)
     hyperEssentials.enable();
 
-    // Initialize death listener
-    deathListener = new DeathListener(hyperEssentials);
+    // Register ECS systems
+    registerEcsSystems();
 
     // Register commands
     registerCommands();
@@ -110,8 +109,20 @@ public class HyperEssentialsPlugin extends JavaPlugin {
     getLogger().at(Level.INFO).log("HyperEssentials disabled");
   }
 
+  private void registerEcsSystems() {
+    TeleportModule teleport = hyperEssentials.getTeleportModule();
+    if (teleport != null && teleport.isEnabled()) {
+      getEntityStoreRegistry().registerSystem(new PlayerDeathTrackingSystem(hyperEssentials));
+      getLogger().at(Level.INFO).log("Registered PlayerDeathTrackingSystem");
+    }
+  }
+
   private void registerCommands() {
     List<String> registered = new ArrayList<>();
+
+    // Get BackManager early for passing to teleport commands
+    TeleportModule teleport = hyperEssentials.getTeleportModule();
+    BackManager backManager = (teleport != null && teleport.isEnabled()) ? teleport.getBackManager() : null;
 
     try {
       // Admin
@@ -123,7 +134,7 @@ public class HyperEssentialsPlugin extends JavaPlugin {
       if (homesModule != null && homesModule.isEnabled() && homesModule.getHomeManager() != null) {
         HomeManager hm = homesModule.getHomeManager();
         getCommandRegistry().registerCommand(new SetHomeCommand(hm));
-        getCommandRegistry().registerCommand(new HomeCommand(hm, hyperEssentials.getWarmupManager()));
+        getCommandRegistry().registerCommand(new HomeCommand(hm, hyperEssentials.getWarmupManager(), backManager));
         getCommandRegistry().registerCommand(new DelHomeCommand(hm));
         getCommandRegistry().registerCommand(new HomesCommand(hm));
         registered.add("/sethome");
@@ -137,7 +148,7 @@ public class HyperEssentialsPlugin extends JavaPlugin {
       if (warps != null && warps.isEnabled() && warps.getWarpManager() != null) {
         WarpManager wm = warps.getWarpManager();
         WarpsConfig warpsConfig = ConfigManager.get().warps();
-        getCommandRegistry().registerCommand(new WarpCommand(wm, hyperEssentials.getWarmupManager()));
+        getCommandRegistry().registerCommand(new WarpCommand(wm, hyperEssentials.getWarmupManager(), backManager));
         getCommandRegistry().registerCommand(new WarpsCommand(wm));
         getCommandRegistry().registerCommand(new SetWarpCommand(wm, warpsConfig));
         getCommandRegistry().registerCommand(new DelWarpCommand(wm));
@@ -154,7 +165,7 @@ public class HyperEssentialsPlugin extends JavaPlugin {
       if (spawns != null && spawns.isEnabled() && spawns.getSpawnManager() != null) {
         SpawnManager sm = spawns.getSpawnManager();
         SpawnsConfig spawnsConfig = ConfigManager.get().spawns();
-        getCommandRegistry().registerCommand(new SpawnCommand(sm, spawnsConfig, hyperEssentials.getWarmupManager()));
+        getCommandRegistry().registerCommand(new SpawnCommand(sm, spawnsConfig, hyperEssentials.getWarmupManager(), backManager));
         getCommandRegistry().registerCommand(new SpawnsCommand(sm));
         getCommandRegistry().registerCommand(new SetSpawnCommand(sm, spawnsConfig));
         getCommandRegistry().registerCommand(new DelSpawnCommand(sm));
@@ -167,7 +178,6 @@ public class HyperEssentialsPlugin extends JavaPlugin {
       }
 
       // Teleport
-      TeleportModule teleport = hyperEssentials.getTeleportModule();
       if (teleport != null && teleport.isEnabled() && teleport.getTpaManager() != null) {
         TpaManager tpa = teleport.getTpaManager();
         BackManager back = teleport.getBackManager();
@@ -190,7 +200,7 @@ public class HyperEssentialsPlugin extends JavaPlugin {
         // RTP (part of Teleport module)
         RtpManager rtpMgr = teleport.getRtpManager();
         if (rtpMgr != null) {
-          getCommandRegistry().registerCommand(new RtpCommand(rtpMgr, hyperEssentials.getWarmupManager()));
+          getCommandRegistry().registerCommand(new RtpCommand(rtpMgr, hyperEssentials.getWarmupManager(), backManager));
           registered.add("/rtp");
         }
       }
@@ -287,10 +297,6 @@ public class HyperEssentialsPlugin extends JavaPlugin {
       }
     }
     return null;
-  }
-
-  public DeathListener getDeathListener() {
-    return deathListener;
   }
 
   public HyperEssentials getHyperEssentials() {

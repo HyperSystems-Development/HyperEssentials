@@ -6,6 +6,7 @@ import com.hyperessentials.config.modules.SpawnsConfig;
 import com.hyperessentials.data.Location;
 import com.hyperessentials.data.Spawn;
 import com.hyperessentials.module.spawns.SpawnManager;
+import com.hyperessentials.module.teleport.BackManager;
 import com.hyperessentials.module.warmup.WarmupManager;
 import com.hyperessentials.module.warmup.WarmupTask;
 import com.hypixel.hytale.component.Ref;
@@ -21,24 +22,25 @@ import com.hypixel.hytale.server.core.universe.Universe;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 
 /**
- * /spawn [name] - Teleport to spawn.
+ * /spawn [world] - Teleport to a world's spawn or the global spawn.
  */
 public class SpawnCommand extends AbstractPlayerCommand {
 
   private final SpawnManager spawnManager;
-  private final SpawnsConfig config;
   private final WarmupManager warmupManager;
+  private final BackManager backManager;
 
   public SpawnCommand(@NotNull SpawnManager spawnManager, @NotNull SpawnsConfig config,
-            @NotNull WarmupManager warmupManager) {
+            @NotNull WarmupManager warmupManager, @Nullable BackManager backManager) {
     super("spawn", "Teleport to spawn");
     this.spawnManager = spawnManager;
-    this.config = config;
     this.warmupManager = warmupManager;
+    this.backManager = backManager;
     setAllowsExtraArguments(true);
   }
 
@@ -58,26 +60,22 @@ public class SpawnCommand extends AbstractPlayerCommand {
 
     String input = ctx.getInputString();
     String[] parts = input != null ? input.trim().split("\\s+") : new String[0];
-    String spawnName = parts.length > 1 ? parts[1].toLowerCase() : null;
+    String worldArg = parts.length > 1 ? parts[1] : null;
 
     Spawn spawn;
-    if (spawnName != null) {
-      spawn = spawnManager.getSpawn(spawnName);
+    if (worldArg != null) {
+      spawn = findSpawnByWorldName(worldArg);
       if (spawn == null) {
-        ctx.sendMessage(CommandUtil.error("Spawn '" + spawnName + "' not found."));
+        ctx.sendMessage(CommandUtil.error("No spawn found for world '" + worldArg + "'."));
         return;
-      }
-      if (!spawnManager.canAccess(uuid, spawn)) {
-        ctx.sendMessage(CommandUtil.error("You don't have permission to use this spawn."));
-        return;
-      }
-    } else if (config.isPerWorldSpawns()) {
-      spawn = spawnManager.getSpawnForWorld(currentWorld.getName());
-      if (spawn == null) {
-        spawn = spawnManager.getSpawnForPlayer(uuid);
       }
     } else {
-      spawn = spawnManager.getSpawnForPlayer(uuid);
+      // Try current world first, then fall back to global spawn
+      String currentWorldUuid = currentWorld.getWorldConfig().getUuid().toString();
+      spawn = spawnManager.getSpawnForWorld(currentWorldUuid);
+      if (spawn == null) {
+        spawn = spawnManager.getGlobalSpawn();
+      }
     }
 
     if (spawn == null) {
@@ -90,6 +88,9 @@ public class SpawnCommand extends AbstractPlayerCommand {
       ctx.sendMessage(CommandUtil.error("On cooldown. " + remaining + "s remaining."));
       return;
     }
+
+    // Save back location before teleport
+    saveBackLocation(uuid, store, ref, currentWorld);
 
     Location destination = Location.fromSpawn(spawn);
 
@@ -104,8 +105,32 @@ public class SpawnCommand extends AbstractPlayerCommand {
     }
   }
 
+  private Spawn findSpawnByWorldName(String worldName) {
+    for (Spawn s : spawnManager.getAllSpawns()) {
+      if (s.worldName().equalsIgnoreCase(worldName)) {
+        return s;
+      }
+    }
+    return null;
+  }
+
+  private void saveBackLocation(@NotNull UUID uuid, @NotNull Store<EntityStore> store,
+                                 @NotNull Ref<EntityStore> ref, @NotNull World currentWorld) {
+    if (backManager == null) return;
+    try {
+      TransformComponent transform = store.getComponent(ref, TransformComponent.getComponentType());
+      if (transform != null) {
+        Vector3d pos = transform.getPosition();
+        Location currentLoc = new Location(currentWorld.getName(),
+            currentWorld.getWorldConfig().getUuid().toString(),
+            pos.getX(), pos.getY(), pos.getZ(), 0, 0);
+        backManager.onTeleport(uuid, currentLoc);
+      }
+    } catch (Exception ignored) {}
+  }
+
   private void executeTeleport(Ref<EntityStore> ref, Location dest, Runnable onComplete) {
-    World targetWorld = Universe.get().getWorld(dest.world());
+    World targetWorld = Universe.get().getWorld(UUID.fromString(dest.worldUuid()));
     if (targetWorld == null) {
       return;
     }

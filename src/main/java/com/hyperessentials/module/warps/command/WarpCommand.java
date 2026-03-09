@@ -4,6 +4,9 @@ import com.hyperessentials.Permissions;
 import com.hyperessentials.command.util.CommandUtil;
 import com.hyperessentials.data.Location;
 import com.hyperessentials.data.Warp;
+import com.hyperessentials.integration.FactionTerritoryChecker;
+import com.hyperessentials.integration.HyperFactionsIntegration;
+import com.hyperessentials.module.teleport.BackManager;
 import com.hyperessentials.module.warps.WarpManager;
 import com.hyperessentials.module.warmup.WarmupManager;
 import com.hyperessentials.module.warmup.WarmupTask;
@@ -20,6 +23,7 @@ import com.hypixel.hytale.server.core.universe.Universe;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.UUID;
@@ -31,11 +35,14 @@ public class WarpCommand extends AbstractPlayerCommand {
 
   private final WarpManager warpManager;
   private final WarmupManager warmupManager;
+  private final BackManager backManager;
 
-  public WarpCommand(@NotNull WarpManager warpManager, @NotNull WarmupManager warmupManager) {
+  public WarpCommand(@NotNull WarpManager warpManager, @NotNull WarmupManager warmupManager,
+                     @Nullable BackManager backManager) {
     super("warp", "Teleport to a server warp");
     this.warpManager = warpManager;
     this.warmupManager = warmupManager;
+    this.backManager = backManager;
     setAllowsExtraArguments(true);
   }
 
@@ -86,12 +93,26 @@ public class WarpCommand extends AbstractPlayerCommand {
       return;
     }
 
+    // Zone flag check (warp destination)
+    if (!CommandUtil.hasPermission(uuid, Permissions.BYPASS_FACTIONS_WARP)
+        && !CommandUtil.hasPermission(uuid, Permissions.BYPASS_FACTIONS)) {
+      FactionTerritoryChecker.Result zoneResult = FactionTerritoryChecker.checkZoneFlag(
+          warp.world(), warp.x(), warp.z(), HyperFactionsIntegration.FLAG_WARPS);
+      if (zoneResult != FactionTerritoryChecker.Result.ALLOWED) {
+        ctx.sendMessage(CommandUtil.error("You cannot warp to this location — zone restricted."));
+        return;
+      }
+    }
+
     // Check cooldown
     if (warmupManager.isOnCooldown(uuid, "warps", "warp")) {
       int remaining = warmupManager.getRemainingCooldown(uuid, "warps", "warp");
       ctx.sendMessage(CommandUtil.error("On cooldown. " + remaining + "s remaining."));
       return;
     }
+
+    // Save back location before teleport
+    saveBackLocation(uuid, store, ref, currentWorld);
 
     Location destination = Location.fromWarp(warp);
 
@@ -106,8 +127,23 @@ public class WarpCommand extends AbstractPlayerCommand {
     }
   }
 
+  private void saveBackLocation(@NotNull UUID uuid, @NotNull Store<EntityStore> store,
+                                 @NotNull Ref<EntityStore> ref, @NotNull World currentWorld) {
+    if (backManager == null) return;
+    try {
+      TransformComponent transform = store.getComponent(ref, TransformComponent.getComponentType());
+      if (transform != null) {
+        Vector3d pos = transform.getPosition();
+        Location currentLoc = new Location(currentWorld.getName(),
+            currentWorld.getWorldConfig().getUuid().toString(),
+            pos.getX(), pos.getY(), pos.getZ(), 0, 0);
+        backManager.onTeleport(uuid, currentLoc);
+      }
+    } catch (Exception ignored) {}
+  }
+
   private void executeTeleport(Ref<EntityStore> ref, Location dest, Runnable onComplete) {
-    World targetWorld = Universe.get().getWorld(dest.world());
+    World targetWorld = Universe.get().getWorld(UUID.fromString(dest.worldUuid()));
     if (targetWorld == null) {
       return;
     }
