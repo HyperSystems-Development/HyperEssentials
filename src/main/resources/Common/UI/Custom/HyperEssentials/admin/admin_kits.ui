@@ -26,10 +26,17 @@ $C.@PageOverlay {
         Label #KitCount {
           Text: "0 kits";
           Style: (FontSize: 13, TextColor: #7c8b99, VerticalAlignment: Center);
-          Anchor: (Width: 200);
+          Anchor: (Width: 120);
         }
 
         Group { FlexWeight: 1; }
+
+        $C.@TextField #KitNameInput {
+          Anchor: (Width: 140, Height: 26);
+          Style: (FontSize: 12, TextColor: #ffffff);
+        }
+
+        Group { Anchor: (Width: 6); }
 
         TextButton #CreateBtn {
           Text: "Create from Inventory";

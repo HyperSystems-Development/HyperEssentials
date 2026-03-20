@@ -23,6 +23,7 @@ public class AdminPageData {
   public @Nullable String inputCategory;
   public @Nullable String inputDescription;
   public @Nullable String inputPermission;
+  public @Nullable String inputCooldown;
 
   public static final BuilderCodec<AdminPageData> CODEC = BuilderCodec
       .builder(AdminPageData.class, AdminPageData::new)
@@ -75,6 +76,11 @@ public class AdminPageData {
           new KeyedCodec<>("@InputPermission", Codec.STRING),
           (data, v) -> data.inputPermission = v,
           data -> data.inputPermission
+      )
+      .addField(
+          new KeyedCodec<>("@InputCooldown", Codec.STRING),
+          (data, v) -> data.inputCooldown = v,
+          data -> data.inputCooldown
       )
       .build();
 

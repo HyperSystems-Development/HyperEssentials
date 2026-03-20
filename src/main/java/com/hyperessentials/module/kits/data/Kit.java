@@ -39,4 +39,34 @@ public record Kit(
   public String getEffectivePermission() {
     return permission != null ? permission : "hyperessentials.kit.use." + name;
   }
+
+  /** Returns a copy with the given display name. */
+  @NotNull
+  public Kit withDisplayName(@NotNull String newDisplayName) {
+    return new Kit(uuid, name, newDisplayName, items, cooldownSeconds, oneTime, permission);
+  }
+
+  /** Returns a copy with the given cooldown. */
+  @NotNull
+  public Kit withCooldownSeconds(int newCooldown) {
+    return new Kit(uuid, name, displayName, items, newCooldown, oneTime, permission);
+  }
+
+  /** Returns a copy with the given one-time flag. */
+  @NotNull
+  public Kit withOneTime(boolean newOneTime) {
+    return new Kit(uuid, name, displayName, items, cooldownSeconds, newOneTime, permission);
+  }
+
+  /** Returns a copy with the given permission. */
+  @NotNull
+  public Kit withPermission(@Nullable String newPermission) {
+    return new Kit(uuid, name, displayName, items, cooldownSeconds, oneTime, newPermission);
+  }
+
+  /** Returns a copy with the given items list. */
+  @NotNull
+  public Kit withItems(@NotNull List<KitItem> newItems) {
+    return new Kit(uuid, name, displayName, newItems, cooldownSeconds, oneTime, permission);
+  }
 }

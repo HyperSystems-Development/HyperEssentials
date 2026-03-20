@@ -88,6 +88,13 @@ public final class AdminKeys {
     public static final String EMPTY_TITLE = P + "empty_title";
     public static final String EMPTY_MESSAGE = P + "empty_message";
     public static final String ONE_TIME = P + "one_time";
+    public static final String NAME_PLACEHOLDER = P + "name_placeholder";
+    public static final String EDIT_TITLE = P + "edit_title";
+    public static final String EDIT_DISPLAY_NAME = P + "edit_display_name";
+    public static final String EDIT_COOLDOWN = P + "edit_cooldown";
+    public static final String EDIT_PERMISSION = P + "edit_permission";
+    public static final String PREVIEW_TITLE = P + "preview_title";
+    public static final String PREVIEW_NO_ITEMS = P + "preview_no_items";
 
     private Kits() {}
   }

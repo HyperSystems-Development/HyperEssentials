@@ -188,6 +188,16 @@ public class KitManager {
     return kit;
   }
 
+  /**
+   * Updates an existing kit in memory and persists to storage.
+   *
+   * @param kit the updated kit (must have the same name as the existing one)
+   */
+  public void updateKit(@NotNull Kit kit) {
+    kits.put(kit.name(), kit);
+    storage.saveKit(kit);
+  }
+
   public boolean deleteKit(@NotNull String name) {
     Kit removed = kits.remove(name.toLowerCase());
     if (removed != null) {

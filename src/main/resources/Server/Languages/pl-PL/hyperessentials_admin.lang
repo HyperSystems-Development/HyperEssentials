@@ -48,6 +48,13 @@ hyperessentials.admin.spawns.default_coords=World default
 hyperessentials.admin.kits.empty_title=No Kits
 hyperessentials.admin.kits.empty_message=Create one from your current inventory.
 hyperessentials.admin.kits.one_time=One-time
+hyperessentials.admin.kits.name_placeholder=Kit name...
+hyperessentials.admin.kits.edit_title=Edit Kit
+hyperessentials.admin.kits.edit_display_name=Display Name:
+hyperessentials.admin.kits.edit_cooldown=Cooldown (sec):
+hyperessentials.admin.kits.edit_permission=Permission:
+hyperessentials.admin.kits.preview_title=Kit Preview
+hyperessentials.admin.kits.preview_no_items=No items in this kit.
 
 # === Moderation Page ===
 hyperessentials.admin.mod.empty_active_title=No Active Punishments
