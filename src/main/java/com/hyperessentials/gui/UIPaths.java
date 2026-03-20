@@ -72,6 +72,7 @@ public final class UIPaths {
   public static final String ADMIN_PUNISHMENT_ACTION = BASE + "admin/admin_punishment_action.ui";
   public static final String ADMIN_ANNOUNCEMENTS = BASE + "admin/admin_announcements.ui";
   public static final String ADMIN_ANNOUNCEMENT_ENTRY = BASE + "admin/admin_announcement_entry.ui";
+  public static final String ADMIN_ANNOUNCEMENT_EDIT = BASE + "admin/admin_announcement_edit.ui";
   public static final String ADMIN_SETTINGS = BASE + "admin/admin_settings.ui";
   public static final String ADMIN_MODULE_TOGGLE = BASE + "admin/admin_module_toggle.ui";
 }

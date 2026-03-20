@@ -6,7 +6,7 @@ $C.@PageOverlay {
   $Nav.@HyperEssentialsNavBar #NavBar {}
 
   $C.@DecoratedContainer {
-    Anchor: (Width: 580, Height: 440);
+    Anchor: (Width: 640, Height: 460);
 
     #Title {
       $C.@Title {
@@ -24,9 +24,9 @@ $C.@PageOverlay {
         LayoutMode: Left;
 
         Label #MessageCount {
-          Text: "0 messages";
+          Text: "0 announcements";
           Style: (FontSize: 13, TextColor: #7c8b99, VerticalAlignment: Center);
-          Anchor: (Width: 150);
+          Anchor: (Width: 200);
         }
 
         Group { FlexWeight: 1; }
@@ -50,18 +50,11 @@ $C.@PageOverlay {
 
       // Divider
       Group {
-        Anchor: (Height: 1, Bottom: 8);
+        Anchor: (Height: 1, Bottom: 6);
         Background: (Color: #FFAA00);
       }
 
-      // Info note
-      Label {
-        Text: "Messages are managed in announcements.json config file.";
-        Style: (FontSize: 10, TextColor: #7c8b99);
-        Anchor: (Height: 16, Bottom: 8);
-      }
-
-      // Scrollable message list
+      // Scrollable content area
       Group #MessageListContainer {
         LayoutMode: TopScrolling;
         ScrollbarStyle: $C.@DefaultScrollbarStyle;

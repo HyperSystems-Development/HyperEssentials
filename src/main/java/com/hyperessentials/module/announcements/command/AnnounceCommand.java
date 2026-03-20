@@ -5,6 +5,8 @@ import com.hyperessentials.command.util.CommandUtil;
 import com.hyperessentials.config.ConfigManager;
 import com.hyperessentials.config.modules.AnnouncementsConfig;
 import com.hyperessentials.module.announcements.AnnouncementsModule;
+import com.hyperessentials.module.announcements.data.Announcement;
+import com.hyperessentials.module.announcements.data.AnnouncementType;
 import com.hyperessentials.util.CommandKeys;
 import com.hyperessentials.util.HEMessageUtil;
 import com.hypixel.hytale.component.Ref;
@@ -18,6 +20,7 @@ import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.UUID;
 
 /**
  * /announce list|add|remove|reload - Manage announcement rotation.
@@ -63,18 +66,24 @@ public class AnnounceCommand extends AbstractPlayerCommand {
   }
 
   private void handleList(@NotNull CommandContext ctx, @NotNull PlayerRef playerRef) {
-    List<String> messages = ConfigManager.get().announcements().getMessages();
+    AnnouncementsConfig config = ConfigManager.get().announcements();
+    List<Announcement> announcements = config.getAnnouncements();
 
-    if (messages.isEmpty()) {
+    if (announcements.isEmpty()) {
       ctx.sendMessage(HEMessageUtil.info(playerRef, CommandKeys.Announce.LIST_EMPTY, HEMessageUtil.COLOR_YELLOW));
       return;
     }
 
-    ctx.sendMessage(HEMessageUtil.info(playerRef, CommandKeys.Announce.LIST_HEADER, HEMessageUtil.COLOR_YELLOW, messages.size()));
-    for (int i = 0; i < messages.size(); i++) {
+    ctx.sendMessage(HEMessageUtil.info(playerRef, CommandKeys.Announce.LIST_HEADER, HEMessageUtil.COLOR_YELLOW, announcements.size()));
+    for (int i = 0; i < announcements.size(); i++) {
+      Announcement ann = announcements.get(i);
+      String statusPrefix = ann.enabled() ? "" : "[OFF] ";
+      String typePrefix = "[" + ann.type().name() + "] ";
       Message line = HEMessageUtil.prefix()
         .insert(Message.raw("  " + (i + 1) + ". ").color(HEMessageUtil.COLOR_GOLD))
-        .insert(Message.raw(messages.get(i)).color(HEMessageUtil.COLOR_WHITE));
+        .insert(Message.raw(typePrefix).color(HEMessageUtil.COLOR_CYAN))
+        .insert(Message.raw(statusPrefix).color(HEMessageUtil.COLOR_RED))
+        .insert(Message.raw(ann.message()).color(HEMessageUtil.COLOR_WHITE));
       ctx.sendMessage(line);
     }
   }
@@ -93,8 +102,16 @@ public class AnnounceCommand extends AbstractPlayerCommand {
     String message = sb.toString();
 
     AnnouncementsConfig config = ConfigManager.get().announcements();
-    config.getMessages().add(message);
+    int nextOrder = config.getAnnouncements().size();
+    Announcement newAnn = new Announcement(
+        UUID.randomUUID(), message, AnnouncementType.CHAT,
+        true, 0, null, null, null, nextOrder
+    );
+    config.getAnnouncements().add(newAnn);
     config.save();
+
+    // Restart scheduler to pick up changes
+    module.getScheduler().restart();
 
     ctx.sendMessage(HEMessageUtil.success(playerRef, CommandKeys.Announce.ADD_SUCCESS, message));
   }
@@ -113,16 +130,20 @@ public class AnnounceCommand extends AbstractPlayerCommand {
       return;
     }
 
-    List<String> messages = ConfigManager.get().announcements().getMessages();
-    if (index < 0 || index >= messages.size()) {
-      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Announce.REMOVE_OUT_OF_RANGE, messages.size()));
+    AnnouncementsConfig config = ConfigManager.get().announcements();
+    List<Announcement> announcements = config.getAnnouncements();
+    if (index < 0 || index >= announcements.size()) {
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Announce.REMOVE_OUT_OF_RANGE, announcements.size()));
       return;
     }
 
-    String removed = messages.remove(index);
-    ConfigManager.get().announcements().save();
+    Announcement removed = announcements.remove(index);
+    config.save();
 
-    ctx.sendMessage(HEMessageUtil.success(playerRef, CommandKeys.Announce.REMOVE_SUCCESS, removed));
+    // Restart scheduler to pick up changes
+    module.getScheduler().restart();
+
+    ctx.sendMessage(HEMessageUtil.success(playerRef, CommandKeys.Announce.REMOVE_SUCCESS, removed.message()));
   }
 
   private void handleReload(@NotNull CommandContext ctx, @NotNull PlayerRef playerRef) {

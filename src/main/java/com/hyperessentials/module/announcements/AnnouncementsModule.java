@@ -1,5 +1,6 @@
 package com.hyperessentials.module.announcements;
 
+import com.hyperessentials.api.HyperEssentialsAPI;
 import com.hyperessentials.config.ConfigManager;
 import com.hyperessentials.config.ModuleConfig;
 import com.hyperessentials.module.AbstractModule;
@@ -12,11 +13,13 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * Announcements module for HyperEssentials.
- * Provides scheduled auto-broadcast rotation and manual /broadcast.
+ * Provides scheduled auto-broadcast rotation, manual /broadcast,
+ * event-triggered join/leave/welcome messages, and GUI management.
  */
 public class AnnouncementsModule extends AbstractModule {
 
   private AnnouncementScheduler scheduler;
+  private EventAnnouncementHandler eventHandler;
 
   @Override
   @NotNull
@@ -37,6 +40,13 @@ public class AnnouncementsModule extends AbstractModule {
     scheduler = new AnnouncementScheduler();
     scheduler.start();
 
+    // Initialize event handler for join/leave/welcome messages
+    eventHandler = new EventAnnouncementHandler();
+    com.hyperessentials.HyperEssentials core = HyperEssentialsAPI.getInstance();
+    if (core != null) {
+      eventHandler.register(core.getStorageProvider().getPlayerDataStorage());
+    }
+
     // Register commands
     HyperEssentialsPlugin plugin = HyperEssentialsPlugin.getInstance();
     if (plugin != null) {
@@ -55,12 +65,20 @@ public class AnnouncementsModule extends AbstractModule {
     if (scheduler != null) {
       scheduler.shutdown();
     }
+    if (eventHandler != null) {
+      eventHandler.unregister();
+    }
     super.onDisable();
   }
 
   @NotNull
   public AnnouncementScheduler getScheduler() {
     return scheduler;
+  }
+
+  @NotNull
+  public EventAnnouncementHandler getEventHandler() {
+    return eventHandler;
   }
 
   @Override

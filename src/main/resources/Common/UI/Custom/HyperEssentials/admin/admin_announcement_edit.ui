@@ -1,0 +1,195 @@
+$C = "../../Common.ui";
+$S = "../shared/styles.ui";
+
+Group {
+  LayoutMode: Top;
+  Padding: (Left: 4, Right: 4);
+
+  // Back button row
+  Group {
+    Anchor: (Height: 28, Bottom: 6);
+    LayoutMode: Left;
+
+    TextButton #EditBackBtn {
+      Text: "Back";
+      Style: $S.@ButtonStyle;
+      Anchor: (Width: 70, Height: 24);
+    }
+
+    Group { Anchor: (Width: 10); }
+
+    Label #EditTitle {
+      Text: "Edit Announcement";
+      Style: (FontSize: 14, TextColor: #FFAA00, RenderBold: true, VerticalAlignment: Center);
+      Anchor: (Height: 24);
+    }
+  }
+
+  // Divider
+  Group {
+    Anchor: (Height: 1, Bottom: 8);
+    Background: (Color: #2a3a4a);
+  }
+
+  // Message
+  Group {
+    Anchor: (Height: 28, Bottom: 4);
+    LayoutMode: Left;
+
+    Label {
+      Text: "Message:";
+      Style: (FontSize: 12, TextColor: #7c8b99, VerticalAlignment: Center);
+      Anchor: (Width: 90);
+    }
+
+    $C.@TextField #EditMessage {
+      Anchor: (Height: 26);
+      Style: (FontSize: 12, TextColor: #ffffff);
+      FlexWeight: 1;
+    }
+  }
+
+  // Type
+  Group {
+    Anchor: (Height: 28, Bottom: 4);
+    LayoutMode: Left;
+
+    Label {
+      Text: "Type:";
+      Style: (FontSize: 12, TextColor: #7c8b99, VerticalAlignment: Center);
+      Anchor: (Width: 90);
+    }
+
+    TextButton #EditTypeToggle {
+      Text: "CHAT";
+      Style: $S.@ButtonStyle;
+      Anchor: (Width: 120, Height: 24);
+    }
+  }
+
+  // Enabled
+  Group {
+    Anchor: (Height: 28, Bottom: 4);
+    LayoutMode: Left;
+
+    Label {
+      Text: "Status:";
+      Style: (FontSize: 12, TextColor: #7c8b99, VerticalAlignment: Center);
+      Anchor: (Width: 90);
+    }
+
+    TextButton #EditEnabledToggle {
+      Text: "Enabled";
+      Style: $S.@ButtonStyle;
+      Anchor: (Width: 120, Height: 24);
+    }
+  }
+
+  // Order
+  Group {
+    Anchor: (Height: 28, Bottom: 4);
+    LayoutMode: Left;
+
+    Label {
+      Text: "Order:";
+      Style: (FontSize: 12, TextColor: #7c8b99, VerticalAlignment: Center);
+      Anchor: (Width: 90);
+    }
+
+    $C.@TextField #EditOrder {
+      Anchor: (Width: 80, Height: 26);
+      Style: (FontSize: 12, TextColor: #ffffff);
+    }
+  }
+
+  // Permission
+  Group {
+    Anchor: (Height: 28, Bottom: 4);
+    LayoutMode: Left;
+
+    Label {
+      Text: "Permission:";
+      Style: (FontSize: 12, TextColor: #7c8b99, VerticalAlignment: Center);
+      Anchor: (Width: 90);
+    }
+
+    $C.@TextField #EditPermission {
+      Anchor: (Height: 26);
+      Style: (FontSize: 12, TextColor: #ffffff);
+      FlexWeight: 1;
+    }
+  }
+
+  // World
+  Group {
+    Anchor: (Height: 28, Bottom: 4);
+    LayoutMode: Left;
+
+    Label {
+      Text: "World:";
+      Style: (FontSize: 12, TextColor: #7c8b99, VerticalAlignment: Center);
+      Anchor: (Width: 90);
+    }
+
+    $C.@TextField #EditWorld {
+      Anchor: (Height: 26);
+      Style: (FontSize: 12, TextColor: #ffffff);
+      FlexWeight: 1;
+    }
+  }
+
+  // Cron
+  Group {
+    Anchor: (Height: 28, Bottom: 8);
+    LayoutMode: Left;
+
+    Label {
+      Text: "Cron:";
+      Style: (FontSize: 12, TextColor: #7c8b99, VerticalAlignment: Center);
+      Anchor: (Width: 90);
+    }
+
+    $C.@TextField #EditCron {
+      Anchor: (Height: 26);
+      Style: (FontSize: 12, TextColor: #ffffff);
+      FlexWeight: 1;
+    }
+  }
+
+  // Hint
+  Label {
+    Text: "Cron: min hour day month weekday (e.g. 0 */2 * * *)";
+    Style: (FontSize: 9, TextColor: #556677);
+    Anchor: (Height: 14, Bottom: 8);
+  }
+
+  // Divider
+  Group {
+    Anchor: (Height: 1, Bottom: 10);
+    Background: (Color: #2a3a4a);
+  }
+
+  // Save / Cancel buttons
+  Group {
+    LayoutMode: Left;
+    Anchor: (Height: 30);
+
+    Group { FlexWeight: 1; }
+
+    TextButton #EditCancelBtn {
+      Text: "Cancel";
+      Style: $S.@ButtonStyle;
+      Anchor: (Width: 90, Height: 28);
+    }
+
+    Group { Anchor: (Width: 10); }
+
+    TextButton #EditSaveBtn {
+      Text: "Save";
+      Style: $S.@FlatGreenButtonStyle;
+      Anchor: (Width: 90, Height: 28);
+    }
+
+    Group { FlexWeight: 1; }
+  }
+}

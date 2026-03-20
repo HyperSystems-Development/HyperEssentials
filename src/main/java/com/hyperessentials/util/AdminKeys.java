@@ -146,6 +146,10 @@ public final class AdminKeys {
     public static final String DISABLED = P + "disabled";
     public static final String MODE_RANDOM = P + "mode_random";
     public static final String MODE_SEQUENTIAL = P + "mode_sequential";
+    public static final String EDIT_TITLE = P + "edit_title";
+    public static final String EVENTS_TITLE = P + "events_title";
+    public static final String EMPTY_TITLE = P + "empty_title";
+    public static final String EMPTY_MESSAGE = P + "empty_message";
 
     private Announcements() {}
   }

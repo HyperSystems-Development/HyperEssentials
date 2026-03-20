@@ -392,7 +392,7 @@ public class HyperEssentials {
       adminReg.registerEntry(new PageRegistry.Entry(
           "announcements", "Announcements", "announcements", Permissions.ADMIN_GUI,
           (player, ref, store, playerRef, gm) ->
-              new AdminAnnouncementsPage(player, playerRef, gm),
+              new AdminAnnouncementsPage(player, playerRef, gm, annModule.getScheduler()),
           true, 60
       ));
     }

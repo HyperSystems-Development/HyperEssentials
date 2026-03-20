@@ -70,6 +70,10 @@ hyperessentials.admin.announce.interval_label=Interval: {0}
 hyperessentials.admin.announce.disabled=Announcements disabled
 hyperessentials.admin.announce.mode_random=Mode: Random
 hyperessentials.admin.announce.mode_sequential=Mode: Sequential
+hyperessentials.admin.announce.edit_title=Edit Announcement
+hyperessentials.admin.announce.events_title=Event Announcements
+hyperessentials.admin.announce.empty_title=No Announcements
+hyperessentials.admin.announce.empty_message=Click "+ New" to create one.
 
 # === Settings Page ===
 hyperessentials.admin.settings.data_dir=Data: {0}
