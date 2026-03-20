@@ -43,6 +43,9 @@ dependencies {
     // HyperPerms integration (soft dependency)
     compileOnly project(':HyperPerms')
 
+    // HyperFactions integration (soft dependency)
+    compileOnly project(':HyperFactions')
+
     // JSON handling
     implementation 'com.google.code.gson:gson:2.11.0'
 
@@ -114,6 +117,7 @@ build {
 tasks.named('compileJava') {
     dependsOn 'generateBuildInfo'
     dependsOn ':HyperPerms:shadowJar'
+    dependsOn ':HyperFactions:shadowJar'
 }
 
 // Sentry tasks use the same generated sources dir as generateBuildInfo — declare dependencies

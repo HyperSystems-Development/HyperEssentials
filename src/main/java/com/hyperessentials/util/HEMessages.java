@@ -1,6 +1,7 @@
 package com.hyperessentials.util;
 
 import com.hyperessentials.config.ConfigManager;
+import com.hyperessentials.integration.HyperFactionsIntegration;
 import com.hypixel.hytale.server.core.modules.i18n.I18nModule;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import java.util.Collections;
@@ -56,6 +57,7 @@ public final class HEMessages {
    * Sets a language override for a player.
    * Called when preferences are loaded from PlayerData on connect,
    * or when the player changes their language in settings.
+   * Syncs the preference to HyperFactions if available.
    *
    * @param uuid     The player's UUID
    * @param language The language code, or null to clear the override (auto-detect)
@@ -65,6 +67,8 @@ public final class HEMessages {
       languageOverrides.remove(uuid);
     } else {
       languageOverrides.put(uuid, language);
+      // Sync to HyperFactions so both plugins share the same preference
+      HyperFactionsIntegration.syncLanguage(uuid, language);
     }
   }
 
@@ -159,6 +163,14 @@ public final class HEMessages {
     String override = languageOverrides.get(player.getUuid());
     if (override != null) {
       return override;
+    }
+
+    // Fallback: check if HyperFactions has a stored preference
+    String hfLang = HyperFactionsIntegration.getHFLanguage(player.getUuid());
+    if (hfLang != null && isLocaleSupported(hfLang)) {
+      // Cache it locally so we don't query HF every time
+      languageOverrides.put(player.getUuid(), hfLang);
+      return hfLang;
     }
 
     // Use client language if enabled
