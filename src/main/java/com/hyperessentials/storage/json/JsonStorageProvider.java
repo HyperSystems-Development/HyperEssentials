@@ -610,6 +610,11 @@ public class JsonStorageProvider implements StorageProvider {
             data.setBackHistory(history);
           }
 
+          // Language preference
+          if (root.has("languagePreference") && !root.get("languagePreference").isJsonNull()) {
+            data.setLanguagePreference(root.get("languagePreference").getAsString());
+          }
+
           // Stats fields
           if (root.has("firstJoin")) {
             data.setFirstJoin(Instant.ofEpochMilli(root.get("firstJoin").getAsLong()));
@@ -664,6 +669,11 @@ public class JsonStorageProvider implements StorageProvider {
             historyArray.add(entryObj);
           }
           root.add("backHistory", historyArray);
+
+          // Language preference
+          if (data.getLanguagePreference() != null) {
+            root.addProperty("languagePreference", data.getLanguagePreference());
+          }
 
           // Stats
           root.addProperty("firstJoin", data.getFirstJoin().toEpochMilli());

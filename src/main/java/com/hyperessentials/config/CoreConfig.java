@@ -22,6 +22,9 @@ public class CoreConfig extends ConfigFile {
   private String storageType = "json";
   private boolean updateCheck = true;
 
+  private String defaultLanguage = "en-US";
+  private boolean usePlayerLanguage = true;
+
   private int configVersion = 1;
 
   public CoreConfig(@NotNull Path filePath) {
@@ -45,6 +48,8 @@ public class CoreConfig extends ConfigFile {
     allowWithoutPermissionMod = getBool(root, "allowWithoutPermissionMod", allowWithoutPermissionMod);
     storageType = getString(root, "storageType", storageType);
     updateCheck = getBool(root, "updateCheck", updateCheck);
+    defaultLanguage = getString(root, "defaultLanguage", defaultLanguage);
+    usePlayerLanguage = getBool(root, "usePlayerLanguage", usePlayerLanguage);
     configVersion = getInt(root, "configVersion", configVersion);
   }
 
@@ -62,6 +67,8 @@ public class CoreConfig extends ConfigFile {
     root.addProperty("allowWithoutPermissionMod", allowWithoutPermissionMod);
     root.addProperty("storageType", storageType);
     root.addProperty("updateCheck", updateCheck);
+    root.addProperty("defaultLanguage", defaultLanguage);
+    root.addProperty("usePlayerLanguage", usePlayerLanguage);
     root.addProperty("configVersion", configVersion);
     return root;
   }
@@ -77,6 +84,9 @@ public class CoreConfig extends ConfigFile {
     validateHexColor(result, "errorColor", errorColor);
     storageType = validateEnum(result, "storageType", storageType,
         new String[]{"json"}, "json");
+    // Validate language against supported locales
+    String[] supportedLocales = {"en-US", "es-ES", "de-DE", "fr-FR", "pt-BR", "ru-RU", "pl-PL", "it-IT", "nl-NL", "tl-PH"};
+    defaultLanguage = validateEnum(result, "defaultLanguage", defaultLanguage, supportedLocales, "en-US");
     return result;
   }
 
@@ -91,5 +101,7 @@ public class CoreConfig extends ConfigFile {
   public boolean isAllowWithoutPermissionMod() { return allowWithoutPermissionMod; }
   public String getStorageType() { return storageType; }
   public boolean isUpdateCheck() { return updateCheck; }
+  public String getDefaultLanguage() { return defaultLanguage; }
+  public boolean isUsePlayerLanguage() { return usePlayerLanguage; }
   public int getConfigVersion() { return configVersion; }
 }

@@ -30,6 +30,9 @@ public class PlayerData {
   private long totalPlaytimeMs;
   private Instant lastJoin;
 
+  // === Language ===
+  private String languagePreference; // null = use server default / client detection
+
   // === Punishments ===
   private final List<Punishment> punishments;
 
@@ -43,6 +46,7 @@ public class PlayerData {
     this.firstJoin = Instant.now();
     this.totalPlaytimeMs = 0;
     this.lastJoin = Instant.now();
+    this.languagePreference = null;
     this.punishments = new ArrayList<>();
   }
 
@@ -114,6 +118,11 @@ public class PlayerData {
 
   @NotNull public Instant getLastJoin() { return lastJoin; }
   public void setLastJoin(@NotNull Instant lastJoin) { this.lastJoin = lastJoin; }
+
+  // === Language ===
+
+  @Nullable public String getLanguagePreference() { return languagePreference; }
+  public void setLanguagePreference(@Nullable String languagePreference) { this.languagePreference = languagePreference; }
 
   // === Punishments ===
 

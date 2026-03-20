@@ -39,6 +39,7 @@ import com.hyperessentials.module.warmup.WarmupModule;
 import com.hyperessentials.module.warps.WarpsModule;
 import com.hyperessentials.storage.StorageProvider;
 import com.hyperessentials.storage.json.JsonStorageProvider;
+import com.hyperessentials.util.HEMessages;
 import com.hyperessentials.util.Logger;
 import com.hypixel.hytale.logger.HytaleLogger;
 import org.jetbrains.annotations.NotNull;
@@ -93,6 +94,9 @@ public class HyperEssentials {
     // Initialize Sentry error tracking
     SentryIntegration.init(configManager.debug());
 
+    // Initialize i18n message system
+    Logger.debug("[i18n] Initializing HEMessages with default language: %s", configManager.core().getDefaultLanguage());
+
     // Ensure standard directory structure
     ensureDirectories();
 
@@ -113,6 +117,20 @@ public class HyperEssentials {
     // Initialize GUI
     guiManager = new GuiManager();
     registerDisconnectHandler(uuid -> guiManager.getPageTracker().unregister(uuid));
+
+    // Wire i18n language override cleanup on disconnect
+    registerDisconnectHandler(HEMessages::clearLanguageOverride);
+
+    // Wire i18n language preference loading on connect
+    registerConnectHandler((uuid, username) -> {
+      storageProvider.getPlayerDataStorage().loadPlayerData(uuid).thenAccept(opt -> {
+        opt.ifPresent(data -> {
+          if (data.getLanguagePreference() != null) {
+            HEMessages.setLanguageOverride(uuid, data.getLanguagePreference());
+          }
+        });
+      });
+    });
 
     // Initialize warmup manager
     warmupManager = new WarmupManager();

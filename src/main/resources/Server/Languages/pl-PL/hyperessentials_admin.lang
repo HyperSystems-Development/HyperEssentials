@@ -1,0 +1,48 @@
+# HyperEssentials - Admin GUI Messages (en-US)
+# Key format: hyperessentials.admin.{page}.{element}
+
+# === Navigation ===
+hyperessentials.admin.nav.title=HE Admin
+
+# === Dashboard ===
+hyperessentials.admin.dashboard.module_enabled=Enabled
+hyperessentials.admin.dashboard.module_disabled=Disabled
+
+# === Players Page ===
+hyperessentials.admin.players.empty_title=No Players
+hyperessentials.admin.players.empty_message=No players are currently online.
+hyperessentials.admin.players.player_info=UUID: {0}...
+
+# === Warps Page ===
+hyperessentials.admin.warps.empty_title=No Warps
+hyperessentials.admin.warps.empty_message=Create one at your current location.
+
+# === Spawns Page ===
+hyperessentials.admin.spawns.empty_title=No Spawns
+hyperessentials.admin.spawns.empty_message=Set a spawn at your current location.
+hyperessentials.admin.spawns.global_badge=GLOBAL
+
+# === Kits Page ===
+hyperessentials.admin.kits.empty_title=No Kits
+hyperessentials.admin.kits.empty_message=Create one from your current inventory.
+hyperessentials.admin.kits.one_time=One-time
+
+# === Moderation Page ===
+hyperessentials.admin.mod.empty_active_title=No Active Punishments
+hyperessentials.admin.mod.empty_all_title=No Punishments
+hyperessentials.admin.mod.empty_message=No punishment records found.
+hyperessentials.admin.mod.no_reason=No reason
+hyperessentials.admin.mod.permanent=Permanent
+hyperessentials.admin.mod.expired=Expired
+hyperessentials.admin.mod.revoked=Revoked
+
+# === Announcements Page ===
+hyperessentials.admin.announce.interval_label=Interval: {0}
+hyperessentials.admin.announce.disabled=Announcements disabled
+hyperessentials.admin.announce.mode_random=Mode: Random
+hyperessentials.admin.announce.mode_sequential=Mode: Sequential
+
+# === Settings Page ===
+hyperessentials.admin.settings.data_dir=Data: {0}
+hyperessentials.admin.settings.module_enabled=Enabled
+hyperessentials.admin.settings.module_disabled=Disabled

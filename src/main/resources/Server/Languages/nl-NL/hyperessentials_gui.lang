@@ -1,0 +1,46 @@
+# HyperEssentials - Player GUI Messages (en-US)
+# Key format: hyperessentials.gui.{page}.{element}
+
+# === Navigation ===
+hyperessentials.gui.nav.title=HyperEssentials
+
+# === Dashboard ===
+hyperessentials.gui.dashboard.welcome=Welcome, {0}!
+hyperessentials.gui.dashboard.playtime=Playtime: {0}
+hyperessentials.gui.dashboard.first_joined=First joined: {0}
+
+# === Homes Page ===
+hyperessentials.gui.homes.empty_title=No Homes
+hyperessentials.gui.homes.empty_message=Use /sethome to create your first home.
+hyperessentials.gui.homes.zone_restricted=Zone Restricted
+hyperessentials.gui.homes.cooldown=Cooldown
+hyperessentials.gui.homes.cooldown_label=Cooldown: {0}
+
+# === Warps Page ===
+hyperessentials.gui.warps.empty_title=No Warps
+hyperessentials.gui.warps.empty_message=No warps are currently available.
+hyperessentials.gui.warps.zone_restricted=Zone Restricted
+
+# === Kits Page ===
+hyperessentials.gui.kits.empty_title=No Kits
+hyperessentials.gui.kits.empty_message=No kits are currently available to you.
+hyperessentials.gui.kits.cooldown_label=Cooldown: {0}
+hyperessentials.gui.kits.already_claimed=Already claimed
+hyperessentials.gui.kits.claimed_button=CLAIMED
+hyperessentials.gui.kits.one_time=One-time kit
+hyperessentials.gui.kits.ready=Ready
+hyperessentials.gui.kits.zone_restricted=Zone Restricted
+
+# === Kit Preview Page ===
+hyperessentials.gui.kit_preview.empty_title=Empty Kit
+hyperessentials.gui.kit_preview.empty_message=This kit has no items.
+hyperessentials.gui.kit_preview.claimed_button=CLAIMED
+
+# === Back Page ===
+hyperessentials.gui.back.empty_title=No Back Locations
+hyperessentials.gui.back.empty_message=Teleport or die to create a back location.
+hyperessentials.gui.back.cooldown_button=Cooldown
+
+# === Home Share Page ===
+hyperessentials.gui.home_share.share_title=Share: {0}
+hyperessentials.gui.home_share.shared_count=Shared with {0} player{1}
