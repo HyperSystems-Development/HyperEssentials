@@ -33,4 +33,10 @@ public class SpawnsConfig extends ModuleConfig {
   public boolean isTeleportOnJoin() { return teleportOnJoin; }
   public boolean isTeleportOnRespawn() { return teleportOnRespawn; }
   public boolean isPerWorldSpawns() { return perWorldSpawns; }
+
+  // Setters (for admin config editor)
+  public void setDefaultSpawnName(String value) { this.defaultSpawnName = value; }
+  public void setTeleportOnJoin(boolean value) { this.teleportOnJoin = value; }
+  public void setTeleportOnRespawn(boolean value) { this.teleportOnRespawn = value; }
+  public void setPerWorldSpawns(boolean value) { this.perWorldSpawns = value; }
 }

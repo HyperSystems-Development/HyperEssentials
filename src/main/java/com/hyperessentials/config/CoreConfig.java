@@ -104,4 +104,17 @@ public class CoreConfig extends ConfigFile {
   public String getDefaultLanguage() { return defaultLanguage; }
   public boolean isUsePlayerLanguage() { return usePlayerLanguage; }
   public int getConfigVersion() { return configVersion; }
+
+  // Setters (for admin config editor)
+  public void setPrefixText(String value) { this.prefixText = value; }
+  public void setPrefixColor(String value) { this.prefixColor = value; }
+  public void setPrefixBracketColor(String value) { this.prefixBracketColor = value; }
+  public void setPrimaryColor(String value) { this.primaryColor = value; }
+  public void setSecondaryColor(String value) { this.secondaryColor = value; }
+  public void setErrorColor(String value) { this.errorColor = value; }
+  public void setAdminRequiresOp(boolean value) { this.adminRequiresOp = value; }
+  public void setAllowWithoutPermissionMod(boolean value) { this.allowWithoutPermissionMod = value; }
+  public void setUpdateCheck(boolean value) { this.updateCheck = value; }
+  public void setDefaultLanguage(String value) { this.defaultLanguage = value; }
+  public void setUsePlayerLanguage(boolean value) { this.usePlayerLanguage = value; }
 }

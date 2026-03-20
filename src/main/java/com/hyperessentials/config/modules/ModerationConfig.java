@@ -90,4 +90,19 @@ public class ModerationConfig extends ModuleConfig {
   public boolean isBroadcastWarnings() { return broadcastWarnings; }
   public int getMaxWarningsBeforeBan() { return maxWarningsBeforeBan; }
   public int getMaxHistoryPerPlayer() { return maxHistoryPerPlayer; }
+
+  // Setters (for admin config editor)
+  public void setDefaultBanReason(String value) { this.defaultBanReason = value; }
+  public void setDefaultMuteReason(String value) { this.defaultMuteReason = value; }
+  public void setDefaultKickReason(String value) { this.defaultKickReason = value; }
+  public void setDefaultWarnReason(String value) { this.defaultWarnReason = value; }
+  public void setMutedChatMessage(String value) { this.mutedChatMessage = value; }
+  public void setFreezeMessage(String value) { this.freezeMessage = value; }
+  public void setFreezeCheckIntervalMs(int value) { this.freezeCheckIntervalMs = value; }
+  public void setBroadcastBans(boolean value) { this.broadcastBans = value; }
+  public void setBroadcastKicks(boolean value) { this.broadcastKicks = value; }
+  public void setBroadcastMutes(boolean value) { this.broadcastMutes = value; }
+  public void setBroadcastWarnings(boolean value) { this.broadcastWarnings = value; }
+  public void setMaxWarningsBeforeBan(int value) { this.maxWarningsBeforeBan = value; }
+  public void setMaxHistoryPerPlayer(int value) { this.maxHistoryPerPlayer = value; }
 }

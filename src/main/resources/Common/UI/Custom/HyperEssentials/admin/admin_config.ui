@@ -1,0 +1,78 @@
+$C = "../../Common.ui";
+$S = "../shared/styles.ui";
+$Nav = "../shared/nav_bar.ui";
+
+$C.@PageOverlay {
+  $Nav.@HyperEssentialsNavBar #NavBar {}
+
+  $C.@DecoratedContainer {
+    Anchor: (Width: 620, Height: 470);
+
+    #Title {
+      $C.@Title {
+        @Text = "Configuration";
+      }
+    }
+
+    #Content {
+      LayoutMode: Top;
+      Padding: (Left: 15, Right: 15, Top: 10, Bottom: 10);
+
+      // Section tabs (scrollable row)
+      Group {
+        Anchor: (Height: 30, Bottom: 6);
+        LayoutMode: Left;
+
+        Group #SectionTabs {
+          LayoutMode: Left;
+          FlexWeight: 1;
+        }
+      }
+
+      // Section header + save
+      Group {
+        LayoutMode: Left;
+        Anchor: (Height: 26, Bottom: 4);
+
+        Label #SectionLabel {
+          Text: "";
+          Style: (FontSize: 13, TextColor: #FFFFFF, RenderBold: true, VerticalAlignment: Center);
+          Anchor: (Width: 200);
+        }
+
+        Group { FlexWeight: 1; }
+
+        Label #StatusLabel {
+          Text: "";
+          Style: (FontSize: 10, TextColor: #44cc44, VerticalAlignment: Center);
+          Anchor: (Width: 200);
+        }
+
+        TextButton #SaveAllBtn {
+          Style: $S.@GoldButtonStyle;
+          Text: "Save to Disk";
+          Anchor: (Width: 110, Height: 24);
+        }
+      }
+
+      // Divider
+      Group {
+        Anchor: (Height: 1, Bottom: 6);
+        Background: (Color: #FFAA00);
+      }
+
+      // Config field list
+      Group #ConfigListContainer {
+        LayoutMode: TopScrolling;
+        ScrollbarStyle: $C.@DefaultScrollbarStyle;
+        FlexWeight: 1;
+
+        Group #ConfigList {
+          LayoutMode: Top;
+        }
+      }
+    }
+  }
+}
+
+$C.@BackButton {}

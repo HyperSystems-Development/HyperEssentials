@@ -154,6 +154,31 @@ public final class AdminKeys {
     private Announcements() {}
   }
 
+  /** Admin backups page. */
+  public static final class Backups {
+    private static final String P = "hyperessentials.admin.backups.";
+    public static final String CREATING = P + "creating";
+    public static final String CREATED = P + "created";
+    public static final String CREATE_FAILED = P + "create_failed";
+    public static final String RESTORING = P + "restoring";
+    public static final String RESTORED = P + "restored";
+    public static final String RESTORE_FAILED = P + "restore_failed";
+    public static final String DELETING = P + "deleting";
+    public static final String DELETED = P + "deleted";
+    public static final String DELETE_FAILED = P + "delete_failed";
+
+    private Backups() {}
+  }
+
+  /** Admin config editor page. */
+  public static final class Config {
+    private static final String P = "hyperessentials.admin.config.";
+    public static final String SAVED = P + "saved";
+    public static final String CHANGED = P + "changed";
+
+    private Config() {}
+  }
+
   /** Admin settings page. */
   public static final class Settings {
     private static final String P = "hyperessentials.admin.settings.";

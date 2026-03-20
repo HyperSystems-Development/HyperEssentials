@@ -35,4 +35,8 @@ public class KitsConfig extends ModuleConfig {
 
   public int getDefaultCooldownSeconds() { return defaultCooldownSeconds; }
   public boolean isOneTimeDefault() { return oneTimeDefault; }
+
+  // Setters (for admin config editor)
+  public void setDefaultCooldownSeconds(int value) { this.defaultCooldownSeconds = value; }
+  public void setOneTimeDefault(boolean value) { this.oneTimeDefault = value; }
 }

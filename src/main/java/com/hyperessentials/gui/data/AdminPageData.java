@@ -27,6 +27,9 @@ public class AdminPageData {
   public @Nullable String inputSearch;
   public @Nullable String inputDuration;
   public @Nullable String inputReason;
+  public @Nullable String backupInputName;
+  public @Nullable String filterValue;
+  public @Nullable String configValue;
 
   public static final BuilderCodec<AdminPageData> CODEC = BuilderCodec
       .builder(AdminPageData.class, AdminPageData::new)
@@ -99,6 +102,21 @@ public class AdminPageData {
           new KeyedCodec<>("@ReasonInput", Codec.STRING),
           (data, v) -> data.inputReason = v,
           data -> data.inputReason
+      )
+      .addField(
+          new KeyedCodec<>("@BackupInputName", Codec.STRING),
+          (data, v) -> data.backupInputName = v,
+          data -> data.backupInputName
+      )
+      .addField(
+          new KeyedCodec<>("@FilterValue", Codec.STRING),
+          (data, v) -> data.filterValue = v,
+          data -> data.filterValue
+      )
+      .addField(
+          new KeyedCodec<>("@ConfigValue", Codec.STRING),
+          (data, v) -> data.configValue = v,
+          data -> data.configValue
       )
       .build();
 

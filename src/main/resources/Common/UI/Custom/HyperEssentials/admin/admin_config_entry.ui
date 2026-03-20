@@ -1,0 +1,40 @@
+$C = "../../Common.ui";
+$S = "../shared/styles.ui";
+
+Group {
+  LayoutMode: Left;
+  Background: (Color: #0d1520);
+  Anchor: (Height: 32, Bottom: 3);
+  Padding: (Left: 10, Right: 8);
+
+  Label #FieldLabel {
+    Text: "";
+    Style: (FontSize: 11, TextColor: #7c8b99, VerticalAlignment: Center);
+    Anchor: (Width: 230, Height: 32);
+  }
+
+  Group { FlexWeight: 1; }
+
+  // Boolean toggle (shown for bool fields)
+  TextButton #ToggleBtn {
+    Style: $S.@AquaButtonStyle;
+    Text: "OFF";
+    Anchor: (Width: 60, Height: 24);
+    Visible: false;
+  }
+
+  // Text/number input (shown for non-bool fields)
+  $C.@TextField #ValueInput {
+    Anchor: (Width: 180, Height: 24);
+    Style: (FontSize: 11, TextColor: #ffffff);
+    Visible: false;
+  }
+
+  Group { Anchor: (Width: 4); }
+
+  TextButton #SaveFieldBtn {
+    Style: $S.@GreenButtonStyle;
+    Text: "Set";
+    Anchor: (Width: 44, Height: 24);
+  }
+}

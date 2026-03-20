@@ -1,10 +1,13 @@
 package com.hyperessentials;
 
+import com.hyperessentials.backup.BackupManager;
 import com.hyperessentials.config.ConfigManager;
-import com.hyperessentials.gui.GuiManager;
 import com.hyperessentials.gui.PageRegistry;
 import com.hyperessentials.gui.GuiUpdateService;
+import com.hyperessentials.gui.GuiManager;
 import com.hyperessentials.gui.admin.AdminAnnouncementsPage;
+import com.hyperessentials.gui.admin.AdminBackupsPage;
+import com.hyperessentials.gui.admin.AdminConfigPage;
 import com.hyperessentials.gui.admin.AdminDashboardPage;
 import com.hyperessentials.gui.admin.AdminKitsPage;
 import com.hyperessentials.gui.admin.AdminModerationPage;
@@ -69,6 +72,7 @@ public class HyperEssentials {
   private StorageProvider storageProvider;
   private VaultEconomyProvider vaultEconomy;
   private GuiUpdateService guiUpdateService;
+  private BackupManager backupManager;
   private final CopyOnWriteArrayList<Consumer<UUID>> disconnectHandlers = new CopyOnWriteArrayList<>();
   private final CopyOnWriteArrayList<BiConsumer<UUID, String>> connectHandlers = new CopyOnWriteArrayList<>();
 
@@ -113,6 +117,10 @@ public class HyperEssentials {
     // Initialize storage
     storageProvider = new JsonStorageProvider(dataDir);
     storageProvider.init().join();
+
+    // Initialize backup manager
+    backupManager = new BackupManager(dataDir);
+    backupManager.init();
 
     // Initialize GUI
     guiManager = new GuiManager();
@@ -166,6 +174,11 @@ public class HyperEssentials {
     // Disable modules in reverse order
     if (moduleRegistry != null) {
       moduleRegistry.disableAll();
+    }
+
+    // Shutdown backup manager (creates shutdown backup if enabled)
+    if (backupManager != null) {
+      backupManager.shutdown();
     }
 
     // Shutdown storage
@@ -397,12 +410,28 @@ public class HyperEssentials {
       ));
     }
 
+    // Admin Backups
+    adminReg.registerEntry(new PageRegistry.Entry(
+        "backups", "Backups", "core", Permissions.ADMIN_GUI,
+        (player, ref, store, playerRef, gm) ->
+            new AdminBackupsPage(player, playerRef, gm, backupManager),
+        true, 70
+    ));
+
+    // Admin Config
+    adminReg.registerEntry(new PageRegistry.Entry(
+        "config", "Config", "core", Permissions.ADMIN_SETTINGS,
+        (player, ref, store, playerRef, gm) ->
+            new AdminConfigPage(player, playerRef, gm),
+        true, 80
+    ));
+
     // Admin Settings
     adminReg.registerEntry(new PageRegistry.Entry(
         "settings", "Settings", "core", Permissions.ADMIN_SETTINGS,
         (player, ref, store, playerRef, gm) ->
             new AdminSettingsPage(player, playerRef, gm, moduleRegistry, dataDir),
-        true, 70
+        true, 90
     ));
 
     int adminPageCount = adminReg.getEntries().size();
@@ -476,6 +505,7 @@ public class HyperEssentials {
   @NotNull public WarmupManager getWarmupManager() { return warmupManager; }
   @NotNull public StorageProvider getStorageProvider() { return storageProvider; }
   @NotNull public VaultEconomyProvider getVaultEconomy() { return vaultEconomy; }
+  @NotNull public BackupManager getBackupManager() { return backupManager; }
 
   /**
    * Gets a module by class.

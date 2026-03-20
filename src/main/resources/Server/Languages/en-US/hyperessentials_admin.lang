@@ -75,6 +75,21 @@ hyperessentials.admin.announce.events_title=Event Announcements
 hyperessentials.admin.announce.empty_title=No Announcements
 hyperessentials.admin.announce.empty_message=Click "+ New" to create one.
 
+# === Backups Page ===
+hyperessentials.admin.backups.creating=Creating backup...
+hyperessentials.admin.backups.created=Backup created: {0}
+hyperessentials.admin.backups.create_failed=Failed to create backup.
+hyperessentials.admin.backups.restoring=Restoring backup...
+hyperessentials.admin.backups.restored=Restored {1} files from {0}. Reload config to apply.
+hyperessentials.admin.backups.restore_failed=Failed to restore backup.
+hyperessentials.admin.backups.deleting=Deleting...
+hyperessentials.admin.backups.deleted=Deleted backup: {0}
+hyperessentials.admin.backups.delete_failed=Failed to delete backup.
+
+# === Config Editor Page ===
+hyperessentials.admin.config.saved=Configuration saved to disk.
+hyperessentials.admin.config.changed=Changed: {0}
+
 # === Settings Page ===
 hyperessentials.admin.settings.data_dir=Data: {0}
 hyperessentials.admin.settings.module_enabled=Enabled

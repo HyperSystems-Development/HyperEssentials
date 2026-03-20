@@ -79,4 +79,10 @@ public class WarmupConfig extends ModuleConfig {
     ModuleWarmupSettings s = moduleSettings.get(moduleName);
     return s != null ? s.cooldown() : 5;
   }
+
+  // Setters (for admin config editor)
+  public void setCancelOnMove(boolean value) { this.cancelOnMove = value; }
+  public void setCancelOnDamage(boolean value) { this.cancelOnDamage = value; }
+  public void setSafeTeleport(boolean value) { this.safeTeleport = value; }
+  public void setSafeRadius(int value) { this.safeRadius = value; }
 }

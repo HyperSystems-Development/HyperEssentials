@@ -209,4 +209,32 @@ public class TeleportConfig extends ModuleConfig {
   public int getRtpSafetyMinY() { return rtpSafetyMinY; }
   public int getRtpSafetyMaxY() { return rtpSafetyMaxY; }
   public int getRtpSafetyAirAboveHead() { return rtpSafetyAirAboveHead; }
+
+  // Setters (for admin config editor)
+  public void setTpaTimeout(int value) { this.tpaTimeout = value; }
+  public void setTpaCooldown(int value) { this.tpaCooldown = value; }
+  public void setMaxPendingTpa(int value) { this.maxPendingTpa = value; }
+  public void setBackHistorySize(int value) { this.backHistorySize = value; }
+  public void setSaveBackOnDeath(boolean value) { this.saveBackOnDeath = value; }
+  public void setSaveBackOnTeleport(boolean value) { this.saveBackOnTeleport = value; }
+  public void setBackAllowSelectAny(boolean value) { this.backAllowSelectAny = value; }
+  public void setBackFactionsEnabled(boolean value) { this.backFactionsEnabled = value; }
+  public void setBackAllowInOwnTerritory(boolean value) { this.backAllowInOwnTerritory = value; }
+  public void setBackAllowInAllyTerritory(boolean value) { this.backAllowInAllyTerritory = value; }
+  public void setBackAllowInNeutralTerritory(boolean value) { this.backAllowInNeutralTerritory = value; }
+  public void setBackAllowInEnemyTerritory(boolean value) { this.backAllowInEnemyTerritory = value; }
+  public void setBackAllowInWilderness(boolean value) { this.backAllowInWilderness = value; }
+  public void setRtpCenterX(int value) { this.rtpCenterX = value; }
+  public void setRtpCenterZ(int value) { this.rtpCenterZ = value; }
+  public void setRtpMinRadius(int value) { this.rtpMinRadius = value; }
+  public void setRtpMaxRadius(int value) { this.rtpMaxRadius = value; }
+  public void setRtpMaxAttempts(int value) { this.rtpMaxAttempts = value; }
+  public void setRtpPlayerRelative(boolean value) { this.rtpPlayerRelative = value; }
+  public void setRtpFactionAvoidanceEnabled(boolean value) { this.rtpFactionAvoidanceEnabled = value; }
+  public void setRtpFactionAvoidanceBufferRadius(int value) { this.rtpFactionAvoidanceBufferRadius = value; }
+  public void setRtpSafetyAvoidWater(boolean value) { this.rtpSafetyAvoidWater = value; }
+  public void setRtpSafetyAvoidDangerousFluids(boolean value) { this.rtpSafetyAvoidDangerousFluids = value; }
+  public void setRtpSafetyMinY(int value) { this.rtpSafetyMinY = value; }
+  public void setRtpSafetyMaxY(int value) { this.rtpSafetyMaxY = value; }
+  public void setRtpSafetyAirAboveHead(int value) { this.rtpSafetyAirAboveHead = value; }
 }

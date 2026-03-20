@@ -175,4 +175,23 @@ public class DebugConfig extends ModuleConfig {
   public boolean isSentryDebug() { return sentryDebug; }
   public String getSentryEnvironment() { return sentryEnvironment; }
   public double getSentryTracesSampleRate() { return sentryTracesSampleRate; }
+
+  // Setters (for admin config editor)
+  public void setEnabledByDefault(boolean value) { this.enabledByDefault = value; }
+  public void setLogToConsole(boolean value) { this.logToConsole = value; }
+  public void setSentryEnabled(boolean value) { this.sentryEnabled = value; }
+  public void setSentryDebug(boolean value) { this.sentryDebug = value; }
+  public void setSentryTracesSampleRate(double value) { this.sentryTracesSampleRate = value; }
+  public void setHomes(boolean value) { this.homes = value; }
+  public void setWarps(boolean value) { this.warps = value; }
+  public void setSpawns(boolean value) { this.spawns = value; }
+  public void setTeleport(boolean value) { this.teleport = value; }
+  public void setKits(boolean value) { this.kits = value; }
+  public void setModeration(boolean value) { this.moderation = value; }
+  public void setUtility(boolean value) { this.utility = value; }
+  public void setRtp(boolean value) { this.rtp = value; }
+  public void setAnnouncements(boolean value) { this.announcements = value; }
+  public void setIntegration(boolean value) { this.integration = value; }
+  public void setEconomy(boolean value) { this.economy = value; }
+  public void setStorage(boolean value) { this.storage = value; }
 }

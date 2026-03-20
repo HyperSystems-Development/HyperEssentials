@@ -28,6 +28,7 @@ public class ConfigManager {
   private UtilityConfig utilityConfig;
   private AnnouncementsConfig announcementsConfig;
   private DebugConfig debugConfig;
+  private BackupConfig backupConfig;
 
   private ConfigManager() {}
 
@@ -84,6 +85,9 @@ public class ConfigManager {
     debugConfig = new DebugConfig(configDir.resolve("debug.json"));
     debugConfig.load();
 
+    backupConfig = new BackupConfig(configDir.resolve("backup.json"));
+    backupConfig.load();
+
     validateAll();
     Logger.info("[Config] Configuration loaded successfully");
   }
@@ -124,6 +128,7 @@ public class ConfigManager {
     utilityConfig.reload();
     announcementsConfig.reload();
     debugConfig.reload();
+    backupConfig.reload();
     validateAll();
     Logger.info("[Config] Configuration reloaded");
   }
@@ -141,6 +146,7 @@ public class ConfigManager {
     utilityConfig.save();
     announcementsConfig.save();
     debugConfig.save();
+    backupConfig.save();
   }
 
   @NotNull public CoreConfig core() { return coreConfig; }
@@ -155,6 +161,7 @@ public class ConfigManager {
   @NotNull public UtilityConfig utility() { return utilityConfig; }
   @NotNull public AnnouncementsConfig announcements() { return announcementsConfig; }
   @NotNull public DebugConfig debug() { return debugConfig; }
+  @NotNull public BackupConfig backup() { return backupConfig; }
 
   @SuppressWarnings("unchecked")
   public <T extends ModuleConfig> T getModule(@NotNull Class<T> clazz) {

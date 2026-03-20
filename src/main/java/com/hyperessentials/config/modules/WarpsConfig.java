@@ -21,4 +21,5 @@ public class WarpsConfig extends ModuleConfig {
   }
 
   public String getDefaultCategory() { return defaultCategory; }
+  public void setDefaultCategory(String value) { this.defaultCategory = value; }
 }

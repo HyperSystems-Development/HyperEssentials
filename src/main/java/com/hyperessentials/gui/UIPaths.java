@@ -75,4 +75,8 @@ public final class UIPaths {
   public static final String ADMIN_ANNOUNCEMENT_EDIT = BASE + "admin/admin_announcement_edit.ui";
   public static final String ADMIN_SETTINGS = BASE + "admin/admin_settings.ui";
   public static final String ADMIN_MODULE_TOGGLE = BASE + "admin/admin_module_toggle.ui";
+  public static final String ADMIN_BACKUPS = BASE + "admin/admin_backups.ui";
+  public static final String ADMIN_BACKUP_ENTRY = BASE + "admin/admin_backup_entry.ui";
+  public static final String ADMIN_CONFIG = BASE + "admin/admin_config.ui";
+  public static final String ADMIN_CONFIG_ENTRY = BASE + "admin/admin_config_entry.ui";
 }

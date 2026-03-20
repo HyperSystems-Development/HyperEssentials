@@ -218,4 +218,31 @@ public class UtilityConfig extends ModuleConfig {
   public int getSleepPercentage() { return sleepPercentage; }
   public void setSleepPercentage(int sleepPercentage) { this.sleepPercentage = sleepPercentage; }
   public Map<String, Integer> getWorldSleepPercentages() { return worldSleepPercentages; }
+
+  // Setters (for admin config editor)
+  public void setClearChatEnabled(boolean value) { this.clearChatEnabled = value; }
+  public void setClearInventoryEnabled(boolean value) { this.clearInventoryEnabled = value; }
+  public void setRepairEnabled(boolean value) { this.repairEnabled = value; }
+  public void setNearEnabled(boolean value) { this.nearEnabled = value; }
+  public void setHealEnabled(boolean value) { this.healEnabled = value; }
+  public void setFlyEnabled(boolean value) { this.flyEnabled = value; }
+  public void setGodEnabled(boolean value) { this.godEnabled = value; }
+  public void setDefaultNearRadius(int value) { this.defaultNearRadius = value; }
+  public void setMaxNearRadius(int value) { this.maxNearRadius = value; }
+  public void setClearChatLines(int value) { this.clearChatLines = value; }
+  public void setDurabilityEnabled(boolean value) { this.durabilityEnabled = value; }
+  public void setMotdEnabled(boolean value) { this.motdEnabled = value; }
+  public void setRulesEnabled(boolean value) { this.rulesEnabled = value; }
+  public void setDiscordEnabled(boolean value) { this.discordEnabled = value; }
+  public void setListEnabled(boolean value) { this.listEnabled = value; }
+  public void setPlaytimeEnabled(boolean value) { this.playtimeEnabled = value; }
+  public void setJoindateEnabled(boolean value) { this.joindateEnabled = value; }
+  public void setAfkEnabled(boolean value) { this.afkEnabled = value; }
+  public void setInvseeEnabled(boolean value) { this.invseeEnabled = value; }
+  public void setStaminaEnabled(boolean value) { this.staminaEnabled = value; }
+  public void setTrashEnabled(boolean value) { this.trashEnabled = value; }
+  public void setMaxstackEnabled(boolean value) { this.maxstackEnabled = value; }
+  public void setSleepPercentageEnabled(boolean value) { this.sleepPercentageEnabled = value; }
+  public void setDiscordUrl(String value) { this.discordUrl = value; }
+  public void setAfkTimeoutSeconds(int value) { this.afkTimeoutSeconds = value; }
 }

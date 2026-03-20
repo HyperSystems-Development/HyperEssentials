@@ -50,4 +50,11 @@ public class VanishConfig extends ModuleConfig {
   public String getVanishEnableMessage() { return vanishEnableMessage; }
   public String getVanishDisableMessage() { return vanishDisableMessage; }
   public boolean isSilentJoin() { return silentJoin; }
+
+  // Setters (for admin config editor)
+  public void setFakeLeaveMessage(boolean value) { this.fakeLeaveMessage = value; }
+  public void setFakeJoinMessage(boolean value) { this.fakeJoinMessage = value; }
+  public void setVanishEnableMessage(String value) { this.vanishEnableMessage = value; }
+  public void setVanishDisableMessage(String value) { this.vanishDisableMessage = value; }
+  public void setSilentJoin(boolean value) { this.silentJoin = value; }
 }

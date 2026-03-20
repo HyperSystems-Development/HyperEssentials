@@ -306,6 +306,13 @@ public class AnnouncementsConfig extends ModuleConfig {
     this.welcomeMessagesEnabled = welcomeMessagesEnabled;
   }
 
+  // Setters (for admin config editor)
+  public void setIntervalSeconds(int value) { this.intervalSeconds = value; }
+  public void setRandomize(boolean value) { this.randomize = value; }
+  public void setPrefixText(String value) { this.prefixText = value; }
+  public void setPrefixColor(String value) { this.prefixColor = value; }
+  public void setMessageColor(String value) { this.messageColor = value; }
+
   /**
    * Returns flat message list for backward compatibility with /announce command.
    * Extracts the message text from each enabled CHAT announcement.
