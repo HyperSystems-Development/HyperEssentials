@@ -3,6 +3,8 @@ package com.hyperessentials.module.utility.command;
 import com.hyperessentials.Permissions;
 import com.hyperessentials.command.util.CommandUtil;
 import com.hyperessentials.module.utility.UtilityModule;
+import com.hyperessentials.util.CommandKeys;
+import com.hyperessentials.util.HEMessageUtil;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.server.core.command.system.CommandContext;
@@ -39,16 +41,16 @@ public class JoinDateCommand extends AbstractPlayerCommand {
               @NotNull PlayerRef playerRef,
               @NotNull World world) {
     if (!CommandUtil.hasPermission(playerRef.getUuid(), Permissions.UTILITY_JOINDATE)) {
-      ctx.sendMessage(CommandUtil.error("You don't have permission to view join date."));
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Utility.JOINDATE_NO_PERMISSION));
       return;
     }
 
     Instant firstJoin = module.getUtilityManager().getFirstJoin(playerRef.getUuid());
     if (firstJoin == null) {
-      ctx.sendMessage(CommandUtil.error("No join data available."));
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Utility.JOINDATE_NO_DATA));
       return;
     }
 
-    ctx.sendMessage(CommandUtil.success("You first joined: " + FORMATTER.format(firstJoin)));
+    ctx.sendMessage(HEMessageUtil.success(playerRef, CommandKeys.Utility.JOINDATE_RESULT, FORMATTER.format(firstJoin)));
   }
 }

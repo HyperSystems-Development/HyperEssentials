@@ -1,7 +1,8 @@
 package com.hyperessentials.module.utility.command;
 
-import com.hyperessentials.command.util.CommandUtil;
 import com.hyperessentials.config.ConfigManager;
+import com.hyperessentials.util.CommandKeys;
+import com.hyperessentials.util.HEMessageUtil;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.server.core.command.system.CommandContext;
@@ -29,9 +30,9 @@ public class RulesCommand extends AbstractPlayerCommand {
               @NotNull PlayerRef playerRef,
               @NotNull World world) {
     List<String> lines = ConfigManager.get().utility().getRuleLines();
-    ctx.sendMessage(CommandUtil.msg("=== Server Rules ===", CommandUtil.COLOR_GOLD));
+    ctx.sendMessage(HEMessageUtil.info(playerRef, CommandKeys.Utility.RULES_HEADER, HEMessageUtil.COLOR_GOLD));
     for (String line : lines) {
-      ctx.sendMessage(CommandUtil.msg(line, CommandUtil.COLOR_GRAY));
+      ctx.sendMessage(HEMessageUtil.text(line, HEMessageUtil.COLOR_GRAY));
     }
   }
 }

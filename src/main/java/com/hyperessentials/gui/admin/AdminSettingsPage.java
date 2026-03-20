@@ -10,6 +10,8 @@ import com.hyperessentials.gui.UIPaths;
 import com.hyperessentials.gui.data.AdminPageData;
 import com.hyperessentials.module.Module;
 import com.hyperessentials.module.ModuleRegistry;
+import com.hyperessentials.util.AdminKeys;
+import com.hyperessentials.util.HEMessages;
 import com.hyperessentials.util.Logger;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
@@ -63,7 +65,7 @@ public class AdminSettingsPage extends InteractiveCustomUIPage<AdminPageData> {
   private void populateSettings(@NotNull UICommandBuilder cmd, @NotNull UIEventBuilder events) {
     // Version and data dir
     cmd.set("#VersionLabel.Text", "v" + BuildInfo.VERSION);
-    cmd.set("#DataDirLabel.Text", "Data: " + dataDir.toAbsolutePath());
+    cmd.set("#DataDirLabel.Text", HEMessages.get(playerRef, AdminKeys.Settings.DATA_DIR, dataDir.toAbsolutePath()));
 
     // Reload button
     events.addEventBinding(
@@ -80,7 +82,9 @@ public class AdminSettingsPage extends InteractiveCustomUIPage<AdminPageData> {
 
       cmd.set(selector + " #ModuleName.Text", module.getDisplayName());
       boolean enabled = module.isEnabled();
-      cmd.set(selector + " #ModuleStatus.Text", enabled ? "Enabled" : "Disabled");
+      cmd.set(selector + " #ModuleStatus.Text", enabled
+          ? HEMessages.get(playerRef, AdminKeys.Settings.MODULE_ENABLED)
+          : HEMessages.get(playerRef, AdminKeys.Settings.MODULE_DISABLED));
       cmd.set(selector + " #ModuleStatus.Style.TextColor", GuiColors.forModuleEnabled(enabled));
       cmd.set(selector + " #StatusDot.Background.Color", GuiColors.forModuleEnabled(enabled));
       idx++;

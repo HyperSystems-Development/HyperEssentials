@@ -3,7 +3,9 @@ package com.hyperessentials.module.utility.command;
 import com.hyperessentials.Permissions;
 import com.hyperessentials.command.util.CommandUtil;
 import com.hyperessentials.module.utility.UtilityModule;
-import com.hyperessentials.util.Logger;
+import com.hyperessentials.util.CommandKeys;
+import com.hyperessentials.util.ErrorHandler;
+import com.hyperessentials.util.HEMessageUtil;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.server.core.command.system.CommandContext;
@@ -34,7 +36,7 @@ public class GodCommand extends AbstractPlayerCommand {
               @NotNull PlayerRef playerRef,
               @NotNull World world) {
     if (!CommandUtil.hasPermission(playerRef.getUuid(), Permissions.UTILITY_GOD)) {
-      ctx.sendMessage(CommandUtil.error("You don't have permission to use god mode."));
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Utility.GOD_NO_PERMISSION));
       return;
     }
 
@@ -43,20 +45,20 @@ public class GodCommand extends AbstractPlayerCommand {
 
     if (parts.length >= 2) {
       if (!CommandUtil.hasPermission(playerRef.getUuid(), Permissions.UTILITY_GOD_OTHERS)) {
-        ctx.sendMessage(CommandUtil.error("You don't have permission to toggle god mode for others."));
+        ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Utility.GOD_OTHERS_NO_PERMISSION));
         return;
       }
 
       PlayerRef target = CommandUtil.findOnlinePlayer(parts[1]);
       if (target == null) {
-        ctx.sendMessage(CommandUtil.error("Player '" + parts[1] + "' is not online."));
+        ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Common.PLAYER_NOT_ONLINE, parts[1]));
         return;
       }
 
       // Resolve target's store/ref for cross-player god toggle
       Ref<EntityStore> targetRef = target.getReference();
       if (targetRef == null || !targetRef.isValid()) {
-        ctx.sendMessage(CommandUtil.error("Player '" + parts[1] + "' is not in a world."));
+        ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Common.PLAYER_NOT_IN_WORLD, parts[1]));
         return;
       }
       Store<EntityStore> targetStore = targetRef.getStore();
@@ -64,13 +66,16 @@ public class GodCommand extends AbstractPlayerCommand {
       boolean nowGod = module.getUtilityManager().toggleGod(target.getUuid());
       applyGod(targetStore, targetRef, nowGod);
 
-      ctx.sendMessage(CommandUtil.success("God mode " + (nowGod ? "enabled" : "disabled") + " for " + target.getUsername() + "."));
-      target.sendMessage(CommandUtil.success("God mode " + (nowGod ? "enabled" : "disabled") + "."));
+      String key = nowGod ? CommandKeys.Utility.GOD_ENABLED_OTHER : CommandKeys.Utility.GOD_DISABLED_OTHER;
+      ctx.sendMessage(HEMessageUtil.success(playerRef, key, target.getUsername()));
+      String selfKey = nowGod ? CommandKeys.Utility.GOD_ENABLED : CommandKeys.Utility.GOD_DISABLED;
+      target.sendMessage(HEMessageUtil.success(target, selfKey));
     } else {
       boolean nowGod = module.getUtilityManager().toggleGod(playerRef.getUuid());
       applyGod(store, ref, nowGod);
 
-      ctx.sendMessage(CommandUtil.success("God mode " + (nowGod ? "enabled" : "disabled") + "."));
+      String key = nowGod ? CommandKeys.Utility.GOD_ENABLED : CommandKeys.Utility.GOD_DISABLED;
+      ctx.sendMessage(HEMessageUtil.success(playerRef, key));
     }
   }
 
@@ -82,7 +87,7 @@ public class GodCommand extends AbstractPlayerCommand {
         store.removeComponent(ref, Invulnerable.getComponentType());
       }
     } catch (Exception e) {
-      Logger.debug("[Utility] Invulnerable component toggle failed: %s", e.getMessage());
+      ErrorHandler.report("[Utility] Invulnerable component toggle failed", e);
     }
   }
 }

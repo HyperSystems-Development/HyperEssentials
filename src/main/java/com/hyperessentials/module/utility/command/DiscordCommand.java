@@ -1,7 +1,8 @@
 package com.hyperessentials.module.utility.command;
 
-import com.hyperessentials.command.util.CommandUtil;
 import com.hyperessentials.config.ConfigManager;
+import com.hyperessentials.util.CommandKeys;
+import com.hyperessentials.util.HEMessageUtil;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.server.core.command.system.CommandContext;
@@ -28,9 +29,9 @@ public class DiscordCommand extends AbstractPlayerCommand {
               @NotNull World world) {
     String url = ConfigManager.get().utility().getDiscordUrl();
     if (url == null || url.isEmpty()) {
-      ctx.sendMessage(CommandUtil.error("No Discord link configured."));
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Utility.DISCORD_NO_LINK));
     } else {
-      ctx.sendMessage(CommandUtil.msg("Join our Discord: " + url, CommandUtil.COLOR_AQUA));
+      ctx.sendMessage(HEMessageUtil.info(playerRef, CommandKeys.Utility.DISCORD_MESSAGE, HEMessageUtil.COLOR_CYAN, url));
     }
   }
 }

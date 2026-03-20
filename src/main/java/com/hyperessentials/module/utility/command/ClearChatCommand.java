@@ -4,6 +4,8 @@ import com.hyperessentials.Permissions;
 import com.hyperessentials.command.util.CommandUtil;
 import com.hyperessentials.config.ConfigManager;
 import com.hyperessentials.platform.HyperEssentialsPlugin;
+import com.hyperessentials.util.CommandKeys;
+import com.hyperessentials.util.HEMessageUtil;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.server.core.Message;
@@ -32,7 +34,7 @@ public class ClearChatCommand extends AbstractPlayerCommand {
               @NotNull PlayerRef playerRef,
               @NotNull World world) {
     if (!CommandUtil.hasPermission(playerRef.getUuid(), Permissions.UTILITY_CLEARCHAT)) {
-      ctx.sendMessage(CommandUtil.error("You don't have permission to clear chat."));
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Utility.CLEARCHAT_NO_PERMISSION));
       return;
     }
 
@@ -45,7 +47,7 @@ public class ClearChatCommand extends AbstractPlayerCommand {
     if (parts.length >= 2) {
       // Clear for specific player or "all"
       if (!CommandUtil.hasPermission(playerRef.getUuid(), Permissions.UTILITY_CLEARCHAT_OTHERS)) {
-        ctx.sendMessage(CommandUtil.error("You don't have permission to clear others' chat."));
+        ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Utility.CLEARCHAT_OTHERS_NO_PERMISSION));
         return;
       }
 
@@ -58,13 +60,13 @@ public class ClearChatCommand extends AbstractPlayerCommand {
           }
         }
       }
-      ctx.sendMessage(CommandUtil.success("Chat cleared for all players."));
+      ctx.sendMessage(HEMessageUtil.success(playerRef, CommandKeys.Utility.CLEARCHAT_ALL_SUCCESS));
     } else {
       // Clear own chat
       for (int i = 0; i < lines; i++) {
         playerRef.sendMessage(blank);
       }
-      ctx.sendMessage(CommandUtil.success("Chat cleared."));
+      ctx.sendMessage(HEMessageUtil.success(playerRef, CommandKeys.Utility.CLEARCHAT_SUCCESS));
     }
   }
 }

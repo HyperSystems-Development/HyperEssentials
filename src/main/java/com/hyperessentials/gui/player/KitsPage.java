@@ -10,6 +10,8 @@ import com.hyperessentials.gui.UIPaths;
 import com.hyperessentials.gui.RefreshablePage;
 import com.hyperessentials.gui.data.PlayerPageData;
 import com.hyperessentials.module.kits.KitManager;
+import com.hyperessentials.util.GuiKeys;
+import com.hyperessentials.util.HEMessages;
 import com.hyperessentials.module.kits.data.Kit;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
@@ -92,8 +94,8 @@ public class KitsPage extends InteractiveCustomUIPage<PlayerPageData> implements
 
     if (kits.isEmpty()) {
       cmd.append("#IndexCards", UIPaths.EMPTY_STATE);
-      cmd.set("#IndexCards[0] #EmptyTitle.Text", "No Kits");
-      cmd.set("#IndexCards[0] #EmptyMessage.Text", "No kits are currently available to you.");
+      cmd.set("#IndexCards[0] #EmptyTitle.Text", HEMessages.get(playerRef, GuiKeys.Kits.EMPTY_TITLE));
+      cmd.set("#IndexCards[0] #EmptyMessage.Text", HEMessages.get(playerRef, GuiKeys.Kits.EMPTY_MESSAGE));
       return;
     }
 
@@ -130,25 +132,25 @@ public class KitsPage extends InteractiveCustomUIPage<PlayerPageData> implements
       boolean alreadyDisabled = false;
       if (remainingMs > 0) {
         int remainingSecs = (int) (remainingMs / 1000);
-        cmd.set(idx + " #KitCooldown.Text", "Cooldown: " + UIHelper.formatDuration(remainingSecs));
+        cmd.set(idx + " #KitCooldown.Text", HEMessages.get(playerRef, GuiKeys.Kits.COOLDOWN_LABEL, UIHelper.formatDuration(remainingSecs)));
         cmd.set(idx + " #ClaimBtn.Disabled", true);
         cmd.set(idx + " #ClaimBtn.Text", UIHelper.formatDuration(remainingSecs));
         alreadyDisabled = true;
       } else if (oneTimeClaimed) {
-        cmd.set(idx + " #KitCooldown.Text", "Already claimed");
+        cmd.set(idx + " #KitCooldown.Text", HEMessages.get(playerRef, GuiKeys.Kits.ALREADY_CLAIMED));
         cmd.set(idx + " #ClaimBtn.Disabled", true);
-        cmd.set(idx + " #ClaimBtn.Text", "CLAIMED");
+        cmd.set(idx + " #ClaimBtn.Text", HEMessages.get(playerRef, GuiKeys.Kits.CLAIMED_BUTTON));
         alreadyDisabled = true;
       } else if (kit.oneTime()) {
-        cmd.set(idx + " #KitCooldown.Text", "One-time kit");
+        cmd.set(idx + " #KitCooldown.Text", HEMessages.get(playerRef, GuiKeys.Kits.ONE_TIME));
       } else if (kit.cooldownSeconds() > 0) {
-        cmd.set(idx + " #KitCooldown.Text", "Ready");
+        cmd.set(idx + " #KitCooldown.Text", HEMessages.get(playerRef, GuiKeys.Kits.READY));
       }
 
       // Zone flag override — disable if player is in a restricted zone
       if (kitsZoneBlocked && !alreadyDisabled) {
         cmd.set(idx + " #ClaimBtn.Disabled", true);
-        cmd.set(idx + " #ClaimBtn.Text", "Zone Restricted");
+        cmd.set(idx + " #ClaimBtn.Text", HEMessages.get(playerRef, GuiKeys.Kits.ZONE_RESTRICTED));
       }
 
       events.addEventBinding(

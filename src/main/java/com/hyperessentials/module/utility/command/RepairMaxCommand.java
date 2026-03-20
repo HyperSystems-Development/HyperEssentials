@@ -2,7 +2,9 @@ package com.hyperessentials.module.utility.command;
 
 import com.hyperessentials.Permissions;
 import com.hyperessentials.command.util.CommandUtil;
-import com.hyperessentials.util.Logger;
+import com.hyperessentials.util.CommandKeys;
+import com.hyperessentials.util.ErrorHandler;
+import com.hyperessentials.util.HEMessageUtil;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.server.core.command.system.CommandContext;
@@ -32,14 +34,14 @@ public class RepairMaxCommand extends AbstractPlayerCommand {
               @NotNull PlayerRef playerRef,
               @NotNull World world) {
     if (!CommandUtil.hasPermission(playerRef.getUuid(), Permissions.UTILITY_REPAIR)) {
-      ctx.sendMessage(CommandUtil.error("You don't have permission to repair items."));
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Utility.REPAIR_NO_PERMISSION));
       return;
     }
 
     try {
       Player playerComponent = store.getComponent(ref, Player.getComponentType());
       if (playerComponent == null) {
-        ctx.sendMessage(CommandUtil.error("Cannot access player data."));
+        ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Common.CANNOT_ACCESS_PLAYER));
         return;
       }
 
@@ -47,19 +49,19 @@ public class RepairMaxCommand extends AbstractPlayerCommand {
       ItemStack heldItem = inventory.getItemInHand();
 
       if (heldItem == null || heldItem.isEmpty()) {
-        ctx.sendMessage(CommandUtil.error("You are not holding an item."));
+        ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Common.NOT_HOLDING_ITEM));
         return;
       }
 
       double currentMax = heldItem.getMaxDurability();
       if (currentMax <= 0) {
-        ctx.sendMessage(CommandUtil.error("This item cannot be repaired."));
+        ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Utility.REPAIR_CANNOT_REPAIR));
         return;
       }
 
       double defaultMax = heldItem.getItem().getMaxDurability();
       if (heldItem.getDurability() >= defaultMax && currentMax >= defaultMax) {
-        ctx.sendMessage(CommandUtil.info("Item is already at full default durability."));
+        ctx.sendMessage(HEMessageUtil.info(playerRef, CommandKeys.Utility.REPAIRMAX_ALREADY_FULL, HEMessageUtil.COLOR_YELLOW));
         return;
       }
 
@@ -67,10 +69,10 @@ public class RepairMaxCommand extends AbstractPlayerCommand {
       ItemStack repaired = heldItem.withRestoredDurability(defaultMax);
       byte activeSlot = inventory.getActiveHotbarSlot();
       inventory.getHotbar().setItemStackForSlot(activeSlot, repaired);
-      ctx.sendMessage(CommandUtil.success("Item fully restored to default durability."));
+      ctx.sendMessage(HEMessageUtil.success(playerRef, CommandKeys.Utility.REPAIRMAX_SUCCESS));
     } catch (Exception e) {
-      Logger.warn("[Utility] Failed to fully repair item: %s", e.getMessage());
-      ctx.sendMessage(CommandUtil.error("Failed to repair item."));
+      ErrorHandler.report("[Utility] Failed to fully repair item", e);
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Utility.REPAIR_FAILED));
     }
   }
 }

@@ -6,6 +6,8 @@ import com.hyperessentials.gui.NavBarHelper;
 import com.hyperessentials.gui.UIPaths;
 import com.hyperessentials.gui.data.AdminPageData;
 import com.hyperessentials.module.kits.KitManager;
+import com.hyperessentials.util.AdminKeys;
+import com.hyperessentials.util.HEMessages;
 import com.hyperessentials.module.kits.data.Kit;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
@@ -81,8 +83,8 @@ public class AdminKitsPage extends InteractiveCustomUIPage<AdminPageData> {
 
     if (sorted.isEmpty()) {
       cmd.append("#IndexCards", UIPaths.EMPTY_STATE);
-      cmd.set("#IndexCards[0] #EmptyTitle.Text", "No Kits");
-      cmd.set("#IndexCards[0] #EmptyMessage.Text", "Create one from your current inventory.");
+      cmd.set("#IndexCards[0] #EmptyTitle.Text", HEMessages.get(playerRef, AdminKeys.Kits.EMPTY_TITLE));
+      cmd.set("#IndexCards[0] #EmptyMessage.Text", HEMessages.get(playerRef, AdminKeys.Kits.EMPTY_MESSAGE));
       return;
     }
 
@@ -101,7 +103,7 @@ public class AdminKitsPage extends InteractiveCustomUIPage<AdminPageData> {
 
       // One-time badge
       if (kit.oneTime()) {
-        cmd.set(idx + " #KitOneTime.Text", "One-time");
+        cmd.set(idx + " #KitOneTime.Text", HEMessages.get(playerRef, AdminKeys.Kits.ONE_TIME));
       }
 
       events.addEventBinding(

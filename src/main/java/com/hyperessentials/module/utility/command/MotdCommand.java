@@ -3,6 +3,8 @@ package com.hyperessentials.module.utility.command;
 import com.hyperessentials.Permissions;
 import com.hyperessentials.command.util.CommandUtil;
 import com.hyperessentials.config.ConfigManager;
+import com.hyperessentials.util.CommandKeys;
+import com.hyperessentials.util.HEMessageUtil;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.server.core.command.system.CommandContext;
@@ -30,14 +32,14 @@ public class MotdCommand extends AbstractPlayerCommand {
               @NotNull PlayerRef playerRef,
               @NotNull World world) {
     if (!CommandUtil.hasPermission(playerRef.getUuid(), Permissions.UTILITY_MOTD)) {
-      ctx.sendMessage(CommandUtil.error("You don't have permission to view the MOTD."));
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Utility.MOTD_NO_PERMISSION));
       return;
     }
 
     List<String> lines = ConfigManager.get().utility().getMotdLines();
-    ctx.sendMessage(CommandUtil.msg("=== Message of the Day ===", CommandUtil.COLOR_GOLD));
+    ctx.sendMessage(HEMessageUtil.info(playerRef, CommandKeys.Utility.MOTD_HEADER, HEMessageUtil.COLOR_GOLD));
     for (String line : lines) {
-      ctx.sendMessage(CommandUtil.msg(line, CommandUtil.COLOR_WHITE));
+      ctx.sendMessage(HEMessageUtil.text(line, HEMessageUtil.COLOR_WHITE));
     }
   }
 }

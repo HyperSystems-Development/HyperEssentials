@@ -8,6 +8,8 @@ import com.hyperessentials.gui.NavBarHelper;
 import com.hyperessentials.gui.UIHelper;
 import com.hyperessentials.gui.UIPaths;
 import com.hyperessentials.gui.data.AdminPageData;
+import com.hyperessentials.util.AdminKeys;
+import com.hyperessentials.util.HEMessages;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.protocol.packets.interface_.CustomPageLifetime;
@@ -57,12 +59,14 @@ public class AdminAnnouncementsPage extends InteractiveCustomUIPage<AdminPageDat
 
     int intervalSecs = config.getIntervalSeconds();
     if (intervalSecs > 0) {
-      cmd.set("#IntervalLabel.Text", "Interval: " + formatInterval(intervalSecs));
+      cmd.set("#IntervalLabel.Text", HEMessages.get(playerRef, AdminKeys.Announcements.INTERVAL_LABEL, formatInterval(intervalSecs)));
     } else {
-      cmd.set("#IntervalLabel.Text", "Announcements disabled");
+      cmd.set("#IntervalLabel.Text", HEMessages.get(playerRef, AdminKeys.Announcements.DISABLED));
     }
 
-    cmd.set("#ModeLabel.Text", config.isRandomize() ? "Mode: Random" : "Mode: Sequential");
+    cmd.set("#ModeLabel.Text", config.isRandomize()
+        ? HEMessages.get(playerRef, AdminKeys.Announcements.MODE_RANDOM)
+        : HEMessages.get(playerRef, AdminKeys.Announcements.MODE_SEQUENTIAL));
 
     cmd.clear("#MessageList");
     cmd.appendInline("#MessageList", "Group #IndexCards { LayoutMode: Top; }");

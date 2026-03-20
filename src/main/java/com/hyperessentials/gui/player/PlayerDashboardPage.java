@@ -8,6 +8,8 @@ import com.hyperessentials.gui.UIPaths;
 import com.hyperessentials.gui.RefreshablePage;
 import com.hyperessentials.gui.data.PlayerPageData;
 import com.hyperessentials.module.homes.HomeManager;
+import com.hyperessentials.util.GuiKeys;
+import com.hyperessentials.util.HEMessages;
 import com.hyperessentials.module.teleport.TpaManager;
 import com.hyperessentials.module.utility.UtilityManager;
 import com.hyperessentials.platform.HyperEssentialsPlugin;
@@ -89,7 +91,7 @@ public class PlayerDashboardPage extends InteractiveCustomUIPage<PlayerPageData>
     UUID uuid = playerRef.getUuid();
 
     // Welcome text
-    cmd.set("#WelcomeText.Text", "Welcome, " + playerRef.getUsername() + "!");
+    cmd.set("#WelcomeText.Text", HEMessages.get(playerRef, GuiKeys.Dashboard.WELCOME, playerRef.getUsername()));
 
     // Stat cards
     if (homeManager != null) {
@@ -125,11 +127,11 @@ public class PlayerDashboardPage extends InteractiveCustomUIPage<PlayerPageData>
     // Player stats
     if (utilityManager != null) {
       long playtimeMs = utilityManager.getTotalPlaytimeMs(uuid);
-      cmd.set("#PlaytimeLabel.Text", "Playtime: " + UIHelper.formatPlaytime(playtimeMs));
+      cmd.set("#PlaytimeLabel.Text", HEMessages.get(playerRef, GuiKeys.Dashboard.PLAYTIME, UIHelper.formatPlaytime(playtimeMs)));
 
       Instant firstJoin = utilityManager.getFirstJoin(uuid);
       if (firstJoin != null) {
-        cmd.set("#JoinDateLabel.Text", "First joined: " + DATE_FORMAT.format(firstJoin));
+        cmd.set("#JoinDateLabel.Text", HEMessages.get(playerRef, GuiKeys.Dashboard.FIRST_JOINED, DATE_FORMAT.format(firstJoin)));
       }
     }
   }

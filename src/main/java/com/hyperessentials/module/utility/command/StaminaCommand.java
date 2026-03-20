@@ -3,7 +3,9 @@ package com.hyperessentials.module.utility.command;
 import com.hyperessentials.Permissions;
 import com.hyperessentials.command.util.CommandUtil;
 import com.hyperessentials.module.utility.UtilityModule;
-import com.hyperessentials.util.Logger;
+import com.hyperessentials.util.CommandKeys;
+import com.hyperessentials.util.ErrorHandler;
+import com.hyperessentials.util.HEMessageUtil;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.server.core.command.system.CommandContext;
@@ -37,7 +39,7 @@ public class StaminaCommand extends AbstractPlayerCommand {
               @NotNull PlayerRef playerRef,
               @NotNull World world) {
     if (!CommandUtil.hasPermission(playerRef.getUuid(), Permissions.UTILITY_STAMINA)) {
-      ctx.sendMessage(CommandUtil.error("You don't have permission to toggle infinite stamina."));
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Utility.STAMINA_NO_PERMISSION));
       return;
     }
 
@@ -46,26 +48,29 @@ public class StaminaCommand extends AbstractPlayerCommand {
 
     if (parts.length >= 2) {
       if (!CommandUtil.hasPermission(playerRef.getUuid(), Permissions.UTILITY_STAMINA_OTHERS)) {
-        ctx.sendMessage(CommandUtil.error("You don't have permission to toggle stamina for others."));
+        ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Utility.STAMINA_OTHERS_NO_PERMISSION));
         return;
       }
 
       PlayerRef target = CommandUtil.findOnlinePlayer(parts[1]);
       if (target == null) {
-        ctx.sendMessage(CommandUtil.error("Player '" + parts[1] + "' is not online."));
+        ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Common.PLAYER_NOT_ONLINE, parts[1]));
         return;
       }
 
       boolean nowEnabled = module.getUtilityManager().toggleInfiniteStamina(target.getUuid());
       if (nowEnabled) maximizeStamina(store, ref);
 
-      ctx.sendMessage(CommandUtil.success("Infinite stamina " + (nowEnabled ? "enabled" : "disabled") + " for " + target.getUsername() + "."));
-      target.sendMessage(CommandUtil.success("Infinite stamina " + (nowEnabled ? "enabled" : "disabled") + "."));
+      String key = nowEnabled ? CommandKeys.Utility.STAMINA_ENABLED_OTHER : CommandKeys.Utility.STAMINA_DISABLED_OTHER;
+      ctx.sendMessage(HEMessageUtil.success(playerRef, key, target.getUsername()));
+      String selfKey = nowEnabled ? CommandKeys.Utility.STAMINA_ENABLED : CommandKeys.Utility.STAMINA_DISABLED;
+      target.sendMessage(HEMessageUtil.success(target, selfKey));
     } else {
       boolean nowEnabled = module.getUtilityManager().toggleInfiniteStamina(playerRef.getUuid());
       if (nowEnabled) maximizeStamina(store, ref);
 
-      ctx.sendMessage(CommandUtil.success("Infinite stamina " + (nowEnabled ? "enabled" : "disabled") + "."));
+      String key = nowEnabled ? CommandKeys.Utility.STAMINA_ENABLED : CommandKeys.Utility.STAMINA_DISABLED;
+      ctx.sendMessage(HEMessageUtil.success(playerRef, key));
     }
   }
 
@@ -77,7 +82,7 @@ public class StaminaCommand extends AbstractPlayerCommand {
         statMap.maximizeStatValue(DefaultEntityStatTypes.getStamina());
       }
     } catch (Exception e) {
-      Logger.debug("[Utility] Stamina maximize failed: %s", e.getMessage());
+      ErrorHandler.report("[Utility] Stamina maximize failed", e);
     }
   }
 }

@@ -12,6 +12,8 @@ import com.hyperessentials.gui.UIPaths;
 import com.hyperessentials.gui.RefreshablePage;
 import com.hyperessentials.gui.data.PlayerPageData;
 import com.hyperessentials.module.warmup.WarmupManager;
+import com.hyperessentials.util.GuiKeys;
+import com.hyperessentials.util.HEMessages;
 import com.hyperessentials.module.warps.WarpManager;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
@@ -98,8 +100,8 @@ public class WarpsPage extends InteractiveCustomUIPage<PlayerPageData> implement
 
     if (warps.isEmpty()) {
       cmd.append("#IndexCards", UIPaths.EMPTY_STATE);
-      cmd.set("#IndexCards[0] #EmptyTitle.Text", "No Warps");
-      cmd.set("#IndexCards[0] #EmptyMessage.Text", "No warps are currently available.");
+      cmd.set("#IndexCards[0] #EmptyTitle.Text", HEMessages.get(playerRef, GuiKeys.Warps.EMPTY_TITLE));
+      cmd.set("#IndexCards[0] #EmptyMessage.Text", HEMessages.get(playerRef, GuiKeys.Warps.EMPTY_MESSAGE));
       return;
     }
 
@@ -144,7 +146,7 @@ public class WarpsPage extends InteractiveCustomUIPage<PlayerPageData> implement
         // Disable teleport button if zone-restricted or on cooldown
         if (warpZoneBlocked) {
           cmd.set(idx + " #TeleportBtn.Disabled", true);
-          cmd.set(idx + " #TeleportBtn.Text", "Zone Restricted");
+          cmd.set(idx + " #TeleportBtn.Text", HEMessages.get(playerRef, GuiKeys.Warps.ZONE_RESTRICTED));
         } else if (cooldownSecs > 0) {
           cmd.set(idx + " #TeleportBtn.Disabled", true);
           cmd.set(idx + " #TeleportBtn.Text", UIHelper.formatDuration(cooldownSecs));

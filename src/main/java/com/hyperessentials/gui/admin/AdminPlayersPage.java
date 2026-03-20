@@ -6,6 +6,8 @@ import com.hyperessentials.gui.NavBarHelper;
 import com.hyperessentials.gui.UIPaths;
 import com.hyperessentials.gui.data.AdminPageData;
 import com.hyperessentials.platform.HyperEssentialsPlugin;
+import com.hyperessentials.util.AdminKeys;
+import com.hyperessentials.util.HEMessages;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.protocol.packets.interface_.CustomPageLifetime;
@@ -66,8 +68,8 @@ public class AdminPlayersPage extends InteractiveCustomUIPage<AdminPageData> {
 
     if (sorted.isEmpty()) {
       cmd.append("#IndexCards", UIPaths.EMPTY_STATE);
-      cmd.set("#IndexCards[0] #EmptyTitle.Text", "No Players");
-      cmd.set("#IndexCards[0] #EmptyMessage.Text", "No players are currently online.");
+      cmd.set("#IndexCards[0] #EmptyTitle.Text", HEMessages.get(playerRef, AdminKeys.Players.EMPTY_TITLE));
+      cmd.set("#IndexCards[0] #EmptyMessage.Text", HEMessages.get(playerRef, AdminKeys.Players.EMPTY_MESSAGE));
       return;
     }
 
@@ -77,7 +79,7 @@ public class AdminPlayersPage extends InteractiveCustomUIPage<AdminPageData> {
       String idx = "#IndexCards[" + i + "]";
 
       cmd.set(idx + " #PlayerName.Text", p.getUsername());
-      cmd.set(idx + " #PlayerInfo.Text", "UUID: " + p.getUuid().toString().substring(0, 8) + "...");
+      cmd.set(idx + " #PlayerInfo.Text", HEMessages.get(playerRef, AdminKeys.Players.PLAYER_INFO, p.getUuid().toString().substring(0, 8)));
 
       i++;
     }

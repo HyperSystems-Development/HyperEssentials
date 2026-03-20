@@ -4,6 +4,8 @@ import com.hyperessentials.gui.UIHelper;
 import com.hyperessentials.gui.UIPaths;
 import com.hyperessentials.gui.data.PlayerPageData;
 import com.hyperessentials.module.kits.KitManager;
+import com.hyperessentials.util.GuiKeys;
+import com.hyperessentials.util.HEMessages;
 import com.hyperessentials.module.kits.data.Kit;
 import com.hyperessentials.module.kits.data.KitItem;
 import com.hypixel.hytale.component.Ref;
@@ -77,8 +79,8 @@ public class KitPreviewPage extends InteractiveCustomUIPage<PlayerPageData> {
 
     if (kit.items().isEmpty()) {
       cmd.append("#IndexCards", UIPaths.EMPTY_STATE);
-      cmd.set("#IndexCards[0] #EmptyTitle.Text", "Empty Kit");
-      cmd.set("#IndexCards[0] #EmptyMessage.Text", "This kit has no items.");
+      cmd.set("#IndexCards[0] #EmptyTitle.Text", HEMessages.get(playerRef, GuiKeys.KitPreview.EMPTY_TITLE));
+      cmd.set("#IndexCards[0] #EmptyMessage.Text", HEMessages.get(playerRef, GuiKeys.KitPreview.EMPTY_MESSAGE));
       return;
     }
 
@@ -128,7 +130,7 @@ public class KitPreviewPage extends InteractiveCustomUIPage<PlayerPageData> {
       cmd.set("#ClaimBtn.Text", UIHelper.formatDuration(secs));
     } else if (oneTimeClaimed) {
       cmd.set("#ClaimBtn.Disabled", true);
-      cmd.set("#ClaimBtn.Text", "CLAIMED");
+      cmd.set("#ClaimBtn.Text", HEMessages.get(playerRef, GuiKeys.KitPreview.CLAIMED_BUTTON));
     } else {
       events.addEventBinding(
           CustomUIEventBindingType.Activating, "#ClaimBtn",

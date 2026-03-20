@@ -4,6 +4,8 @@ import com.hyperessentials.Permissions;
 import com.hyperessentials.command.util.CommandUtil;
 import com.hyperessentials.config.ConfigManager;
 import com.hyperessentials.platform.HyperEssentialsPlugin;
+import com.hyperessentials.util.CommandKeys;
+import com.hyperessentials.util.HEMessageUtil;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.math.vector.Transform;
@@ -37,7 +39,7 @@ public class NearCommand extends AbstractPlayerCommand {
               @NotNull PlayerRef playerRef,
               @NotNull World world) {
     if (!CommandUtil.hasPermission(playerRef.getUuid(), Permissions.UTILITY_NEAR)) {
-      ctx.sendMessage(CommandUtil.error("You don't have permission to use /near."));
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Utility.NEAR_NO_PERMISSION));
       return;
     }
 
@@ -54,7 +56,7 @@ public class NearCommand extends AbstractPlayerCommand {
         if (radius < 1) radius = defaultRadius;
         if (radius > maxRadius) radius = maxRadius;
       } catch (NumberFormatException e) {
-        ctx.sendMessage(CommandUtil.error("Invalid radius. Using default: " + defaultRadius));
+        ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Utility.NEAR_INVALID_RADIUS, defaultRadius));
       }
     }
 
@@ -88,11 +90,11 @@ public class NearCommand extends AbstractPlayerCommand {
     }
 
     if (nearby.isEmpty()) {
-      ctx.sendMessage(CommandUtil.info("No players within " + radius + " blocks."));
+      ctx.sendMessage(HEMessageUtil.info(playerRef, CommandKeys.Utility.NEAR_EMPTY, HEMessageUtil.COLOR_YELLOW, radius));
     } else {
-      ctx.sendMessage(CommandUtil.info("Nearby Players (" + nearby.size() + " within " + radius + "m):"));
+      ctx.sendMessage(HEMessageUtil.info(playerRef, CommandKeys.Utility.NEAR_HEADER, HEMessageUtil.COLOR_YELLOW, nearby.size(), radius));
       for (String entry : nearby) {
-        ctx.sendMessage(CommandUtil.msg("  " + entry, CommandUtil.COLOR_GREEN));
+        ctx.sendMessage(HEMessageUtil.text("  " + entry, HEMessageUtil.COLOR_GREEN));
       }
     }
   }

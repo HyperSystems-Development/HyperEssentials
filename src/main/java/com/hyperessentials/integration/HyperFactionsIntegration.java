@@ -4,6 +4,7 @@ import com.hyperessentials.api.HyperEssentialsAPI;
 import com.hyperessentials.data.Location;
 import com.hyperessentials.module.teleport.BackManager;
 import com.hyperessentials.module.teleport.TeleportModule;
+import com.hyperessentials.util.ErrorHandler;
 import com.hyperessentials.util.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -158,7 +159,7 @@ public final class HyperFactionsIntegration {
     } catch (ClassNotFoundException e) {
       Logger.info("[Integration] HyperFactions not found - territory features disabled");
     } catch (Exception e) {
-      Logger.warn("[Integration] Failed to initialize HyperFactions integration: %s", e.getMessage());
+      ErrorHandler.report("[Integration] Failed to initialize HyperFactions integration", e);
     }
   }
 
@@ -195,7 +196,7 @@ public final class HyperFactionsIntegration {
           bm.onTeleport(uuid, backLoc, "factionhome");
           Logger.debug("[Integration] Saved back location for %s from /f home teleport", uuid);
         } catch (Exception e) {
-          Logger.debug("[Integration] Failed to save back location from /f home: %s", e.getMessage());
+          ErrorHandler.report("[Integration] Failed to save back location from /f home", e);
         }
       };
 

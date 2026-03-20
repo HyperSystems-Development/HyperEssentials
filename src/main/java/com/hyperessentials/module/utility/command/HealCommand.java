@@ -2,7 +2,9 @@ package com.hyperessentials.module.utility.command;
 
 import com.hyperessentials.Permissions;
 import com.hyperessentials.command.util.CommandUtil;
-import com.hyperessentials.util.Logger;
+import com.hyperessentials.util.CommandKeys;
+import com.hyperessentials.util.ErrorHandler;
+import com.hyperessentials.util.HEMessageUtil;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.server.core.command.system.CommandContext;
@@ -11,7 +13,6 @@ import com.hypixel.hytale.server.core.modules.entitystats.EntityStatMap;
 import com.hypixel.hytale.server.core.modules.entitystats.EntityStatsModule;
 import com.hypixel.hytale.server.core.modules.entitystats.asset.DefaultEntityStatTypes;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
-import com.hypixel.hytale.server.core.universe.Universe;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import org.jetbrains.annotations.NotNull;
@@ -33,7 +34,7 @@ public class HealCommand extends AbstractPlayerCommand {
               @NotNull PlayerRef playerRef,
               @NotNull World world) {
     if (!CommandUtil.hasPermission(playerRef.getUuid(), Permissions.UTILITY_HEAL)) {
-      ctx.sendMessage(CommandUtil.error("You don't have permission to heal."));
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Utility.HEAL_NO_PERMISSION));
       return;
     }
 
@@ -42,30 +43,30 @@ public class HealCommand extends AbstractPlayerCommand {
 
     if (parts.length >= 2) {
       if (!CommandUtil.hasPermission(playerRef.getUuid(), Permissions.UTILITY_HEAL_OTHERS)) {
-        ctx.sendMessage(CommandUtil.error("You don't have permission to heal others."));
+        ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Utility.HEAL_OTHERS_NO_PERMISSION));
         return;
       }
 
       PlayerRef target = CommandUtil.findOnlinePlayer(parts[1]);
       if (target == null) {
-        ctx.sendMessage(CommandUtil.error("Player '" + parts[1] + "' is not online."));
+        ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Common.PLAYER_NOT_ONLINE, parts[1]));
         return;
       }
 
       // Resolve target's store/ref for cross-player healing
       Ref<EntityStore> targetRef = target.getReference();
       if (targetRef == null || !targetRef.isValid()) {
-        ctx.sendMessage(CommandUtil.error("Player '" + parts[1] + "' is not in a world."));
+        ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Common.PLAYER_NOT_IN_WORLD, parts[1]));
         return;
       }
       Store<EntityStore> targetStore = targetRef.getStore();
 
       healPlayer(targetStore, targetRef);
-      ctx.sendMessage(CommandUtil.success("Healed " + target.getUsername() + "."));
-      target.sendMessage(CommandUtil.success("You have been healed."));
+      ctx.sendMessage(HEMessageUtil.success(playerRef, CommandKeys.Utility.HEAL_SUCCESS_OTHER, target.getUsername()));
+      target.sendMessage(HEMessageUtil.success(target, CommandKeys.Utility.HEAL_YOU_HEALED));
     } else {
       healPlayer(store, ref);
-      ctx.sendMessage(CommandUtil.success("You have been healed."));
+      ctx.sendMessage(HEMessageUtil.success(playerRef, CommandKeys.Utility.HEAL_SUCCESS));
     }
   }
 
@@ -77,7 +78,7 @@ public class HealCommand extends AbstractPlayerCommand {
         statMap.maximizeStatValue(DefaultEntityStatTypes.getHealth());
       }
     } catch (Exception e) {
-      Logger.debug("[Utility] Failed to heal via EntityStatsModule: %s", e.getMessage());
+      ErrorHandler.report("[Utility] Failed to heal via EntityStatsModule", e);
     }
   }
 }

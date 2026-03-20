@@ -2,7 +2,9 @@ package com.hyperessentials.module.utility.command;
 
 import com.hyperessentials.Permissions;
 import com.hyperessentials.command.util.CommandUtil;
-import com.hyperessentials.util.Logger;
+import com.hyperessentials.util.CommandKeys;
+import com.hyperessentials.util.ErrorHandler;
+import com.hyperessentials.util.HEMessageUtil;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.protocol.packets.interface_.Page;
@@ -33,14 +35,14 @@ public class TrashCommand extends AbstractPlayerCommand {
               @NotNull PlayerRef playerRef,
               @NotNull World world) {
     if (!CommandUtil.hasPermission(playerRef.getUuid(), Permissions.UTILITY_TRASH)) {
-      ctx.sendMessage(CommandUtil.error("You don't have permission to use trash."));
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Utility.TRASH_NO_PERMISSION));
       return;
     }
 
     try {
       Player player = store.getComponent(ref, Player.getComponentType());
       if (player == null) {
-        ctx.sendMessage(CommandUtil.error("Could not resolve player."));
+        ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Common.CANNOT_ACCESS_PLAYER));
         return;
       }
 
@@ -49,8 +51,8 @@ public class TrashCommand extends AbstractPlayerCommand {
       ContainerWindow window = new ContainerWindow(trash);
       player.getPageManager().setPageWithWindows(ref, store, Page.Bench, true, window);
     } catch (Exception e) {
-      Logger.warn("[Utility] Failed to open trash: %s", e.getMessage());
-      ctx.sendMessage(CommandUtil.error("Failed to open trash."));
+      ErrorHandler.report("[Utility] Failed to open trash", e);
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Utility.TRASH_FAILED));
     }
   }
 }

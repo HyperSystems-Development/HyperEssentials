@@ -4,6 +4,9 @@ import com.hyperessentials.Permissions;
 import com.hyperessentials.command.util.CommandUtil;
 import com.hyperessentials.config.ConfigManager;
 import com.hyperessentials.config.modules.UtilityConfig;
+import com.hyperessentials.util.CommandKeys;
+import com.hyperessentials.util.HEMessageUtil;
+import com.hyperessentials.util.HEMessages;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.server.core.command.system.CommandContext;
@@ -33,7 +36,7 @@ public class SleepPercentageCommand extends AbstractPlayerCommand {
               @NotNull PlayerRef playerRef,
               @NotNull World world) {
     if (!CommandUtil.hasPermission(playerRef.getUuid(), Permissions.UTILITY_SLEEPPERCENTAGE)) {
-      ctx.sendMessage(CommandUtil.error("You don't have permission to manage sleep percentage."));
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Utility.SLEEP_NO_PERMISSION));
       return;
     }
 
@@ -44,15 +47,15 @@ public class SleepPercentageCommand extends AbstractPlayerCommand {
 
     if (parts.length <= 1) {
       // Show current values
-      ctx.sendMessage(CommandUtil.info("Sleep percentage (global): " + config.getSleepPercentage() + "%"));
+      ctx.sendMessage(HEMessageUtil.info(playerRef, CommandKeys.Utility.SLEEP_CURRENT, HEMessageUtil.COLOR_YELLOW, config.getSleepPercentage()));
       Map<String, Integer> worldPcts = config.getWorldSleepPercentages();
       if (!worldPcts.isEmpty()) {
         for (Map.Entry<String, Integer> entry : worldPcts.entrySet()) {
-          ctx.sendMessage(CommandUtil.msg("  " + entry.getKey() + ": " + entry.getValue() + "%", CommandUtil.COLOR_GRAY));
+          ctx.sendMessage(HEMessageUtil.text("  " + entry.getKey() + ": " + entry.getValue() + "%", HEMessageUtil.COLOR_GRAY));
         }
       }
       if (config.getSleepPercentage() == 0) {
-        ctx.sendMessage(CommandUtil.msg("  (disabled - using vanilla behavior)", CommandUtil.COLOR_DARK_GRAY));
+        ctx.sendMessage(HEMessageUtil.text("  " + HEMessages.get(playerRef, CommandKeys.Utility.SLEEP_DISABLED_HINT), HEMessageUtil.COLOR_DARK_GRAY));
       }
       return;
     }
@@ -62,14 +65,14 @@ public class SleepPercentageCommand extends AbstractPlayerCommand {
       try {
         int pct = Integer.parseInt(parts[1]);
         if (pct < 0 || pct > 100) {
-          ctx.sendMessage(CommandUtil.error("Percentage must be between 0 and 100."));
+          ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Utility.SLEEP_INVALID_RANGE));
           return;
         }
         config.setSleepPercentage(pct);
         config.save();
-        ctx.sendMessage(CommandUtil.success("Global sleep percentage set to " + pct + "%."));
+        ctx.sendMessage(HEMessageUtil.success(playerRef, CommandKeys.Utility.SLEEP_SET_GLOBAL, pct));
       } catch (NumberFormatException e) {
-        ctx.sendMessage(CommandUtil.error("Usage: /sleeppercentage [number] or /sleeppercentage <world> <number>"));
+        ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Utility.SLEEP_USAGE));
       }
       return;
     }
@@ -79,14 +82,14 @@ public class SleepPercentageCommand extends AbstractPlayerCommand {
     try {
       int pct = Integer.parseInt(parts[2]);
       if (pct < 0 || pct > 100) {
-        ctx.sendMessage(CommandUtil.error("Percentage must be between 0 and 100."));
+        ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Utility.SLEEP_INVALID_RANGE));
         return;
       }
       config.getWorldSleepPercentages().put(worldName, pct);
       config.save();
-      ctx.sendMessage(CommandUtil.success("Sleep percentage for world '" + worldName + "' set to " + pct + "%."));
+      ctx.sendMessage(HEMessageUtil.success(playerRef, CommandKeys.Utility.SLEEP_SET_WORLD, worldName, pct));
     } catch (NumberFormatException e) {
-      ctx.sendMessage(CommandUtil.error("Usage: /sleeppercentage <world> <number>"));
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Utility.SLEEP_USAGE));
     }
   }
 }

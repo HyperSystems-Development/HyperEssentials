@@ -8,6 +8,8 @@ import com.hyperessentials.gui.UIHelper;
 import com.hyperessentials.gui.UIPaths;
 import com.hyperessentials.gui.data.AdminPageData;
 import com.hyperessentials.module.warps.WarpManager;
+import com.hyperessentials.util.AdminKeys;
+import com.hyperessentials.util.HEMessages;
 import com.hyperessentials.platform.HyperEssentialsPlugin;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
@@ -77,8 +79,8 @@ public class AdminWarpsPage extends InteractiveCustomUIPage<AdminPageData> {
 
     if (sorted.isEmpty()) {
       cmd.append("#IndexCards", UIPaths.EMPTY_STATE);
-      cmd.set("#IndexCards[0] #EmptyTitle.Text", "No Warps");
-      cmd.set("#IndexCards[0] #EmptyMessage.Text", "Create one at your current location.");
+      cmd.set("#IndexCards[0] #EmptyTitle.Text", HEMessages.get(playerRef, AdminKeys.Warps.EMPTY_TITLE));
+      cmd.set("#IndexCards[0] #EmptyMessage.Text", HEMessages.get(playerRef, AdminKeys.Warps.EMPTY_MESSAGE));
       return;
     }
 

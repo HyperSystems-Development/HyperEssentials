@@ -1,7 +1,8 @@
 package com.hyperessentials.module.utility.command;
 
-import com.hyperessentials.command.util.CommandUtil;
 import com.hyperessentials.platform.HyperEssentialsPlugin;
+import com.hyperessentials.util.CommandKeys;
+import com.hyperessentials.util.HEMessageUtil;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.server.core.command.system.CommandContext;
@@ -40,6 +41,7 @@ public class ListCommand extends AbstractPlayerCommand {
       .sorted(String.CASE_INSENSITIVE_ORDER)
       .toList();
 
-    ctx.sendMessage(CommandUtil.msg("Online Players (" + names.size() + "): " + String.join(", ", names), CommandUtil.COLOR_GOLD));
+    ctx.sendMessage(HEMessageUtil.info(playerRef, CommandKeys.Utility.LIST_HEADER,
+        HEMessageUtil.COLOR_GOLD, names.size(), String.join(", ", names)));
   }
 }

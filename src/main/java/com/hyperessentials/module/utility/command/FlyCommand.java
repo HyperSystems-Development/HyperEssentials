@@ -3,7 +3,9 @@ package com.hyperessentials.module.utility.command;
 import com.hyperessentials.Permissions;
 import com.hyperessentials.command.util.CommandUtil;
 import com.hyperessentials.module.utility.UtilityModule;
-import com.hyperessentials.util.Logger;
+import com.hyperessentials.util.CommandKeys;
+import com.hyperessentials.util.ErrorHandler;
+import com.hyperessentials.util.HEMessageUtil;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.server.core.command.system.CommandContext;
@@ -34,7 +36,7 @@ public class FlyCommand extends AbstractPlayerCommand {
               @NotNull PlayerRef playerRef,
               @NotNull World world) {
     if (!CommandUtil.hasPermission(playerRef.getUuid(), Permissions.UTILITY_FLY)) {
-      ctx.sendMessage(CommandUtil.error("You don't have permission to fly."));
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Utility.FLY_NO_PERMISSION));
       return;
     }
 
@@ -43,20 +45,20 @@ public class FlyCommand extends AbstractPlayerCommand {
 
     if (parts.length >= 2) {
       if (!CommandUtil.hasPermission(playerRef.getUuid(), Permissions.UTILITY_FLY_OTHERS)) {
-        ctx.sendMessage(CommandUtil.error("You don't have permission to toggle fly for others."));
+        ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Utility.FLY_OTHERS_NO_PERMISSION));
         return;
       }
 
       PlayerRef target = CommandUtil.findOnlinePlayer(parts[1]);
       if (target == null) {
-        ctx.sendMessage(CommandUtil.error("Player '" + parts[1] + "' is not online."));
+        ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Common.PLAYER_NOT_ONLINE, parts[1]));
         return;
       }
 
       // Resolve target's store/ref for cross-player fly toggle
       Ref<EntityStore> targetRef = target.getReference();
       if (targetRef == null || !targetRef.isValid()) {
-        ctx.sendMessage(CommandUtil.error("Player '" + parts[1] + "' is not in a world."));
+        ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Common.PLAYER_NOT_IN_WORLD, parts[1]));
         return;
       }
       Store<EntityStore> targetStore = targetRef.getStore();
@@ -64,13 +66,16 @@ public class FlyCommand extends AbstractPlayerCommand {
       boolean nowFlying = module.getUtilityManager().toggleFly(target.getUuid());
       applyFly(targetStore, targetRef, target, nowFlying);
 
-      ctx.sendMessage(CommandUtil.success("Flight " + (nowFlying ? "enabled" : "disabled") + " for " + target.getUsername() + "."));
-      target.sendMessage(CommandUtil.success("Flight " + (nowFlying ? "enabled" : "disabled") + "."));
+      String key = nowFlying ? CommandKeys.Utility.FLY_ENABLED_OTHER : CommandKeys.Utility.FLY_DISABLED_OTHER;
+      ctx.sendMessage(HEMessageUtil.success(playerRef, key, target.getUsername()));
+      String selfKey = nowFlying ? CommandKeys.Utility.FLY_ENABLED : CommandKeys.Utility.FLY_DISABLED;
+      target.sendMessage(HEMessageUtil.success(target, selfKey));
     } else {
       boolean nowFlying = module.getUtilityManager().toggleFly(playerRef.getUuid());
       applyFly(store, ref, playerRef, nowFlying);
 
-      ctx.sendMessage(CommandUtil.success("Flight " + (nowFlying ? "enabled" : "disabled") + "."));
+      String key = nowFlying ? CommandKeys.Utility.FLY_ENABLED : CommandKeys.Utility.FLY_DISABLED;
+      ctx.sendMessage(HEMessageUtil.success(playerRef, key));
     }
   }
 
@@ -79,7 +84,6 @@ public class FlyCommand extends AbstractPlayerCommand {
     try {
       MovementManager mm = store.getComponent(ref, MovementManager.getComponentType());
       if (mm == null) {
-        Logger.debug("[Utility] MovementManager not found for fly toggle");
         return;
       }
 
@@ -87,7 +91,7 @@ public class FlyCommand extends AbstractPlayerCommand {
       mm.getSettings().canFly = enable;
       mm.update(playerRef.getPacketHandler());
     } catch (Exception e) {
-      Logger.debug("[Utility] Failed to toggle fly: %s", e.getMessage());
+      ErrorHandler.report("[Utility] Failed to toggle fly", e);
     }
   }
 }

@@ -1,5 +1,6 @@
 package com.hyperessentials.integration;
 
+import com.hyperessentials.util.ErrorHandler;
 import com.hyperessentials.util.Logger;
 import org.jetbrains.annotations.NotNull;
 
@@ -47,7 +48,7 @@ public class HyperPermsProviderAdapter implements PermissionProvider {
       Logger.debug("[HyperPermsProvider] HyperPerms not found");
     } catch (Exception e) {
       available = false;
-      Logger.debug("[HyperPermsProvider] Failed to initialize: %s", e.getMessage());
+      ErrorHandler.report("[HyperPermsProvider] Failed to initialize", e);
     }
   }
 
@@ -103,7 +104,7 @@ public class HyperPermsProviderAdapter implements PermissionProvider {
         return highestValue;
       }
     } catch (Exception e) {
-      Logger.debug("[HyperPermsProvider] Failed to get permission value: %s", e.getMessage());
+      ErrorHandler.report("[HyperPermsProvider] Failed to get permission value", e);
     }
     return defaultValue;
   }

@@ -9,6 +9,8 @@ import com.hyperessentials.gui.UIPaths;
 import com.hyperessentials.gui.data.AdminPageData;
 import com.hyperessentials.module.Module;
 import com.hyperessentials.module.ModuleRegistry;
+import com.hyperessentials.util.AdminKeys;
+import com.hyperessentials.util.HEMessages;
 import com.hyperessentials.module.kits.KitsModule;
 import com.hyperessentials.module.spawns.SpawnsModule;
 import com.hyperessentials.module.warps.WarpsModule;
@@ -92,7 +94,9 @@ public class AdminDashboardPage extends InteractiveCustomUIPage<AdminPageData> {
       cmd.set(selector + " #ModuleName.Text", module.getDisplayName());
 
       boolean enabled = module.isEnabled();
-      cmd.set(selector + " #ModuleStatus.Text", enabled ? "Enabled" : "Disabled");
+      cmd.set(selector + " #ModuleStatus.Text", enabled
+          ? HEMessages.get(playerRef, AdminKeys.Dashboard.MODULE_ENABLED)
+          : HEMessages.get(playerRef, AdminKeys.Dashboard.MODULE_DISABLED));
       cmd.set(selector + " #ModuleStatus.Style.TextColor", GuiColors.forModuleEnabled(enabled));
       cmd.set(selector + " #StatusDot.Background.Color", GuiColors.forModuleEnabled(enabled));
       idx++;

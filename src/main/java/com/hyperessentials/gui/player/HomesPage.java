@@ -13,6 +13,8 @@ import com.hyperessentials.gui.UIPaths;
 import com.hyperessentials.gui.RefreshablePage;
 import com.hyperessentials.gui.data.PlayerPageData;
 import com.hyperessentials.integration.FactionTerritoryChecker;
+import com.hyperessentials.util.GuiKeys;
+import com.hyperessentials.util.HEMessages;
 import com.hyperessentials.integration.HyperFactionsIntegration;
 import com.hyperessentials.module.homes.HomeManager;
 import com.hyperessentials.module.teleport.BackManager;
@@ -172,12 +174,12 @@ public class HomesPage extends InteractiveCustomUIPage<PlayerPageData> implement
         int factionCooldown = HyperFactionsIntegration.getFactionHomeCooldownRemaining(uuid);
         if (factionHomeZoneBlocked) {
           cmd.set(idx + " #TeleportBtn.Disabled", true);
-          cmd.set(idx + " #TeleportBtn.Text", "Zone Restricted");
+          cmd.set(idx + " #TeleportBtn.Text", HEMessages.get(playerRef, GuiKeys.Homes.ZONE_RESTRICTED));
         } else if (factionCooldown > 0) {
           cmd.set(idx + " #TeleportBtn.Disabled", true);
-          cmd.set(idx + " #TeleportBtn.Text", "Cooldown");
+          cmd.set(idx + " #TeleportBtn.Text", HEMessages.get(playerRef, GuiKeys.Homes.COOLDOWN));
           cmd.set(idx + " #HomeCooldown.Visible", true);
-          cmd.set(idx + " #HomeCooldown.Text", "Cooldown: " + UIHelper.formatDuration(factionCooldown));
+          cmd.set(idx + " #HomeCooldown.Text", HEMessages.get(playerRef, GuiKeys.Homes.COOLDOWN_LABEL, UIHelper.formatDuration(factionCooldown)));
           cmd.set(idx + " #HomeCoords.Visible", false);
           cooldownEntries.add(new CooldownEntry(i, true));
         }
@@ -198,8 +200,8 @@ public class HomesPage extends InteractiveCustomUIPage<PlayerPageData> implement
       List<HomeManager.SharedHome> sharedHomes = homeManager.getSharedHomes(uuid);
       if (sharedHomes.isEmpty()) {
         cmd.append("#IndexCards", UIPaths.EMPTY_STATE);
-        cmd.set("#IndexCards[" + i + "] #EmptyTitle.Text", "No Homes");
-        cmd.set("#IndexCards[" + i + "] #EmptyMessage.Text", "Use /sethome to create your first home.");
+        cmd.set("#IndexCards[" + i + "] #EmptyTitle.Text", HEMessages.get(playerRef, GuiKeys.Homes.EMPTY_TITLE));
+        cmd.set("#IndexCards[" + i + "] #EmptyMessage.Text", HEMessages.get(playerRef, GuiKeys.Homes.EMPTY_MESSAGE));
         return;
       }
     }
@@ -236,12 +238,12 @@ public class HomesPage extends InteractiveCustomUIPage<PlayerPageData> implement
       // Disable teleport button if zone-restricted or on cooldown
       if (homeZoneBlocked) {
         cmd.set(idx + " #TeleportBtn.Disabled", true);
-        cmd.set(idx + " #TeleportBtn.Text", "Zone Restricted");
+        cmd.set(idx + " #TeleportBtn.Text", HEMessages.get(playerRef, GuiKeys.Homes.ZONE_RESTRICTED));
       } else if (cooldownSecs > 0) {
         cmd.set(idx + " #TeleportBtn.Disabled", true);
-        cmd.set(idx + " #TeleportBtn.Text", "Cooldown");
+        cmd.set(idx + " #TeleportBtn.Text", HEMessages.get(playerRef, GuiKeys.Homes.COOLDOWN));
         cmd.set(idx + " #HomeCooldown.Visible", true);
-        cmd.set(idx + " #HomeCooldown.Text", "Cooldown: " + UIHelper.formatDuration(cooldownSecs));
+        cmd.set(idx + " #HomeCooldown.Text", HEMessages.get(playerRef, GuiKeys.Homes.COOLDOWN_LABEL, UIHelper.formatDuration(cooldownSecs)));
         cmd.set(idx + " #HomeCoords.Visible", false);
         cooldownEntries.add(new CooldownEntry(i, false));
       }
@@ -325,12 +327,12 @@ public class HomesPage extends InteractiveCustomUIPage<PlayerPageData> implement
         // Cooldown applies to shared home teleports too
         if (sharedZoneBlocked) {
           cmd.set(idx + " #TeleportBtn.Disabled", true);
-          cmd.set(idx + " #TeleportBtn.Text", "Zone Restricted");
+          cmd.set(idx + " #TeleportBtn.Text", HEMessages.get(playerRef, GuiKeys.Homes.ZONE_RESTRICTED));
         } else if (cooldownSecs > 0) {
           cmd.set(idx + " #TeleportBtn.Disabled", true);
-          cmd.set(idx + " #TeleportBtn.Text", "Cooldown");
+          cmd.set(idx + " #TeleportBtn.Text", HEMessages.get(playerRef, GuiKeys.Homes.COOLDOWN));
           cmd.set(idx + " #HomeCooldown.Visible", true);
-          cmd.set(idx + " #HomeCooldown.Text", "Cooldown: " + UIHelper.formatDuration(cooldownSecs));
+          cmd.set(idx + " #HomeCooldown.Text", HEMessages.get(playerRef, GuiKeys.Homes.COOLDOWN_LABEL, UIHelper.formatDuration(cooldownSecs)));
           cmd.set(idx + " #HomeCoords.Visible", false);
           cooldownEntries.add(new CooldownEntry(i, false));
         }

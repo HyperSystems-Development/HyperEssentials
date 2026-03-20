@@ -2,7 +2,9 @@ package com.hyperessentials.module.utility.command;
 
 import com.hyperessentials.Permissions;
 import com.hyperessentials.command.util.CommandUtil;
-import com.hyperessentials.util.Logger;
+import com.hyperessentials.util.CommandKeys;
+import com.hyperessentials.util.ErrorHandler;
+import com.hyperessentials.util.HEMessageUtil;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.server.core.command.system.CommandContext;
@@ -34,7 +36,7 @@ public class DurabilityCommand extends AbstractPlayerCommand {
               @NotNull PlayerRef playerRef,
               @NotNull World world) {
     if (!CommandUtil.hasPermission(playerRef.getUuid(), Permissions.UTILITY_DURABILITY)) {
-      ctx.sendMessage(CommandUtil.error("You don't have permission to modify durability."));
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Utility.DURA_NO_PERMISSION));
       return;
     }
 
@@ -42,7 +44,7 @@ public class DurabilityCommand extends AbstractPlayerCommand {
     String[] parts = input != null ? input.trim().split("\\s+") : new String[0];
 
     if (parts.length < 2) {
-      ctx.sendMessage(CommandUtil.error("Usage: /durability set <number> | /durability reset"));
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Utility.DURA_USAGE));
       return;
     }
 
@@ -51,7 +53,7 @@ public class DurabilityCommand extends AbstractPlayerCommand {
     try {
       Player playerComponent = store.getComponent(ref, Player.getComponentType());
       if (playerComponent == null) {
-        ctx.sendMessage(CommandUtil.error("Cannot access player data."));
+        ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Common.CANNOT_ACCESS_PLAYER));
         return;
       }
 
@@ -59,12 +61,12 @@ public class DurabilityCommand extends AbstractPlayerCommand {
       ItemStack heldItem = inventory.getItemInHand();
 
       if (heldItem == null || heldItem.isEmpty()) {
-        ctx.sendMessage(CommandUtil.error("You are not holding an item."));
+        ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Common.NOT_HOLDING_ITEM));
         return;
       }
 
       if (heldItem.getMaxDurability() <= 0) {
-        ctx.sendMessage(CommandUtil.error("This item has no durability."));
+        ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Utility.DURA_NO_DURABILITY));
         return;
       }
 
@@ -73,7 +75,7 @@ public class DurabilityCommand extends AbstractPlayerCommand {
       switch (subCommand) {
         case "set" -> {
           if (parts.length < 3) {
-            ctx.sendMessage(CommandUtil.error("Usage: /durability set <number>"));
+            ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Utility.DURA_SET_USAGE));
             return;
           }
 
@@ -81,31 +83,31 @@ public class DurabilityCommand extends AbstractPlayerCommand {
           try {
             value = Double.parseDouble(parts[2]);
           } catch (NumberFormatException e) {
-            ctx.sendMessage(CommandUtil.error("Invalid number: " + parts[2]));
+            ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Utility.DURA_INVALID_NUMBER, parts[2]));
             return;
           }
 
           if (value <= 0) {
-            ctx.sendMessage(CommandUtil.error("Durability must be greater than 0."));
+            ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Utility.DURA_MUST_POSITIVE));
             return;
           }
 
           // Set both max and current durability to the new value
           ItemStack modified = heldItem.withRestoredDurability(value);
           inventory.getHotbar().setItemStackForSlot(activeSlot, modified);
-          ctx.sendMessage(CommandUtil.success("Max durability set to " + (int) value + "."));
+          ctx.sendMessage(HEMessageUtil.success(playerRef, CommandKeys.Utility.DURA_SET_SUCCESS, (int) value));
         }
         case "reset" -> {
           double defaultMax = heldItem.getItem().getMaxDurability();
           ItemStack reset = heldItem.withRestoredDurability(defaultMax);
           inventory.getHotbar().setItemStackForSlot(activeSlot, reset);
-          ctx.sendMessage(CommandUtil.success("Durability reset to default (" + (int) defaultMax + ")."));
+          ctx.sendMessage(HEMessageUtil.success(playerRef, CommandKeys.Utility.DURA_RESET_SUCCESS, (int) defaultMax));
         }
-        default -> ctx.sendMessage(CommandUtil.error("Usage: /durability set <number> | /durability reset"));
+        default -> ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Utility.DURA_USAGE));
       }
     } catch (Exception e) {
-      Logger.warn("[Utility] Failed to modify durability: %s", e.getMessage());
-      ctx.sendMessage(CommandUtil.error("Failed to modify durability."));
+      ErrorHandler.report("[Utility] Failed to modify durability", e);
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Utility.DURA_FAILED));
     }
   }
 }

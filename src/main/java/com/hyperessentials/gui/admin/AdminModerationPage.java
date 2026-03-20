@@ -8,6 +8,8 @@ import com.hyperessentials.gui.UIHelper;
 import com.hyperessentials.gui.UIPaths;
 import com.hyperessentials.gui.data.AdminPageData;
 import com.hyperessentials.module.moderation.ModerationManager;
+import com.hyperessentials.util.AdminKeys;
+import com.hyperessentials.util.HEMessages;
 import com.hyperessentials.module.moderation.data.Punishment;
 import com.hyperessentials.module.moderation.data.PunishmentType;
 import com.hypixel.hytale.component.Ref;
@@ -87,8 +89,10 @@ public class AdminModerationPage extends InteractiveCustomUIPage<AdminPageData> 
 
     if (punishments.isEmpty()) {
       cmd.append("#IndexCards", UIPaths.EMPTY_STATE);
-      cmd.set("#IndexCards[0] #EmptyTitle.Text", showActiveOnly ? "No Active Punishments" : "No Punishments");
-      cmd.set("#IndexCards[0] #EmptyMessage.Text", "No punishment records found.");
+      cmd.set("#IndexCards[0] #EmptyTitle.Text", showActiveOnly
+          ? HEMessages.get(playerRef, AdminKeys.Moderation.EMPTY_ACTIVE_TITLE)
+          : HEMessages.get(playerRef, AdminKeys.Moderation.EMPTY_ALL_TITLE));
+      cmd.set("#IndexCards[0] #EmptyMessage.Text", HEMessages.get(playerRef, AdminKeys.Moderation.EMPTY_MESSAGE));
       return;
     }
 
@@ -110,17 +114,19 @@ public class AdminModerationPage extends InteractiveCustomUIPage<AdminPageData> 
 
       cmd.set(idx + " #PlayerName.Text", p.playerName());
       cmd.set(idx + " #IssuerName.Text", "by " + p.issuerName());
-      cmd.set(idx + " #Reason.Text", p.reason() != null ? p.reason() : "No reason");
+      cmd.set(idx + " #Reason.Text", p.reason() != null ? p.reason() : HEMessages.get(playerRef, AdminKeys.Moderation.NO_REASON));
 
       // Expires info
       if (p.isEffective()) {
         if (p.isPermanent()) {
-          cmd.set(idx + " #Expires.Text", "Permanent");
+          cmd.set(idx + " #Expires.Text", HEMessages.get(playerRef, AdminKeys.Moderation.PERMANENT));
         } else {
           cmd.set(idx + " #Expires.Text", UIHelper.formatDuration((int) (p.getRemainingMillis() / 1000)));
         }
       } else {
-        cmd.set(idx + " #Expires.Text", p.active() ? "Expired" : "Revoked");
+        cmd.set(idx + " #Expires.Text", p.active()
+            ? HEMessages.get(playerRef, AdminKeys.Moderation.EXPIRED)
+            : HEMessages.get(playerRef, AdminKeys.Moderation.REVOKED));
       }
 
       // Only show revoke button for active punishments (not kicks)

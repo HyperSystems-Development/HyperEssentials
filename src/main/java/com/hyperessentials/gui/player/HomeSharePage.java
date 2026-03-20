@@ -3,6 +3,8 @@ package com.hyperessentials.gui.player;
 import com.hyperessentials.gui.UIPaths;
 import com.hyperessentials.gui.data.HomeShareData;
 import com.hyperessentials.gui.util.PlayerSearchUtil;
+import com.hyperessentials.util.GuiKeys;
+import com.hyperessentials.util.HEMessages;
 import com.hyperessentials.module.homes.HomeManager;
 import com.hyperessentials.platform.HyperEssentialsPlugin;
 import com.hypixel.hytale.component.Ref;
@@ -59,7 +61,7 @@ public class HomeSharePage extends InteractiveCustomUIPage<HomeShareData> {
     this.lastStore = store;
 
     cmd.append(UIPaths.HOME_SHARE_PAGE);
-    cmd.set("#ShareTitle.Text", "Share: " + homeName);
+    cmd.set("#ShareTitle.Text", HEMessages.get(playerRef, GuiKeys.HomeShare.SHARE_TITLE, homeName));
 
     buildSharedList(cmd, events);
 
@@ -190,7 +192,7 @@ public class HomeSharePage extends InteractiveCustomUIPage<HomeShareData> {
     UUID uuid = playerRef.getUuid();
     Set<UUID> sharedWith = homeManager.getSharedWith(uuid, homeName);
 
-    cmd.set("#SharedCount.Text", "Shared with " + sharedWith.size() + " player" + (sharedWith.size() != 1 ? "s" : ""));
+    cmd.set("#SharedCount.Text", HEMessages.get(playerRef, GuiKeys.HomeShare.SHARED_COUNT, sharedWith.size(), sharedWith.size() != 1 ? "s" : ""));
 
     cmd.clear("#SharedList");
     cmd.appendInline("#SharedList", "Group #SharedCards { LayoutMode: Top; }");

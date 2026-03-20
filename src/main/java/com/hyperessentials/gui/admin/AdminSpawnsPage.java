@@ -8,6 +8,8 @@ import com.hyperessentials.gui.UIHelper;
 import com.hyperessentials.gui.UIPaths;
 import com.hyperessentials.gui.data.AdminPageData;
 import com.hyperessentials.module.spawns.SpawnManager;
+import com.hyperessentials.util.AdminKeys;
+import com.hyperessentials.util.HEMessages;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.protocol.packets.interface_.CustomPageLifetime;
@@ -76,8 +78,8 @@ public class AdminSpawnsPage extends InteractiveCustomUIPage<AdminPageData> {
 
     if (sorted.isEmpty()) {
       cmd.append("#IndexCards", UIPaths.EMPTY_STATE);
-      cmd.set("#IndexCards[0] #EmptyTitle.Text", "No Spawns");
-      cmd.set("#IndexCards[0] #EmptyMessage.Text", "Set a spawn at your current location.");
+      cmd.set("#IndexCards[0] #EmptyTitle.Text", HEMessages.get(playerRef, AdminKeys.Spawns.EMPTY_TITLE));
+      cmd.set("#IndexCards[0] #EmptyMessage.Text", HEMessages.get(playerRef, AdminKeys.Spawns.EMPTY_MESSAGE));
       return;
     }
 
@@ -87,7 +89,7 @@ public class AdminSpawnsPage extends InteractiveCustomUIPage<AdminPageData> {
       String idx = "#IndexCards[" + i + "]";
 
       cmd.set(idx + " #SpawnName.Text", spawn.worldName());
-      cmd.set(idx + " #DefaultBadge.Text", spawn.isGlobal() ? "GLOBAL" : "");
+      cmd.set(idx + " #DefaultBadge.Text", spawn.isGlobal() ? HEMessages.get(playerRef, AdminKeys.Spawns.GLOBAL_BADGE) : "");
       cmd.set(idx + " #SpawnWorld.Text", UIHelper.formatWorldName(spawn.worldName()));
       cmd.set(idx + " #SpawnCoords.Text", UIHelper.formatCoords(spawn.x(), spawn.y(), spawn.z()));
 

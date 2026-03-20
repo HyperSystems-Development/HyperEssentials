@@ -4,6 +4,7 @@ import com.hyperessentials.command.util.CommandUtil;
 import com.hyperessentials.config.ConfigManager;
 import com.hyperessentials.config.modules.AnnouncementsConfig;
 import com.hyperessentials.platform.HyperEssentialsPlugin;
+import com.hyperessentials.util.ErrorHandler;
 import com.hyperessentials.util.Logger;
 import com.hypixel.hytale.server.core.HytaleServer;
 import com.hypixel.hytale.server.core.Message;
@@ -69,7 +70,7 @@ public class AnnouncementScheduler {
         player.sendMessage(announcement);
       }
     } catch (Exception e) {
-      Logger.warn("[Announcements] Error broadcasting: %s", e.getMessage());
+      ErrorHandler.report("[Announcements] Error broadcasting", e);
     }
   }
 

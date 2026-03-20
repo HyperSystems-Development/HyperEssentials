@@ -2,7 +2,9 @@ package com.hyperessentials.module.utility.command;
 
 import com.hyperessentials.Permissions;
 import com.hyperessentials.command.util.CommandUtil;
-import com.hyperessentials.util.Logger;
+import com.hyperessentials.util.CommandKeys;
+import com.hyperessentials.util.ErrorHandler;
+import com.hyperessentials.util.HEMessageUtil;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.protocol.packets.interface_.Page;
@@ -36,7 +38,7 @@ public class InvSeeCommand extends AbstractPlayerCommand {
               @NotNull PlayerRef playerRef,
               @NotNull World world) {
     if (!CommandUtil.hasPermission(playerRef.getUuid(), Permissions.UTILITY_INVSEE)) {
-      ctx.sendMessage(CommandUtil.error("You don't have permission to view inventories."));
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Utility.INVSEE_NO_PERMISSION));
       return;
     }
 
@@ -44,26 +46,26 @@ public class InvSeeCommand extends AbstractPlayerCommand {
     String[] parts = input != null ? input.trim().split("\\s+") : new String[0];
 
     if (parts.length < 2) {
-      ctx.sendMessage(CommandUtil.error("Usage: /invsee <player>"));
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Utility.INVSEE_USAGE));
       return;
     }
 
     PlayerRef target = CommandUtil.findOnlinePlayer(parts[1]);
     if (target == null) {
-      ctx.sendMessage(CommandUtil.error("Player '" + parts[1] + "' is not online."));
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Common.PLAYER_NOT_ONLINE, parts[1]));
       return;
     }
 
     Player ourPlayer = store.getComponent(ref, Player.getComponentType());
     if (ourPlayer == null) {
-      ctx.sendMessage(CommandUtil.error("Could not resolve player."));
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Common.CANNOT_ACCESS_PLAYER));
       return;
     }
 
     // Resolve target's entity ref
     Ref<EntityStore> targetRef = target.getReference();
     if (targetRef == null || !targetRef.isValid()) {
-      ctx.sendMessage(CommandUtil.error("Player '" + parts[1] + "' is not in a world."));
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Common.PLAYER_NOT_IN_WORLD, parts[1]));
       return;
     }
     Store<EntityStore> targetStore = targetRef.getStore();
@@ -74,7 +76,7 @@ public class InvSeeCommand extends AbstractPlayerCommand {
       try {
         Player targetPlayer = targetStore.getComponent(targetRef, Player.getComponentType());
         if (targetPlayer == null) {
-          ctx.sendMessage(CommandUtil.error("Could not access player's inventory."));
+          ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Common.CANNOT_ACCESS_PLAYER));
           return;
         }
 
@@ -88,8 +90,8 @@ public class InvSeeCommand extends AbstractPlayerCommand {
         ourPlayer.getPageManager().setPageWithWindows(ref, store, Page.Bench, true,
             new ContainerWindow(readOnly));
       } catch (Exception e) {
-        Logger.warn("[Utility] Failed to open invsee: %s", e.getMessage());
-        ctx.sendMessage(CommandUtil.error("Failed to open inventory view."));
+        ErrorHandler.report("[Utility] Failed to open invsee", e);
+        ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Utility.INVSEE_FAILED));
       }
     });
   }

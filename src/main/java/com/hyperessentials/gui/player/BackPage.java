@@ -1,6 +1,5 @@
 package com.hyperessentials.gui.player;
 
-import com.hyperessentials.command.util.CommandUtil;
 import com.hyperessentials.data.BackEntry;
 import com.hyperessentials.data.Location;
 import com.hyperessentials.gui.GuiManager;
@@ -8,6 +7,10 @@ import com.hyperessentials.gui.UIHelper;
 import com.hyperessentials.gui.UIPaths;
 import com.hyperessentials.gui.data.PlayerPageData;
 import com.hyperessentials.module.teleport.BackManager;
+import com.hyperessentials.util.CommandKeys;
+import com.hyperessentials.util.GuiKeys;
+import com.hyperessentials.util.HEMessageUtil;
+import com.hyperessentials.util.HEMessages;
 import com.hyperessentials.module.warmup.WarmupManager;
 import com.hyperessentials.module.warmup.WarmupTask;
 import com.hypixel.hytale.component.Ref;
@@ -98,7 +101,7 @@ public class BackPage extends InteractiveCustomUIPage<PlayerPageData> {
 
       if (onCooldown) {
         cmd.set(idx + " #TeleportBtn.Disabled", true);
-        cmd.set(idx + " #TeleportBtn.Text", "Cooldown");
+        cmd.set(idx + " #TeleportBtn.Text", HEMessages.get(playerRef, GuiKeys.Back.COOLDOWN_BUTTON));
       }
 
       events.addEventBinding(
@@ -111,8 +114,8 @@ public class BackPage extends InteractiveCustomUIPage<PlayerPageData> {
 
     if (history.isEmpty()) {
       cmd.append("#IndexCards", UIPaths.EMPTY_STATE);
-      cmd.set("#IndexCards[0] #EmptyTitle.Text", "No Back Locations");
-      cmd.set("#IndexCards[0] #EmptyMessage.Text", "Teleport or die to create a back location.");
+      cmd.set("#IndexCards[0] #EmptyTitle.Text", HEMessages.get(playerRef, GuiKeys.Back.EMPTY_TITLE));
+      cmd.set("#IndexCards[0] #EmptyMessage.Text", HEMessages.get(playerRef, GuiKeys.Back.EMPTY_MESSAGE));
     }
   }
 
@@ -166,8 +169,8 @@ public class BackPage extends InteractiveCustomUIPage<PlayerPageData> {
     player.getPageManager().setPage(ref, lastStore, Page.None);
 
     if (task != null) {
-      playerRef.sendMessage(CommandUtil.info(
-          "Teleporting in " + task.warmupSeconds() + "s... Don't move!"));
+      playerRef.sendMessage(HEMessageUtil.info(playerRef, CommandKeys.Common.WARMUP_STARTING,
+          HEMessageUtil.COLOR_YELLOW, task.warmupSeconds()));
     }
   }
 
