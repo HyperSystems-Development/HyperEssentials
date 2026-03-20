@@ -54,9 +54,17 @@ Group {
 
   // Action buttons
   Group {
-    Anchor: (Width: 75);
+    Anchor: (Width: 160);
     Padding: (Right: 8, Top: 10, Bottom: 10);
     LayoutMode: Left;
+
+    TextButton #SetGlobalBtn {
+      Text: "Set Global";
+      Style: $S.@GoldButtonStyle;
+      Anchor: (Width: 80, Height: 24);
+    }
+
+    Group { Anchor: (Width: 4); }
 
     TextButton #DeleteBtn {
       Text: "Delete";

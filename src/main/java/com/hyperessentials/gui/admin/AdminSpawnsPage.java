@@ -20,16 +20,18 @@ import com.hypixel.hytale.server.core.ui.builder.EventData;
 import com.hypixel.hytale.server.core.ui.builder.UICommandBuilder;
 import com.hypixel.hytale.server.core.ui.builder.UIEventBuilder;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
+import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Admin spawns page — list all world spawns with create/delete.
+ * Shows every loaded world: custom spawns first, then unconfigured worlds with default badge.
  */
 public class AdminSpawnsPage extends InteractiveCustomUIPage<AdminPageData> {
 
@@ -59,9 +61,45 @@ public class AdminSpawnsPage extends InteractiveCustomUIPage<AdminPageData> {
     buildSpawnList(cmd, events);
   }
 
+  /**
+   * Represents a row in the spawn list: either a custom spawn or a default (unconfigured) world.
+   */
+  private record SpawnEntry(
+      Spawn spawn,
+      boolean isCustom  // true = saved in SpawnManager, false = default world spawn
+  ) {}
+
   private void buildSpawnList(@NotNull UICommandBuilder cmd, @NotNull UIEventBuilder events) {
-    Collection<Spawn> allSpawns = spawnManager.getAllSpawns();
-    cmd.set("#SpawnCount.Text", allSpawns.size() + " spawn" + (allSpawns.size() != 1 ? "s" : ""));
+    // Build combined list: custom spawns + unconfigured worlds
+    List<SpawnEntry> entries = new ArrayList<>();
+
+    // 1. Add all custom spawns
+    for (Spawn spawn : spawnManager.getAllSpawns()) {
+      entries.add(new SpawnEntry(spawn, true));
+    }
+
+    // 2. Add unconfigured worlds (worlds without a custom spawn)
+    Map<String, World> loadedWorlds = spawnManager.getLoadedWorlds();
+    for (Map.Entry<String, World> worldEntry : loadedWorlds.entrySet()) {
+      String worldUuid = worldEntry.getKey();
+      if (spawnManager.getSpawnForWorld(worldUuid) == null) {
+        Spawn defaultSpawn = spawnManager.createDefaultSpawnForWorld(worldEntry.getValue());
+        if (defaultSpawn != null) {
+          entries.add(new SpawnEntry(defaultSpawn, false));
+        }
+      }
+    }
+
+    // Sort: global first, then custom spawns, then default world spawns, then by name
+    entries.sort(Comparator
+        .<SpawnEntry, Boolean>comparing(e -> e.spawn().isGlobal(), Comparator.reverseOrder())
+        .thenComparing(e -> e.isCustom(), Comparator.reverseOrder())
+        .thenComparing(e -> e.spawn().worldName()));
+
+    // Update header count (only count custom spawns)
+    long customCount = entries.stream().filter(SpawnEntry::isCustom).count();
+    cmd.set("#SpawnCount.Text", customCount + " spawn" + (customCount != 1 ? "s" : "")
+        + " / " + entries.size() + " world" + (entries.size() != 1 ? "s" : ""));
 
     // Create button
     events.addEventBinding(
@@ -69,14 +107,11 @@ public class AdminSpawnsPage extends InteractiveCustomUIPage<AdminPageData> {
         EventData.of("Button", "Create"), false
     );
 
-    // Build spawn list sorted by global status then world name
-    List<Spawn> sorted = new ArrayList<>(allSpawns);
-    sorted.sort(Comparator.comparing(Spawn::isGlobal).reversed().thenComparing(Spawn::worldName));
-
+    // Build spawn list
     cmd.clear("#SpawnList");
     cmd.appendInline("#SpawnList", "Group #IndexCards { LayoutMode: Top; }");
 
-    if (sorted.isEmpty()) {
+    if (entries.isEmpty()) {
       cmd.append("#IndexCards", UIPaths.EMPTY_STATE);
       cmd.set("#IndexCards[0] #EmptyTitle.Text", HEMessages.get(playerRef, AdminKeys.Spawns.EMPTY_TITLE));
       cmd.set("#IndexCards[0] #EmptyMessage.Text", HEMessages.get(playerRef, AdminKeys.Spawns.EMPTY_MESSAGE));
@@ -84,21 +119,78 @@ public class AdminSpawnsPage extends InteractiveCustomUIPage<AdminPageData> {
     }
 
     int i = 0;
-    for (Spawn spawn : sorted) {
+    for (SpawnEntry entry : entries) {
+      Spawn spawn = entry.spawn();
+      boolean isCustom = entry.isCustom();
+
       cmd.append("#IndexCards", UIPaths.ADMIN_SPAWN_ENTRY);
       String idx = "#IndexCards[" + i + "]";
 
-      cmd.set(idx + " #SpawnName.Text", spawn.worldName());
-      cmd.set(idx + " #DefaultBadge.Text", spawn.isGlobal() ? HEMessages.get(playerRef, AdminKeys.Spawns.GLOBAL_BADGE) : "");
-      cmd.set(idx + " #SpawnWorld.Text", UIHelper.formatWorldName(spawn.worldName()));
-      cmd.set(idx + " #SpawnCoords.Text", UIHelper.formatCoords(spawn.x(), spawn.y(), spawn.z()));
+      cmd.set(idx + " #SpawnName.Text", UIHelper.formatWorldName(spawn.worldName()));
 
-      events.addEventBinding(
-          CustomUIEventBindingType.Activating,
-          idx + " #DeleteBtn",
-          EventData.of("Button", "Delete").append("Target", spawn.worldUuid()),
-          false
-      );
+      // Badge: GLOBAL > DEFAULT (for unconfigured worlds)
+      if (spawn.isGlobal()) {
+        cmd.set(idx + " #DefaultBadge.Text", HEMessages.get(playerRef, AdminKeys.Spawns.GLOBAL_BADGE));
+      } else if (!isCustom) {
+        cmd.set(idx + " #DefaultBadge.Text", HEMessages.get(playerRef, AdminKeys.Spawns.DEFAULT_BADGE));
+        cmd.set(idx + " #DefaultBadge.Style.TextColor", "#AAAAAA");
+      } else {
+        cmd.set(idx + " #DefaultBadge.Text", "");
+      }
+
+      cmd.set(idx + " #SpawnWorld.Text", UIHelper.formatWorldName(spawn.worldName()));
+
+      if (isCustom) {
+        cmd.set(idx + " #SpawnCoords.Text", UIHelper.formatCoords(spawn.x(), spawn.y(), spawn.z()));
+      } else {
+        cmd.set(idx + " #SpawnCoords.Text", HEMessages.get(playerRef, AdminKeys.Spawns.DEFAULT_COORDS));
+      }
+
+      // Indicator bar color: gold for global, green for custom, gray for default
+      if (spawn.isGlobal()) {
+        cmd.set(idx + " #IndicatorBar.Background.Color", "#FFAA00");
+      } else if (isCustom) {
+        cmd.set(idx + " #IndicatorBar.Background.Color", "#44cc44");
+      } else {
+        cmd.set(idx + " #IndicatorBar.Background.Color", "#555555");
+      }
+
+      if (isCustom) {
+        // "Set Global" button (hidden if already global)
+        if (!spawn.isGlobal()) {
+          events.addEventBinding(
+              CustomUIEventBindingType.Activating,
+              idx + " #SetGlobalBtn",
+              EventData.of("Button", "SetGlobal").append("Target", spawn.worldUuid()),
+              false
+          );
+        } else {
+          // Hide "Set Global" for the current global spawn
+          cmd.set(idx + " #SetGlobalBtn.Text", "");
+          cmd.set(idx + " #SetGlobalBtn.Disabled", true);
+        }
+
+        // Delete button
+        events.addEventBinding(
+            CustomUIEventBindingType.Activating,
+            idx + " #DeleteBtn",
+            EventData.of("Button", "Delete").append("Target", spawn.worldUuid()),
+            false
+        );
+      } else {
+        // For unconfigured worlds, replace Delete with "Set Custom" (creates spawn at world default)
+        cmd.set(idx + " #DeleteBtn.Text", "Set Custom");
+        events.addEventBinding(
+            CustomUIEventBindingType.Activating,
+            idx + " #DeleteBtn",
+            EventData.of("Button", "SetCustom").append("Target", spawn.worldUuid()),
+            false
+        );
+
+        // Hide "Set Global" for unconfigured worlds
+        cmd.set(idx + " #SetGlobalBtn.Text", "");
+        cmd.set(idx + " #SetGlobalBtn.Disabled", true);
+      }
 
       i++;
     }
@@ -125,6 +217,8 @@ public class AdminSpawnsPage extends InteractiveCustomUIPage<AdminPageData> {
     switch (data.button) {
       case "Create" -> handleCreate();
       case "Delete" -> handleDelete(data.target);
+      case "SetGlobal" -> handleSetGlobal(data.target);
+      case "SetCustom" -> handleSetCustom(data.target);
       default -> sendUpdate();
     }
   }
@@ -156,6 +250,36 @@ public class AdminSpawnsPage extends InteractiveCustomUIPage<AdminPageData> {
   private void handleDelete(String worldUuid) {
     if (worldUuid == null) return;
     spawnManager.deleteSpawn(worldUuid);
+    rebuildList();
+  }
+
+  private void handleSetGlobal(String worldUuid) {
+    if (worldUuid == null) return;
+    spawnManager.setGlobalSpawn(worldUuid);
+    rebuildList();
+  }
+
+  private void handleSetCustom(String worldUuid) {
+    if (worldUuid == null) return;
+
+    // Create a custom spawn from the world's default spawn point
+    Map<String, World> loadedWorlds = spawnManager.getLoadedWorlds();
+    World world = loadedWorlds.get(worldUuid);
+    if (world == null) return;
+
+    Spawn defaultSpawn = spawnManager.createDefaultSpawnForWorld(world);
+    if (defaultSpawn == null) return;
+
+    // Save with createdBy = the admin who clicked
+    Spawn customSpawn = new Spawn(
+        defaultSpawn.worldUuid(), defaultSpawn.worldName(),
+        defaultSpawn.x(), defaultSpawn.y(), defaultSpawn.z(),
+        defaultSpawn.yaw(), defaultSpawn.pitch(),
+        false, System.currentTimeMillis(),
+        playerRef.getUuid().toString()
+    );
+    spawnManager.setSpawn(customSpawn);
+
     rebuildList();
   }
 

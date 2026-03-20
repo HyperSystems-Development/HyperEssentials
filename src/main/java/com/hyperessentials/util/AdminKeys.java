@@ -76,6 +76,8 @@ public final class AdminKeys {
     public static final String EMPTY_TITLE = P + "empty_title";
     public static final String EMPTY_MESSAGE = P + "empty_message";
     public static final String GLOBAL_BADGE = P + "global_badge";
+    public static final String DEFAULT_BADGE = P + "default_badge";
+    public static final String DEFAULT_COORDS = P + "default_coords";
 
     private Spawns() {}
   }

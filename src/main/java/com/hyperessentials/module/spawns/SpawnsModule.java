@@ -40,6 +40,9 @@ public class SpawnsModule extends AbstractModule {
     // On first startup (no spawns configured), auto-detect from server world configs
     spawnManager.autoDetectWorldSpawns();
 
+    // Ensure a global spawn always exists
+    spawnManager.ensureGlobalSpawn();
+
     Logger.info("[Spawns] SpawnManager initialized");
   }
 

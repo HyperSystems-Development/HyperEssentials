@@ -41,6 +41,8 @@ hyperessentials.admin.warps.name_placeholder=Warp name...
 hyperessentials.admin.spawns.empty_title=No Spawns
 hyperessentials.admin.spawns.empty_message=Set a spawn at your current location.
 hyperessentials.admin.spawns.global_badge=GLOBAL
+hyperessentials.admin.spawns.default_badge=(Default)
+hyperessentials.admin.spawns.default_coords=World default
 
 # === Kits Page ===
 hyperessentials.admin.kits.empty_title=No Kits
