@@ -131,9 +131,34 @@ public class ModerationManager {
   @NotNull
   public IpBan ipBan(@NotNull String ip, @Nullable UUID issuerUuid, @NotNull String issuerName,
             @Nullable String reason, @Nullable Long durationMs) {
+    return ipBan(ip, issuerUuid, issuerName, reason, durationMs, null, null);
+  }
+
+  /**
+   * IP bans an address and optionally creates an IPBAN audit trail entry for a specific player.
+   *
+   * @param targetUuid the target player UUID (for audit trail), or null to skip audit
+   * @param targetName the target player name (for audit trail), or null to skip audit
+   */
+  @NotNull
+  public IpBan ipBan(@NotNull String ip, @Nullable UUID issuerUuid, @NotNull String issuerName,
+            @Nullable String reason, @Nullable Long durationMs,
+            @Nullable UUID targetUuid, @Nullable String targetName) {
     Instant expiresAt = durationMs != null ? Instant.now().plusMillis(durationMs) : null;
     IpBan ban = new IpBan(ip, reason, issuerUuid, issuerName, Instant.now(), expiresAt);
     ipBanStorage.addIpBan(ban);
+
+    // Create IPBAN audit trail entry for the target player
+    if (targetUuid != null && targetName != null) {
+      PlayerData data = getOrCreatePlayerData(targetUuid, targetName);
+      Punishment ipbanRecord = new Punishment(
+        UUID.randomUUID(), PunishmentType.IPBAN, targetUuid, targetName,
+        issuerUuid, issuerName, reason != null ? reason : ip,
+        Instant.now(), expiresAt, true, null, null
+      );
+      data.addPunishment(ipbanRecord);
+      savePlayerData(targetUuid, data);
+    }
 
     notifyStaff(Permissions.NOTIFY_BAN, issuerName + " IP banned " + ip
       + (ban.isPermanent() ? " permanently" : " for " + DurationParser.formatHuman(durationMs)));
@@ -340,6 +365,51 @@ public class ModerationManager {
       broadcastToAll(CommandUtil.msg(playerName + " was kicked.", CommandUtil.COLOR_RED));
     }
     notifyStaff(Permissions.NOTIFY_KICK, issuerName + " kicked " + playerName);
+
+    return punishment;
+  }
+
+  // === Warn Operations ===
+
+  @NotNull
+  public Punishment warn(@NotNull UUID playerUuid, @NotNull String playerName,
+               @Nullable UUID issuerUuid, @NotNull String issuerName,
+               @Nullable String reason) {
+    String effectiveReason = reason != null ? reason
+      : ConfigManager.get().moderation().getDefaultWarnReason();
+
+    Punishment punishment = new Punishment(
+      UUID.randomUUID(), PunishmentType.WARN, playerUuid, playerName,
+      issuerUuid, issuerName, effectiveReason, Instant.now(),
+      null, false, null, null
+    );
+
+    PlayerData data = getOrCreatePlayerData(playerUuid, playerName);
+    data.addPunishment(punishment);
+    savePlayerData(playerUuid, data);
+
+    // Notify the warned player if online
+    PlayerRef target = findOnlinePlayer(playerUuid);
+    if (target != null) {
+      target.sendMessage(CommandUtil.msg("You have been warned: " + effectiveReason, CommandUtil.COLOR_YELLOW));
+    }
+
+    // Auto-ban if threshold is set and reached
+    int threshold = ConfigManager.get().moderation().getMaxWarningsBeforeBan();
+    if (threshold > 0) {
+      long warnCount = data.getPunishments().stream()
+        .filter(p -> p.type() == PunishmentType.WARN)
+        .count();
+      if (warnCount >= threshold) {
+        ban(playerUuid, playerName, issuerUuid, issuerName,
+          "Automatic ban: reached " + threshold + " warnings", null);
+      }
+    }
+
+    if (ConfigManager.get().moderation().isBroadcastWarnings()) {
+      broadcastToAll(CommandUtil.msg(playerName + " was warned.", CommandUtil.COLOR_YELLOW));
+    }
+    notifyStaff(Permissions.NOTIFY_WARN, issuerName + " warned " + playerName);
 
     return punishment;
   }

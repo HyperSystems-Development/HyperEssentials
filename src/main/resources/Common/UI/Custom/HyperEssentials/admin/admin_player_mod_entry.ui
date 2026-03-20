@@ -1,0 +1,44 @@
+$S = "../shared/styles.ui";
+
+Group {
+  Anchor: (Height: 40, Bottom: 3);
+  Background: (Color: #141c26);
+  LayoutMode: Left;
+
+  // Online indicator bar
+  Group #OnlineBar {
+    Anchor: (Width: 3, Height: 40);
+    Background: (Color: #888888);
+  }
+
+  // Player info
+  Group {
+    FlexWeight: 1;
+    Padding: (Left: 10, Top: 5, Bottom: 5);
+    LayoutMode: Top;
+
+    Label #EntryName {
+      Text: "";
+      Style: (FontSize: 12, TextColor: #FFFFFF, VerticalAlignment: Center);
+      Anchor: (Height: 16);
+    }
+
+    Label #EntryInfo {
+      Text: "";
+      Style: (FontSize: 9, TextColor: #7c8b99, VerticalAlignment: Center);
+      Anchor: (Height: 14);
+    }
+  }
+
+  // Select button
+  Group {
+    Anchor: (Width: 70);
+    Padding: (Right: 8, Top: 8, Bottom: 8);
+
+    TextButton #SelectBtn {
+      Text: "View";
+      Style: $S.@GoldButtonStyle;
+      Anchor: (Width: 60, Height: 24);
+    }
+  }
+}

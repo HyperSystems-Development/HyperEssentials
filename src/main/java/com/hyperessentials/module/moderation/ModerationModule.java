@@ -100,7 +100,8 @@ public class ModerationModule extends AbstractModule {
         plugin.getCommandRegistry().registerCommand(new PunishmentsCommand(this));
         plugin.getCommandRegistry().registerCommand(new IpBanCommand(this));
         plugin.getCommandRegistry().registerCommand(new IpUnbanCommand(this));
-        Logger.info("[Moderation] Registered 10 commands");
+        plugin.getCommandRegistry().registerCommand(new WarnCommand(this));
+        Logger.info("[Moderation] Registered 11 commands");
       } catch (Exception e) {
         Logger.severe("[Moderation] Failed to register commands: %s", e.getMessage());
       }

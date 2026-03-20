@@ -1,0 +1,97 @@
+$C = "../../Common.ui";
+$S = "../shared/styles.ui";
+
+Group {
+  LayoutMode: Top;
+  Padding: (Left: 4, Right: 4);
+
+  // Action header
+  Group {
+    Anchor: (Height: 32, Bottom: 8);
+    Background: (Color: #1a2a3a);
+    Padding: (Left: 12, Top: 6, Bottom: 6);
+
+    Label #ActionTitle {
+      Text: "";
+      Style: (FontSize: 14, TextColor: #FFAA00, RenderBold: true, VerticalAlignment: Center);
+      Anchor: (Height: 18);
+    }
+  }
+
+  // Duration field
+  Group {
+    Anchor: (Height: 28, Bottom: 6);
+    LayoutMode: Left;
+
+    Label #DurationLabel {
+      Text: "Duration:";
+      Style: (FontSize: 11, TextColor: #7c8b99, VerticalAlignment: Center);
+      Anchor: (Width: 70);
+    }
+
+    Group {
+      FlexWeight: 1;
+      Anchor: (Height: 24);
+      Background: (Color: #0d1520);
+      Padding: (Left: 6, Right: 6);
+
+      $C.@TextField #DurationInput {
+        Anchor: (Height: 20);
+        Style: (FontSize: 11, TextColor: #cccccc);
+      }
+    }
+
+    Group { Anchor: (Width: 8); }
+
+    Label #DurationHint {
+      Text: "e.g. 1d, 2h, 30m";
+      Style: (FontSize: 9, TextColor: #555555, VerticalAlignment: Center);
+      Anchor: (Width: 100);
+    }
+  }
+
+  // Reason field
+  Group {
+    Anchor: (Height: 28, Bottom: 10);
+    LayoutMode: Left;
+
+    Label #ReasonLabel {
+      Text: "Reason:";
+      Style: (FontSize: 11, TextColor: #7c8b99, VerticalAlignment: Center);
+      Anchor: (Width: 70);
+    }
+
+    Group {
+      FlexWeight: 1;
+      Anchor: (Height: 24);
+      Background: (Color: #0d1520);
+      Padding: (Left: 6, Right: 6);
+
+      $C.@TextField #ReasonInput {
+        Anchor: (Height: 20);
+        Style: (FontSize: 11, TextColor: #cccccc);
+      }
+    }
+  }
+
+  // Confirm / Cancel buttons
+  Group {
+    Anchor: (Height: 30);
+    LayoutMode: Left;
+    Padding: (Left: 70);
+
+    TextButton #ConfirmBtn {
+      Text: "Confirm";
+      Style: $S.@FlatGreenButtonStyle;
+      Anchor: (Width: 90, Height: 26);
+    }
+
+    Group { Anchor: (Width: 8); }
+
+    TextButton #CancelBtn {
+      Text: "Cancel";
+      Style: $S.@ButtonStyle;
+      Anchor: (Width: 70, Height: 26);
+    }
+  }
+}

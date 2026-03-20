@@ -62,6 +62,7 @@ public final class Permissions {
   public static final String MODERATION_VANISH = ROOT + ".moderation.vanish";
   public static final String MODERATION_HISTORY = ROOT + ".moderation.history";
   public static final String MODERATION_IPBAN = ROOT + ".moderation.ipban";
+  public static final String MODERATION_WARN = ROOT + ".moderation.warn";
 
   // === Utility ===
   public static final String UTILITY_WILDCARD = ROOT + ".utility.*";
@@ -117,6 +118,7 @@ public final class Permissions {
   public static final String NOTIFY_BAN = ROOT + ".notify.ban";
   public static final String NOTIFY_MUTE = ROOT + ".notify.mute";
   public static final String NOTIFY_KICK = ROOT + ".notify.kick";
+  public static final String NOTIFY_WARN = ROOT + ".notify.warn";
 
   // === Admin ===
   public static final String ADMIN = ROOT + ".admin";

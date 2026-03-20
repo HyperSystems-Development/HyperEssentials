@@ -75,3 +75,24 @@ hyperessentials.admin.announce.mode_sequential=Mode: Sequential
 hyperessentials.admin.settings.data_dir=Data: {0}
 hyperessentials.admin.settings.module_enabled=Enabled
 hyperessentials.admin.settings.module_disabled=Disabled
+
+# === Player Moderation Page ===
+hyperessentials.admin.playermod.search_placeholder=Search player...
+hyperessentials.admin.playermod.search_empty=No Players Found
+hyperessentials.admin.playermod.search_hint=Search by name or use the online player list.
+hyperessentials.admin.playermod.online_badge=Online
+hyperessentials.admin.playermod.offline_badge=Offline
+hyperessentials.admin.playermod.detail_uuid=UUID
+hyperessentials.admin.playermod.detail_status=Status
+hyperessentials.admin.playermod.detail_first_join=First Joined
+hyperessentials.admin.playermod.detail_last_seen=Last Seen
+hyperessentials.admin.playermod.detail_playtime=Playtime
+hyperessentials.admin.playermod.detail_history=Punishment History
+hyperessentials.admin.playermod.detail_no_history=No punishments recorded.
+hyperessentials.admin.playermod.action_duration=Duration
+hyperessentials.admin.playermod.action_reason=Reason
+hyperessentials.admin.playermod.action_confirm=Confirm
+hyperessentials.admin.playermod.action_cancel=Cancel
+hyperessentials.admin.playermod.action_success=Action applied successfully.
+hyperessentials.admin.playermod.action_failed=Failed to apply action.
+hyperessentials.admin.playermod.player_not_found=Player not found.

@@ -24,6 +24,9 @@ public class AdminPageData {
   public @Nullable String inputDescription;
   public @Nullable String inputPermission;
   public @Nullable String inputCooldown;
+  public @Nullable String inputSearch;
+  public @Nullable String inputDuration;
+  public @Nullable String inputReason;
 
   public static final BuilderCodec<AdminPageData> CODEC = BuilderCodec
       .builder(AdminPageData.class, AdminPageData::new)
@@ -81,6 +84,21 @@ public class AdminPageData {
           new KeyedCodec<>("@InputCooldown", Codec.STRING),
           (data, v) -> data.inputCooldown = v,
           data -> data.inputCooldown
+      )
+      .addField(
+          new KeyedCodec<>("@SearchInput", Codec.STRING),
+          (data, v) -> data.inputSearch = v,
+          data -> data.inputSearch
+      )
+      .addField(
+          new KeyedCodec<>("@DurationInput", Codec.STRING),
+          (data, v) -> data.inputDuration = v,
+          data -> data.inputDuration
+      )
+      .addField(
+          new KeyedCodec<>("@ReasonInput", Codec.STRING),
+          (data, v) -> data.inputReason = v,
+          data -> data.inputReason
       )
       .build();
 

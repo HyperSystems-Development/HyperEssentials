@@ -321,6 +321,10 @@ public final class CommandKeys {
     public static final String IPUNBAN_USAGE = P + "ipunban_usage";
     public static final String IPUNBAN_SUCCESS = P + "ipunban_success";
     public static final String IPUNBAN_NOT_BANNED = P + "ipunban_not_banned";
+    // /warn
+    public static final String WARN_NO_PERMISSION = P + "warn_no_permission";
+    public static final String WARN_USAGE = P + "warn_usage";
+    public static final String WARN_SUCCESS = P + "warn_success";
     // /punishments
     public static final String HISTORY_NO_PERMISSION = P + "history_no_permission";
     public static final String HISTORY_USAGE = P + "history_usage";

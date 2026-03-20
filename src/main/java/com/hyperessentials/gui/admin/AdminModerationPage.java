@@ -77,6 +77,16 @@ public class AdminModerationPage extends InteractiveCustomUIPage<AdminPageData> 
         EventData.of("Button", "FilterAll"), false
     );
 
+    // Player Search button (navigates to AdminPlayerModerationPage)
+    // Added inline after the filter buttons row in the list rebuild
+    cmd.appendInline("#PunishmentList",
+        "Group { Anchor: (Height: 28, Bottom: 6); LayoutMode: Left; "
+        + "TextButton #PlayerSearchBtn { Text: \"Player Search\"; Anchor: (Width: 110, Height: 26); } }");
+    events.addEventBinding(
+        CustomUIEventBindingType.Activating, "#PunishmentList #PlayerSearchBtn",
+        EventData.of("Button", "PlayerSearch"), false
+    );
+
     List<Punishment> punishments = moderationManager.getAllPunishments(showActiveOnly);
     punishments.sort(Comparator.comparing(Punishment::issuedAt).reversed());
 
@@ -105,8 +115,10 @@ public class AdminModerationPage extends InteractiveCustomUIPage<AdminPageData> 
       String typeLabel = p.type().name();
       String typeColor = switch (p.type()) {
         case BAN -> GuiColors.DANGER;
+        case IPBAN -> "#AA0000";
         case MUTE -> GuiColors.WARNING;
         case KICK -> GuiColors.INFO;
+        case WARN -> "#FFFF55";
       };
       cmd.set(idx + " #TypeBadge.Text", typeLabel);
       cmd.set(idx + " #TypeBadge.Style.TextColor", typeColor);
@@ -129,8 +141,8 @@ public class AdminModerationPage extends InteractiveCustomUIPage<AdminPageData> 
             : HEMessages.get(playerRef, AdminKeys.Moderation.REVOKED));
       }
 
-      // Only show revoke button for active punishments (not kicks)
-      if (p.isEffective() && p.type() != PunishmentType.KICK) {
+      // Only show revoke button for active punishments (not kicks/warns)
+      if (p.isEffective() && p.type() != PunishmentType.KICK && p.type() != PunishmentType.WARN) {
         events.addEventBinding(
             CustomUIEventBindingType.Activating,
             idx + " #RevokeBtn",
@@ -165,6 +177,7 @@ public class AdminModerationPage extends InteractiveCustomUIPage<AdminPageData> 
       case "FilterActive" -> { showActiveOnly = true; rebuildList(); }
       case "FilterAll" -> { showActiveOnly = false; rebuildList(); }
       case "Revoke" -> { handleRevoke(data.target); }
+      case "PlayerSearch" -> { openPlayerModeration(ref, store); }
       default -> sendUpdate();
     }
   }
@@ -190,6 +203,11 @@ public class AdminModerationPage extends InteractiveCustomUIPage<AdminPageData> 
     }
 
     rebuildList();
+  }
+
+  private void openPlayerModeration(@NotNull Ref<EntityStore> ref, @NotNull Store<EntityStore> store) {
+    AdminPlayerModerationPage page = new AdminPlayerModerationPage(player, playerRef, guiManager);
+    player.getPageManager().openCustomPage(ref, store, page);
   }
 
   private void rebuildList() {

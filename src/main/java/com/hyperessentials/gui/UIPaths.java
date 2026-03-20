@@ -67,6 +67,9 @@ public final class UIPaths {
   public static final String ADMIN_PLAYER_DETAIL = BASE + "admin/admin_player_detail.ui";
   public static final String ADMIN_MODERATION = BASE + "admin/admin_moderation.ui";
   public static final String ADMIN_PUNISHMENT_ENTRY = BASE + "admin/admin_punishment_entry.ui";
+  public static final String ADMIN_PLAYER_MODERATION = BASE + "admin/admin_player_moderation.ui";
+  public static final String ADMIN_PLAYER_MOD_ENTRY = BASE + "admin/admin_player_mod_entry.ui";
+  public static final String ADMIN_PUNISHMENT_ACTION = BASE + "admin/admin_punishment_action.ui";
   public static final String ADMIN_ANNOUNCEMENTS = BASE + "admin/admin_announcements.ui";
   public static final String ADMIN_ANNOUNCEMENT_ENTRY = BASE + "admin/admin_announcement_entry.ui";
   public static final String ADMIN_SETTINGS = BASE + "admin/admin_settings.ui";

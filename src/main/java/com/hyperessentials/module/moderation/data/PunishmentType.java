@@ -5,6 +5,8 @@ package com.hyperessentials.module.moderation.data;
  */
 public enum PunishmentType {
   BAN,
+  IPBAN,
   MUTE,
-  KICK
+  KICK,
+  WARN
 }

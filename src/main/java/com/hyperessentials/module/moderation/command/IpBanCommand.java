@@ -74,7 +74,8 @@ public class IpBanCommand extends AbstractPlayerCommand {
       return;
     }
 
-    module.getModerationManager().ipBan(ip, playerRef.getUuid(), playerRef.getUsername(), reason, durationMs);
+    module.getModerationManager().ipBan(ip, playerRef.getUuid(), playerRef.getUsername(), reason, durationMs,
+        target.getUuid(), target.getUsername());
 
     // Kick the target and anyone else on the same IP
     module.getModerationManager().kickPlayersWithIp(ip, "Your IP has been banned.");

@@ -113,6 +113,32 @@ public final class AdminKeys {
     private Moderation() {}
   }
 
+  /** Admin player moderation page. */
+  public static final class PlayerMod {
+    private static final String P = "hyperessentials.admin.playermod.";
+    public static final String SEARCH_PLACEHOLDER = P + "search_placeholder";
+    public static final String SEARCH_EMPTY = P + "search_empty";
+    public static final String SEARCH_HINT = P + "search_hint";
+    public static final String ONLINE_BADGE = P + "online_badge";
+    public static final String OFFLINE_BADGE = P + "offline_badge";
+    public static final String DETAIL_UUID = P + "detail_uuid";
+    public static final String DETAIL_STATUS = P + "detail_status";
+    public static final String DETAIL_FIRST_JOIN = P + "detail_first_join";
+    public static final String DETAIL_LAST_SEEN = P + "detail_last_seen";
+    public static final String DETAIL_PLAYTIME = P + "detail_playtime";
+    public static final String DETAIL_HISTORY = P + "detail_history";
+    public static final String DETAIL_NO_HISTORY = P + "detail_no_history";
+    public static final String ACTION_DURATION = P + "action_duration";
+    public static final String ACTION_REASON = P + "action_reason";
+    public static final String ACTION_CONFIRM = P + "action_confirm";
+    public static final String ACTION_CANCEL = P + "action_cancel";
+    public static final String ACTION_SUCCESS = P + "action_success";
+    public static final String ACTION_FAILED = P + "action_failed";
+    public static final String PLAYER_NOT_FOUND = P + "player_not_found";
+
+    private PlayerMod() {}
+  }
+
   /** Admin announcements page. */
   public static final class Announcements {
     private static final String P = "hyperessentials.admin.announce.";

@@ -1,0 +1,82 @@
+$C = "../../Common.ui";
+$S = "../shared/styles.ui";
+$Nav = "../shared/nav_bar.ui";
+
+$C.@PageOverlay {
+  $Nav.@HyperEssentialsNavBar #NavBar {}
+
+  $C.@DecoratedContainer {
+    Anchor: (Width: 620, Height: 480);
+
+    #Title {
+      $C.@Title {
+        @Text = "Player Moderation";
+      }
+    }
+
+    #Content {
+      LayoutMode: Top;
+      Padding: (Left: 15, Right: 15, Top: 10, Bottom: 10);
+
+      // Header row with back button, search, and count
+      Group #HeaderRow {
+        Anchor: (Height: 30, Bottom: 6);
+        LayoutMode: Left;
+
+        TextButton #BackBtn {
+          Text: "Back";
+          Style: $S.@ButtonStyle;
+          Anchor: (Width: 60, Height: 26);
+        }
+
+        Group { Anchor: (Width: 8); }
+
+        Group {
+          Anchor: (Width: 200, Height: 26);
+          Background: (Color: #0d1520);
+          Padding: (Left: 6, Right: 6);
+
+          $C.@TextField #SearchInput {
+            Anchor: (Height: 22);
+            Style: (FontSize: 12, TextColor: #cccccc);
+          }
+        }
+
+        Group { Anchor: (Width: 8); }
+
+        TextButton #SearchBtn {
+          Text: "Search";
+          Style: $S.@GoldButtonStyle;
+          Anchor: (Width: 65, Height: 26);
+        }
+
+        Group { FlexWeight: 1; }
+
+        Label #StatusLabel {
+          Text: "";
+          Style: (FontSize: 11, TextColor: #7c8b99, VerticalAlignment: Center);
+          Anchor: (Width: 150);
+        }
+      }
+
+      // Divider
+      Group {
+        Anchor: (Height: 1, Bottom: 6);
+        Background: (Color: #FFAA00);
+      }
+
+      // Main content area (scrollable)
+      Group #ContentArea {
+        LayoutMode: TopScrolling;
+        ScrollbarStyle: $C.@DefaultScrollbarStyle;
+        FlexWeight: 1;
+
+        Group #ContentList {
+          LayoutMode: Top;
+        }
+      }
+    }
+  }
+}
+
+$C.@BackButton {}

@@ -343,3 +343,6 @@ hyperessentials.cmd.announce.help_reload=/announce reload - Reload announcements
 hyperessentials.cmd.announce.bc_no_permission=You don't have permission to broadcast.
 hyperessentials.cmd.announce.bc_usage=Usage: /broadcast <message>
 hyperessentials.cmd.announce.bc_sent=Broadcast sent.
+hyperessentials.cmd.mod.warn_no_permission=You don't have permission to warn players.
+hyperessentials.cmd.mod.warn_usage=Usage: /warn <player> [reason...]
+hyperessentials.cmd.mod.warn_success=Warned {0}.
