@@ -21,6 +21,7 @@ import com.hyperessentials.gui.player.WarpsPage;
 import com.hyperessentials.integration.EcotaleIntegration;
 import com.hyperessentials.integration.HyperFactionsIntegration;
 import com.hyperessentials.integration.PermissionManager;
+import com.hyperessentials.integration.SentryIntegration;
 import com.hyperessentials.integration.WerchatIntegration;
 import com.hyperessentials.integration.economy.VaultEconomyProvider;
 import com.hyperessentials.module.ModuleRegistry;
@@ -88,6 +89,9 @@ public class HyperEssentials {
 
     // Apply debug config to logger
     configManager.debug().applyToLogger();
+
+    // Initialize Sentry error tracking
+    SentryIntegration.init(configManager.debug());
 
     // Ensure standard directory structure
     ensureDirectories();
@@ -170,6 +174,9 @@ public class HyperEssentials {
     if (configManager != null) {
       configManager.saveAll();
     }
+
+    // Close Sentry (flushes pending events)
+    SentryIntegration.close();
 
     Logger.info("HyperEssentials disabled");
   }

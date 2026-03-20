@@ -17,6 +17,12 @@ public class DebugConfig extends ModuleConfig {
   private boolean enabledByDefault = false;
   private boolean logToConsole = true;
 
+  // Sentry error tracking settings
+  private boolean sentryEnabled = true;
+  private boolean sentryDebug = false;
+  private String sentryEnvironment = "production";
+  private double sentryTracesSampleRate = 0.0;
+
   // Per-category settings
   private boolean homes = false;
   private boolean warps = false;
@@ -51,6 +57,10 @@ public class DebugConfig extends ModuleConfig {
     enabled = false;
     enabledByDefault = false;
     logToConsole = true;
+    sentryEnabled = true;
+    sentryDebug = false;
+    sentryEnvironment = "production";
+    sentryTracesSampleRate = 0.0;
     homes = false;
     warps = false;
     spawns = false;
@@ -69,6 +79,14 @@ public class DebugConfig extends ModuleConfig {
   protected void loadModuleSettings(@NotNull JsonObject root) {
     enabledByDefault = getBool(root, "enabledByDefault", enabledByDefault);
     logToConsole = getBool(root, "logToConsole", logToConsole);
+
+    if (hasSection(root, "sentry")) {
+      JsonObject sentry = root.getAsJsonObject("sentry");
+      sentryEnabled = getBool(sentry, "enabled", sentryEnabled);
+      sentryEnvironment = getString(sentry, "environment", sentryEnvironment);
+      sentryDebug = getBool(sentry, "debug", sentryDebug);
+      sentryTracesSampleRate = getDouble(sentry, "tracesSampleRate", sentryTracesSampleRate);
+    }
 
     if (hasSection(root, "categories")) {
       JsonObject categories = root.getAsJsonObject("categories");
@@ -93,6 +111,13 @@ public class DebugConfig extends ModuleConfig {
   protected void writeModuleSettings(@NotNull JsonObject root) {
     root.addProperty("enabledByDefault", enabledByDefault);
     root.addProperty("logToConsole", logToConsole);
+
+    JsonObject sentry = new JsonObject();
+    sentry.addProperty("enabled", sentryEnabled);
+    sentry.addProperty("environment", sentryEnvironment);
+    sentry.addProperty("debug", sentryDebug);
+    sentry.addProperty("tracesSampleRate", sentryTracesSampleRate);
+    root.add("sentry", sentry);
 
     JsonObject categories = new JsonObject();
     categories.addProperty("homes", homes);
@@ -144,4 +169,10 @@ public class DebugConfig extends ModuleConfig {
   public boolean isIntegration() { return integration; }
   public boolean isEconomy() { return economy; }
   public boolean isStorage() { return storage; }
+
+  // Sentry getters
+  public boolean isSentryEnabled() { return sentryEnabled; }
+  public boolean isSentryDebug() { return sentryDebug; }
+  public String getSentryEnvironment() { return sentryEnvironment; }
+  public double getSentryTracesSampleRate() { return sentryTracesSampleRate; }
 }
