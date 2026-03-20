@@ -11,7 +11,19 @@ hyperessentials.admin.dashboard.module_disabled=Disabled
 # === Players Page ===
 hyperessentials.admin.players.empty_title=No Players
 hyperessentials.admin.players.empty_message=No players are currently online.
-hyperessentials.admin.players.player_info=UUID: {0}...
+hyperessentials.admin.players.player_info={0}
+hyperessentials.admin.players.detail_uuid=UUID
+hyperessentials.admin.players.detail_first_join=First Joined
+hyperessentials.admin.players.detail_last_seen=Last Seen
+hyperessentials.admin.players.detail_playtime=Playtime
+hyperessentials.admin.players.detail_punishments=Punishments
+hyperessentials.admin.players.detail_status=Status
+hyperessentials.admin.players.detail_status_online=Online
+hyperessentials.admin.players.detail_status_banned=Banned
+hyperessentials.admin.players.detail_status_muted=Muted
+hyperessentials.admin.players.kicked=Player kicked.
+hyperessentials.admin.players.muted=Player muted.
+hyperessentials.admin.players.banned=Player banned.
 
 # === Warps Page ===
 hyperessentials.admin.warps.empty_title=No Warps

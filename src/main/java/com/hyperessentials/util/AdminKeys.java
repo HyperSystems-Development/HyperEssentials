@@ -37,6 +37,18 @@ public final class AdminKeys {
     public static final String EMPTY_TITLE = P + "empty_title";
     public static final String EMPTY_MESSAGE = P + "empty_message";
     public static final String PLAYER_INFO = P + "player_info";
+    public static final String DETAIL_UUID = P + "detail_uuid";
+    public static final String DETAIL_FIRST_JOIN = P + "detail_first_join";
+    public static final String DETAIL_LAST_SEEN = P + "detail_last_seen";
+    public static final String DETAIL_PLAYTIME = P + "detail_playtime";
+    public static final String DETAIL_PUNISHMENTS = P + "detail_punishments";
+    public static final String DETAIL_STATUS = P + "detail_status";
+    public static final String DETAIL_STATUS_ONLINE = P + "detail_status_online";
+    public static final String DETAIL_STATUS_BANNED = P + "detail_status_banned";
+    public static final String DETAIL_STATUS_MUTED = P + "detail_status_muted";
+    public static final String KICKED = P + "kicked";
+    public static final String MUTED = P + "muted";
+    public static final String BANNED = P + "banned";
 
     private Players() {}
   }
