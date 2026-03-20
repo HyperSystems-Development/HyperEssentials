@@ -3,7 +3,9 @@ package com.hyperessentials.module.moderation.command;
 import com.hyperessentials.Permissions;
 import com.hyperessentials.command.util.CommandUtil;
 import com.hyperessentials.module.moderation.ModerationModule;
+import com.hyperessentials.util.CommandKeys;
 import com.hyperessentials.util.DurationParser;
+import com.hyperessentials.util.HEMessageUtil;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.server.core.command.system.CommandContext;
@@ -38,7 +40,7 @@ public class BanCommand extends AbstractPlayerCommand {
               @NotNull PlayerRef playerRef,
               @NotNull World world) {
     if (!CommandUtil.hasPermission(playerRef.getUuid(), Permissions.MODERATION_BAN)) {
-      ctx.sendMessage(CommandUtil.error("You don't have permission to ban players."));
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Moderation.BAN_NO_PERMISSION));
       return;
     }
 
@@ -46,7 +48,7 @@ public class BanCommand extends AbstractPlayerCommand {
     String[] parts = input != null ? input.trim().split("\\s+") : new String[0];
 
     if (parts.length < 2) {
-      ctx.sendMessage(CommandUtil.error("Usage: /ban <player> [duration] [reason...]"));
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Moderation.BAN_USAGE));
       return;
     }
 
@@ -69,22 +71,22 @@ public class BanCommand extends AbstractPlayerCommand {
     // Resolve target
     UUID targetUuid = module.getModerationManager().findPlayerUuid(targetName);
     if (targetUuid == null) {
-      ctx.sendMessage(CommandUtil.error("Player '" + targetName + "' not found."));
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Common.PLAYER_NOT_FOUND, targetName));
       return;
     }
 
     // Check bypass
     if (CommandUtil.hasPermission(targetUuid, Permissions.BYPASS_BAN)) {
-      ctx.sendMessage(CommandUtil.error("That player cannot be banned."));
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Moderation.BAN_CANNOT_BAN));
       return;
     }
 
     module.getModerationManager().ban(targetUuid, targetName, playerRef.getUuid(), playerRef.getUsername(), reason, durationMs);
 
     if (durationMs != null) {
-      ctx.sendMessage(CommandUtil.success("Banned " + targetName + " for " + DurationParser.formatHuman(durationMs) + "."));
+      ctx.sendMessage(HEMessageUtil.success(playerRef, CommandKeys.Moderation.BAN_TEMP, targetName, DurationParser.formatHuman(durationMs)));
     } else {
-      ctx.sendMessage(CommandUtil.success("Permanently banned " + targetName + "."));
+      ctx.sendMessage(HEMessageUtil.success(playerRef, CommandKeys.Moderation.BAN_PERMANENT, targetName));
     }
   }
 

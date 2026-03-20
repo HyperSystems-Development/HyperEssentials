@@ -3,6 +3,8 @@ package com.hyperessentials.module.teleport.command;
 import com.hyperessentials.Permissions;
 import com.hyperessentials.command.util.CommandUtil;
 import com.hyperessentials.module.teleport.TpaManager;
+import com.hyperessentials.util.CommandKeys;
+import com.hyperessentials.util.HEMessageUtil;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.server.core.command.system.CommandContext;
@@ -37,16 +39,16 @@ public class TpToggleCommand extends AbstractPlayerCommand {
     UUID uuid = playerRef.getUuid();
 
     if (!CommandUtil.hasPermission(uuid, Permissions.TPTOGGLE)) {
-      ctx.sendMessage(CommandUtil.error("You don't have permission to toggle TPA."));
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Tpa.TOGGLE_NO_PERMISSION));
       return;
     }
 
     boolean newState = tpaManager.toggleTpToggle(uuid);
 
     if (newState) {
-      ctx.sendMessage(CommandUtil.success("You are now accepting teleport requests."));
+      ctx.sendMessage(HEMessageUtil.success(playerRef, CommandKeys.Tpa.TOGGLE_ENABLED));
     } else {
-      ctx.sendMessage(CommandUtil.error("You are no longer accepting teleport requests."));
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Tpa.TOGGLE_DISABLED));
     }
   }
 }

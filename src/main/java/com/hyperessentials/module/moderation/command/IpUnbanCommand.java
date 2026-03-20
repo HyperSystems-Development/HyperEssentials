@@ -3,6 +3,8 @@ package com.hyperessentials.module.moderation.command;
 import com.hyperessentials.Permissions;
 import com.hyperessentials.command.util.CommandUtil;
 import com.hyperessentials.module.moderation.ModerationModule;
+import com.hyperessentials.util.CommandKeys;
+import com.hyperessentials.util.HEMessageUtil;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.server.core.command.system.CommandContext;
@@ -32,7 +34,7 @@ public class IpUnbanCommand extends AbstractPlayerCommand {
               @NotNull PlayerRef playerRef,
               @NotNull World world) {
     if (!CommandUtil.hasPermission(playerRef.getUuid(), Permissions.MODERATION_IPBAN)) {
-      ctx.sendMessage(CommandUtil.error("You don't have permission to manage IP bans."));
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Moderation.IPUNBAN_NO_PERMISSION));
       return;
     }
 
@@ -40,16 +42,16 @@ public class IpUnbanCommand extends AbstractPlayerCommand {
     String[] parts = input != null ? input.trim().split("\\s+") : new String[0];
 
     if (parts.length < 2) {
-      ctx.sendMessage(CommandUtil.error("Usage: /ipunban <ip>"));
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Moderation.IPUNBAN_USAGE));
       return;
     }
 
     String ip = parts[1];
 
     if (module.getModerationManager().ipUnban(ip)) {
-      ctx.sendMessage(CommandUtil.success("Unbanned IP: " + ip));
+      ctx.sendMessage(HEMessageUtil.success(playerRef, CommandKeys.Moderation.IPUNBAN_SUCCESS, ip));
     } else {
-      ctx.sendMessage(CommandUtil.error("IP '" + ip + "' is not banned."));
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Moderation.IPUNBAN_NOT_BANNED, ip));
     }
   }
 }

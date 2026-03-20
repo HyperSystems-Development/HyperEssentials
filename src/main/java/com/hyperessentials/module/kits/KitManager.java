@@ -6,6 +6,7 @@ import com.hyperessentials.config.ConfigManager;
 import com.hyperessentials.module.kits.data.Kit;
 import com.hyperessentials.module.kits.data.KitItem;
 import com.hyperessentials.storage.KitStorage;
+import com.hyperessentials.util.ErrorHandler;
 import com.hyperessentials.util.Logger;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
@@ -55,7 +56,9 @@ public class KitManager {
 
   private void fireKitClaimed(@NotNull UUID uuid) {
     if (onKitClaimed != null) {
-      try { onKitClaimed.accept(uuid); } catch (Exception ignored) {}
+      try { onKitClaimed.accept(uuid); } catch (Exception e) {
+        ErrorHandler.report("[Kits] onKitClaimed callback failed", e);
+      }
     }
   }
 
@@ -63,11 +66,12 @@ public class KitManager {
    * Loads all kits from storage on startup.
    */
   public CompletableFuture<Void> loadKits() {
-    return storage.loadAllKits().thenAccept(loaded -> {
-      kits.clear();
-      kits.putAll(loaded);
-      Logger.info("[Kits] Loaded %d kits", kits.size());
-    });
+    return ErrorHandler.guard("[Kits] Failed to load kits",
+      storage.loadAllKits().thenAccept(loaded -> {
+        kits.clear();
+        kits.putAll(loaded);
+        Logger.info("[Kits] Loaded %d kits", kits.size());
+      }));
   }
 
   @Nullable
@@ -172,7 +176,7 @@ public class KitManager {
         captureContainer(inventory.getUtility(), items, KitItem.UTILITY);
       }
     } catch (Exception e) {
-      Logger.warn("[KitManager] Failed to capture inventory: %s", e.getMessage());
+      ErrorHandler.report("[Kits] Failed to capture inventory", e);
     }
 
     int defaultCooldown = ConfigManager.get().kits().getDefaultCooldownSeconds();
@@ -313,7 +317,7 @@ public class KitManager {
           }
         }
       } catch (Exception e) {
-        Logger.warn("[KitManager] Failed to give item %s: %s", kitItem.itemId(), e.getMessage());
+        ErrorHandler.report("[Kits] Failed to give item " + kitItem.itemId(), e);
       }
     }
 

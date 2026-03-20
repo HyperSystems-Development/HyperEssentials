@@ -5,6 +5,8 @@ import com.hyperessentials.command.util.CommandUtil;
 import com.hyperessentials.data.TeleportRequest;
 import com.hyperessentials.module.teleport.TpaManager;
 import com.hyperessentials.platform.HyperEssentialsPlugin;
+import com.hyperessentials.util.CommandKeys;
+import com.hyperessentials.util.HEMessageUtil;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.server.core.command.system.CommandContext;
@@ -39,22 +41,22 @@ public class TpCancelCommand extends AbstractPlayerCommand {
     UUID uuid = playerRef.getUuid();
 
     if (!CommandUtil.hasPermission(uuid, Permissions.TPCANCEL)) {
-      ctx.sendMessage(CommandUtil.error("You don't have permission to cancel requests."));
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Tpa.CANCEL_NO_PERMISSION));
       return;
     }
 
     TeleportRequest request = tpaManager.cancelOutgoingRequest(uuid);
 
     if (request == null) {
-      ctx.sendMessage(CommandUtil.error("You have no pending teleport request to cancel."));
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Tpa.CANCEL_NO_PENDING));
       return;
     }
 
-    ctx.sendMessage(CommandUtil.success("Teleport request cancelled."));
+    ctx.sendMessage(HEMessageUtil.success(playerRef, CommandKeys.Tpa.CANCEL_SUCCESS));
 
     PlayerRef targetRef = findPlayerByUuid(request.target());
     if (targetRef != null) {
-      targetRef.sendMessage(CommandUtil.info(playerRef.getUsername() + " cancelled their teleport request."));
+      targetRef.sendMessage(HEMessageUtil.info(targetRef, CommandKeys.Tpa.CANCEL_NOTIFY, HEMessageUtil.COLOR_YELLOW, playerRef.getUsername()));
     }
   }
 

@@ -6,9 +6,12 @@ import com.hyperessentials.module.kits.KitManager;
 import com.hyperessentials.module.kits.KitsModule;
 import com.hyperessentials.module.kits.data.Kit;
 import com.hyperessentials.module.kits.data.KitItem;
+import com.hyperessentials.util.CommandKeys;
 import com.hyperessentials.util.DurationParser;
+import com.hyperessentials.util.HEMessageUtil;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
+import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.server.core.command.system.CommandContext;
 import com.hypixel.hytale.server.core.command.system.basecommands.AbstractPlayerCommand;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
@@ -37,7 +40,7 @@ public class PreviewKitCommand extends AbstractPlayerCommand {
               @NotNull PlayerRef playerRef,
               @NotNull World world) {
     if (!CommandUtil.hasPermission(playerRef.getUuid(), Permissions.KIT_USE)) {
-      ctx.sendMessage(CommandUtil.error("You don't have permission to preview kits."));
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Kit.PREVIEW_NO_PERMISSION));
       return;
     }
 
@@ -45,7 +48,7 @@ public class PreviewKitCommand extends AbstractPlayerCommand {
     String[] parts = input != null ? input.trim().split("\\s+") : new String[0];
 
     if (parts.length < 2) {
-      ctx.sendMessage(CommandUtil.error("Usage: /previewkit <name>"));
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Kit.PREVIEW_USAGE));
       return;
     }
 
@@ -54,29 +57,32 @@ public class PreviewKitCommand extends AbstractPlayerCommand {
     Kit kit = manager.getKit(kitName);
 
     if (kit == null) {
-      ctx.sendMessage(CommandUtil.error("Kit '" + kitName + "' not found."));
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Kit.NOT_FOUND, kitName));
       return;
     }
 
-    ctx.sendMessage(CommandUtil.msg("--- Kit: " + kit.displayName() + " ---", CommandUtil.COLOR_GOLD));
+    ctx.sendMessage(HEMessageUtil.info(playerRef, CommandKeys.Kit.PREVIEW_HEADER, HEMessageUtil.COLOR_GOLD, kit.displayName()));
 
     if (kit.items().isEmpty()) {
-      ctx.sendMessage(CommandUtil.msg("  (empty)", CommandUtil.COLOR_GRAY));
+      ctx.sendMessage(HEMessageUtil.info(playerRef, CommandKeys.Kit.PREVIEW_EMPTY, HEMessageUtil.COLOR_GRAY));
     } else {
       for (KitItem item : kit.items()) {
         String line = "  " + item.itemId() + " x" + item.quantity() + " [" + item.section() + "]";
-        ctx.sendMessage(CommandUtil.msg(line, CommandUtil.COLOR_GRAY));
+        Message msg = HEMessageUtil.prefix()
+          .insert(Message.raw(line).color(HEMessageUtil.COLOR_GRAY));
+        ctx.sendMessage(msg);
       }
     }
 
     if (kit.cooldownSeconds() > 0) {
-      ctx.sendMessage(CommandUtil.msg("Cooldown: " + DurationParser.formatHuman(kit.cooldownSeconds() * 1000L), CommandUtil.COLOR_GRAY));
+      ctx.sendMessage(HEMessageUtil.info(playerRef, CommandKeys.Kit.PREVIEW_COOLDOWN, HEMessageUtil.COLOR_GRAY,
+        DurationParser.formatHuman(kit.cooldownSeconds() * 1000L)));
     }
     if (kit.oneTime()) {
-      ctx.sendMessage(CommandUtil.msg("One-time use only", CommandUtil.COLOR_GRAY));
+      ctx.sendMessage(HEMessageUtil.info(playerRef, CommandKeys.Kit.PREVIEW_ONE_TIME, HEMessageUtil.COLOR_GRAY));
     }
     if (kit.permission() != null) {
-      ctx.sendMessage(CommandUtil.msg("Permission: " + kit.permission(), CommandUtil.COLOR_GRAY));
+      ctx.sendMessage(HEMessageUtil.info(playerRef, CommandKeys.Kit.PREVIEW_PERMISSION, HEMessageUtil.COLOR_GRAY, kit.permission()));
     }
   }
 }

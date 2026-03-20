@@ -5,6 +5,8 @@ import com.hyperessentials.command.util.CommandUtil;
 import com.hyperessentials.config.ConfigManager;
 import com.hyperessentials.data.Location;
 import com.hyperessentials.module.moderation.ModerationModule;
+import com.hyperessentials.util.CommandKeys;
+import com.hyperessentials.util.HEMessageUtil;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.math.vector.Transform;
@@ -36,7 +38,7 @@ public class FreezeCommand extends AbstractPlayerCommand {
               @NotNull PlayerRef playerRef,
               @NotNull World world) {
     if (!CommandUtil.hasPermission(playerRef.getUuid(), Permissions.MODERATION_FREEZE)) {
-      ctx.sendMessage(CommandUtil.error("You don't have permission to freeze players."));
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Moderation.FREEZE_NO_PERMISSION));
       return;
     }
 
@@ -44,26 +46,26 @@ public class FreezeCommand extends AbstractPlayerCommand {
     String[] parts = input != null ? input.trim().split("\\s+") : new String[0];
 
     if (parts.length < 2) {
-      ctx.sendMessage(CommandUtil.error("Usage: /freeze <player>"));
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Moderation.FREEZE_USAGE));
       return;
     }
 
     String targetName = parts[1];
     PlayerRef target = CommandUtil.findOnlinePlayer(targetName);
     if (target == null) {
-      ctx.sendMessage(CommandUtil.error("Player '" + targetName + "' is not online."));
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Common.PLAYER_NOT_ONLINE, targetName));
       return;
     }
 
     if (CommandUtil.hasPermission(target.getUuid(), Permissions.BYPASS_FREEZE)) {
-      ctx.sendMessage(CommandUtil.error("That player cannot be frozen."));
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Moderation.FREEZE_CANNOT_FREEZE));
       return;
     }
 
     if (module.getFreezeManager().isFrozen(target.getUuid())) {
       module.getFreezeManager().unfreeze(target.getUuid());
-      target.sendMessage(CommandUtil.success("You have been unfrozen."));
-      ctx.sendMessage(CommandUtil.success("Unfroze " + target.getUsername() + "."));
+      target.sendMessage(HEMessageUtil.success(target, CommandKeys.Moderation.FREEZE_YOU_UNFROZEN));
+      ctx.sendMessage(HEMessageUtil.success(playerRef, CommandKeys.Moderation.FREEZE_UNFROZEN, target.getUsername()));
     } else {
       Transform transform = target.getTransform();
       Vector3d pos = transform.getPosition();
@@ -77,9 +79,8 @@ public class FreezeCommand extends AbstractPlayerCommand {
       );
       module.getFreezeManager().freeze(target.getUuid(), loc);
 
-      String freezeMsg = ConfigManager.get().moderation().getFreezeMessage();
-      target.sendMessage(CommandUtil.error(freezeMsg));
-      ctx.sendMessage(CommandUtil.success("Froze " + target.getUsername() + "."));
+      target.sendMessage(HEMessageUtil.error(target, CommandKeys.Moderation.FREEZE_YOU_FROZEN));
+      ctx.sendMessage(HEMessageUtil.success(playerRef, CommandKeys.Moderation.FREEZE_FROZEN, target.getUsername()));
     }
   }
 }

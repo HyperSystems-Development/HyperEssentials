@@ -3,6 +3,7 @@ package com.hyperessentials.module.moderation;
 import com.hyperessentials.config.ConfigManager;
 import com.hyperessentials.data.Location;
 import com.hyperessentials.platform.HyperEssentialsPlugin;
+import com.hyperessentials.util.ErrorHandler;
 import com.hyperessentials.util.Logger;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
@@ -102,11 +103,11 @@ public class FreezeManager {
               }
             }
           } catch (Exception e) {
-            Logger.debug("[FreezeManager] Teleport failed for frozen player: %s", e.getMessage());
+            ErrorHandler.report("[Freeze] Teleport failed for frozen player", e);
           }
         }
       } catch (Exception e) {
-        Logger.debug("[FreezeManager] Error checking frozen player: %s", e.getMessage());
+        ErrorHandler.report("[Freeze] Error checking frozen player", e);
       }
     }
   }

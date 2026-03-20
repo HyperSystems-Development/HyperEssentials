@@ -12,6 +12,7 @@ import com.hyperessentials.module.teleport.TpaManager;
 import com.hyperessentials.platform.HyperEssentialsPlugin;
 import com.hyperessentials.storage.PlayerDataStorage;
 import com.hyperessentials.util.DurationParser;
+import com.hyperessentials.util.ErrorHandler;
 import com.hyperessentials.util.Logger;
 import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
@@ -64,7 +65,7 @@ public class ModerationManager {
     try {
       return playerDataStorage.loadPlayerData(uuid).join().orElse(null);
     } catch (Exception e) {
-      Logger.warn("[Moderation] Failed to load player data for %s: %s", uuid, e.getMessage());
+      ErrorHandler.report("[Moderation] Failed to load player data for " + uuid, e);
       return null;
     }
   }
@@ -106,7 +107,7 @@ public class ModerationManager {
         playerIps.put(playerRef.getUuid(), ip);
       }
     } catch (Exception e) {
-      Logger.debug("[Moderation] Failed to capture IP for %s", playerRef.getUsername());
+      ErrorHandler.report("[Moderation] Failed to capture IP for " + playerRef.getUsername(), e);
     }
   }
 
@@ -368,7 +369,7 @@ public class ModerationManager {
         }
       }
     } catch (Exception e) {
-      Logger.warn("[Moderation] Failed to scan all punishments: %s", e.getMessage());
+      ErrorHandler.report("[Moderation] Failed to scan all punishments", e);
     }
     return result;
   }
@@ -392,7 +393,7 @@ public class ModerationManager {
         }
       }
     } catch (Exception e) {
-      Logger.warn("[Moderation] Failed to search for player %s: %s", name, e.getMessage());
+      ErrorHandler.report("[Moderation] Failed to search for player " + name, e);
     }
     return null;
   }
@@ -415,7 +416,7 @@ public class ModerationManager {
       try {
         player.getPacketHandler().disconnect(reason);
       } catch (Exception e) {
-        Logger.warn("[Moderation] Failed to kick player: %s", e.getMessage());
+        ErrorHandler.report("[Moderation] Failed to kick player", e);
       }
     }
   }

@@ -9,6 +9,7 @@ import com.hyperessentials.module.moderation.VanishManager;
 import com.hyperessentials.module.moderation.data.IpBan;
 import com.hyperessentials.module.moderation.data.Punishment;
 import com.hyperessentials.util.DurationParser;
+import com.hyperessentials.util.ErrorHandler;
 import com.hyperessentials.util.Logger;
 import com.hypixel.hytale.server.core.event.events.player.PlayerChatEvent;
 import com.hypixel.hytale.server.core.event.events.player.PlayerConnectEvent;
@@ -49,7 +50,7 @@ public class ModerationListener {
       try {
         playerRef.getPacketHandler().disconnect(message.toString());
       } catch (Exception e) {
-        Logger.warn("[Moderation] Failed to disconnect banned player: %s", e.getMessage());
+        ErrorHandler.report("[Moderation] Failed to disconnect banned player", e);
       }
       return;
     }
@@ -64,13 +65,13 @@ public class ModerationListener {
           try {
             playerRef.getPacketHandler().disconnect("Your IP address has been banned.");
           } catch (Exception e) {
-            Logger.warn("[Moderation] Failed to disconnect IP-banned player: %s", e.getMessage());
+            ErrorHandler.report("[Moderation] Failed to disconnect IP-banned player", e);
           }
           return;
         }
       }
     } catch (Exception e) {
-      Logger.debug("[Moderation] Failed to check IP ban for %s: %s", playerRef.getUsername(), e.getMessage());
+      ErrorHandler.report("[Moderation] Failed to check IP ban for " + playerRef.getUsername(), e);
     }
 
     // Hide vanished players from the new player

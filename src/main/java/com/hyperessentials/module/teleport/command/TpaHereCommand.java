@@ -6,6 +6,8 @@ import com.hyperessentials.config.modules.TeleportConfig;
 import com.hyperessentials.data.TeleportRequest;
 import com.hyperessentials.module.teleport.TpaManager;
 import com.hyperessentials.platform.HyperEssentialsPlugin;
+import com.hyperessentials.util.CommandKeys;
+import com.hyperessentials.util.HEMessageUtil;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.server.core.command.system.CommandContext;
@@ -42,7 +44,7 @@ public class TpaHereCommand extends AbstractPlayerCommand {
     UUID uuid = playerRef.getUuid();
 
     if (!CommandUtil.hasPermission(uuid, Permissions.TPAHERE)) {
-      ctx.sendMessage(CommandUtil.error("You don't have permission to use TPAHere."));
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Tpa.HERE_NO_PERMISSION));
       return;
     }
 
@@ -50,7 +52,7 @@ public class TpaHereCommand extends AbstractPlayerCommand {
     String[] parts = input != null ? input.trim().split("\\s+") : new String[0];
 
     if (parts.length < 2) {
-      ctx.sendMessage(CommandUtil.error("Usage: /tpahere <player>"));
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Tpa.HERE_USAGE));
       return;
     }
 
@@ -58,20 +60,20 @@ public class TpaHereCommand extends AbstractPlayerCommand {
 
     PlayerRef targetRef = findPlayer(targetName);
     if (targetRef == null) {
-      ctx.sendMessage(CommandUtil.error("Player '" + targetName + "' not found or offline."));
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Common.PLAYER_NOT_FOUND, targetName));
       return;
     }
 
     UUID targetUuid = targetRef.getUuid();
 
     if (uuid.equals(targetUuid)) {
-      ctx.sendMessage(CommandUtil.error("You cannot request teleport from yourself."));
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Tpa.HERE_CANNOT_SELF));
       return;
     }
 
     long cooldown = tpaManager.getRemainingTpaCooldown(uuid);
     if (cooldown > 0) {
-      ctx.sendMessage(CommandUtil.error("You must wait " + CommandUtil.formatTime(cooldown) + " before sending another request."));
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Tpa.COOLDOWN, CommandUtil.formatTime(cooldown)));
       return;
     }
 
@@ -79,18 +81,18 @@ public class TpaHereCommand extends AbstractPlayerCommand {
 
     if (request == null) {
       if (!tpaManager.isAcceptingRequests(targetUuid)) {
-        ctx.sendMessage(CommandUtil.error(targetRef.getUsername() + " is not accepting teleport requests."));
+        ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Tpa.TARGET_NOT_ACCEPTING, targetRef.getUsername()));
       } else {
-        ctx.sendMessage(CommandUtil.error("Could not send request. Target may have too many pending requests."));
+        ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Tpa.SEND_FAILED));
       }
       return;
     }
 
-    ctx.sendMessage(CommandUtil.success("Teleport request sent to " + targetRef.getUsername() + "."));
-    ctx.sendMessage(CommandUtil.info("Request expires in " + config.getTpaTimeout() + " seconds."));
+    ctx.sendMessage(HEMessageUtil.success(playerRef, CommandKeys.Tpa.HERE_SENT, targetRef.getUsername()));
+    ctx.sendMessage(HEMessageUtil.info(playerRef, CommandKeys.Tpa.EXPIRES_IN, HEMessageUtil.COLOR_YELLOW, config.getTpaTimeout()));
 
-    targetRef.sendMessage(CommandUtil.info(playerRef.getUsername() + " wants you to teleport to them."));
-    targetRef.sendMessage(CommandUtil.info("Type /tpaccept or /tpdeny to respond."));
+    targetRef.sendMessage(HEMessageUtil.info(targetRef, CommandKeys.Tpa.RECEIVED_TPAHERE, HEMessageUtil.COLOR_YELLOW, playerRef.getUsername()));
+    targetRef.sendMessage(HEMessageUtil.info(targetRef, CommandKeys.Tpa.RESPOND_HINT, HEMessageUtil.COLOR_YELLOW));
   }
 
   private PlayerRef findPlayer(String name) {

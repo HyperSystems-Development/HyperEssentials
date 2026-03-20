@@ -6,6 +6,8 @@ import com.hyperessentials.command.util.CommandUtil;
 import com.hyperessentials.gui.GuiManager;
 import com.hyperessentials.module.kits.KitsModule;
 import com.hyperessentials.module.kits.data.Kit;
+import com.hyperessentials.util.CommandKeys;
+import com.hyperessentials.util.HEMessageUtil;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.server.core.Message;
@@ -39,7 +41,7 @@ public class KitsCommand extends AbstractPlayerCommand {
               @NotNull PlayerRef playerRef,
               @NotNull World world) {
     if (!CommandUtil.hasPermission(playerRef.getUuid(), Permissions.KIT_LIST)) {
-      ctx.sendMessage(CommandUtil.error("You don't have permission to list kits."));
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Kit.LIST_NO_PERMISSION));
       return;
     }
 
@@ -52,20 +54,20 @@ public class KitsCommand extends AbstractPlayerCommand {
     List<Kit> available = module.getKitManager().getAvailableKits(playerRef.getUuid());
 
     if (available.isEmpty()) {
-      ctx.sendMessage(CommandUtil.info("No kits available."));
+      ctx.sendMessage(HEMessageUtil.info(playerRef, CommandKeys.Kit.LIST_EMPTY, HEMessageUtil.COLOR_YELLOW));
       return;
     }
 
-    ctx.sendMessage(CommandUtil.info("Available Kits (" + available.size() + "):"));
+    ctx.sendMessage(HEMessageUtil.info(playerRef, CommandKeys.Kit.LIST_HEADER, HEMessageUtil.COLOR_YELLOW, available.size()));
     for (Kit kit : available) {
       String cooldownInfo = kit.cooldownSeconds() > 0
         ? " (cooldown: " + kit.cooldownSeconds() + "s)"
         : "";
       String oneTimeInfo = kit.oneTime() ? " [one-time]" : "";
 
-      Message line = CommandUtil.prefix()
-        .insert(Message.raw("  " + kit.displayName()).color(CommandUtil.COLOR_GREEN))
-        .insert(Message.raw(cooldownInfo + oneTimeInfo).color(CommandUtil.COLOR_GRAY));
+      Message line = HEMessageUtil.prefix()
+        .insert(Message.raw("  " + kit.displayName()).color(HEMessageUtil.COLOR_GREEN))
+        .insert(Message.raw(cooldownInfo + oneTimeInfo).color(HEMessageUtil.COLOR_GRAY));
       ctx.sendMessage(line);
     }
   }

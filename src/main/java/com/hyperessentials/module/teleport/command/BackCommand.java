@@ -13,6 +13,8 @@ import com.hyperessentials.integration.FactionTerritoryChecker;
 import com.hyperessentials.module.teleport.BackManager;
 import com.hyperessentials.module.warmup.WarmupManager;
 import com.hyperessentials.module.warmup.WarmupTask;
+import com.hyperessentials.util.CommandKeys;
+import com.hyperessentials.util.HEMessageUtil;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.math.vector.Vector3d;
@@ -55,13 +57,13 @@ public class BackCommand extends AbstractPlayerCommand {
     UUID uuid = playerRef.getUuid();
 
     if (!CommandUtil.hasPermission(uuid, Permissions.BACK)) {
-      ctx.sendMessage(CommandUtil.error("You don't have permission to use /back."));
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Back.NO_PERMISSION));
       return;
     }
 
     List<BackEntry> history = backManager.getBackHistory(uuid);
     if (history.isEmpty()) {
-      ctx.sendMessage(CommandUtil.error("No back location found."));
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Back.NO_LOCATION));
       return;
     }
 
@@ -77,7 +79,7 @@ public class BackCommand extends AbstractPlayerCommand {
     // Default behavior: pop the most recent back location
     BackEntry backEntry = backManager.popBackEntry(uuid);
     if (backEntry == null) {
-      ctx.sendMessage(CommandUtil.error("No back location found."));
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Back.NO_LOCATION));
       return;
     }
 
@@ -89,34 +91,34 @@ public class BackCommand extends AbstractPlayerCommand {
       FactionTerritoryChecker.Result result = FactionTerritoryChecker.canUseBack(
           uuid, destination.world(), destination.x(), destination.z());
       if (result != FactionTerritoryChecker.Result.ALLOWED) {
-        String msg = switch (result) {
-          case BLOCKED_OWN_TERRITORY -> "You cannot teleport back to your faction's territory.";
-          case BLOCKED_ALLY_TERRITORY -> "You cannot teleport back to allied territory.";
-          case BLOCKED_ENEMY_TERRITORY -> "You cannot teleport back to enemy territory.";
-          case BLOCKED_NEUTRAL_TERRITORY -> "You cannot teleport back to neutral territory.";
-          case BLOCKED_WILDERNESS -> "You cannot teleport back to the wilderness.";
-          case BLOCKED_ZONE -> "You cannot teleport back to that zone.";
-          default -> "You cannot teleport back to that location.";
+        String key = switch (result) {
+          case BLOCKED_OWN_TERRITORY -> CommandKeys.Back.BLOCKED_OWN;
+          case BLOCKED_ALLY_TERRITORY -> CommandKeys.Back.BLOCKED_ALLY;
+          case BLOCKED_ENEMY_TERRITORY -> CommandKeys.Back.BLOCKED_ENEMY;
+          case BLOCKED_NEUTRAL_TERRITORY -> CommandKeys.Back.BLOCKED_NEUTRAL;
+          case BLOCKED_WILDERNESS -> CommandKeys.Back.BLOCKED_WILDERNESS;
+          case BLOCKED_ZONE -> CommandKeys.Back.BLOCKED_ZONE;
+          default -> CommandKeys.Back.BLOCKED_GENERIC;
         };
-        ctx.sendMessage(CommandUtil.error(msg));
+        ctx.sendMessage(HEMessageUtil.error(playerRef, key));
         return;
       }
     }
 
     if (warmupManager.isOnCooldown(uuid, "teleport", "back")) {
       int remaining = warmupManager.getRemainingCooldown(uuid, "teleport", "back");
-      ctx.sendMessage(CommandUtil.error("On cooldown. " + remaining + "s remaining."));
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Common.ON_COOLDOWN, remaining));
       return;
     }
 
     WarmupTask task = warmupManager.startWarmup(uuid, "teleport", "back", () -> {
       executeTeleport(ref, destination, () -> {
-        ctx.sendMessage(CommandUtil.success("Teleported to previous location!"));
+        ctx.sendMessage(HEMessageUtil.success(playerRef, CommandKeys.Back.TELEPORTED));
       });
     });
 
     if (task != null) {
-      ctx.sendMessage(CommandUtil.info("Teleporting in " + task.warmupSeconds() + "s... Don't move!"));
+      ctx.sendMessage(HEMessageUtil.info(playerRef, CommandKeys.Common.WARMUP_STARTING, HEMessageUtil.COLOR_YELLOW, task.warmupSeconds()));
     }
   }
 

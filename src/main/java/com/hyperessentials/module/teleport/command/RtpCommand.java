@@ -8,6 +8,9 @@ import com.hyperessentials.module.teleport.RtpManager;
 import com.hyperessentials.module.teleport.RtpManager.RtpResult;
 import com.hyperessentials.module.warmup.WarmupManager;
 import com.hyperessentials.module.warmup.WarmupTask;
+import com.hyperessentials.util.CommandKeys;
+import com.hyperessentials.util.ErrorHandler;
+import com.hyperessentials.util.HEMessageUtil;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.math.vector.Vector3d;
@@ -53,27 +56,27 @@ public class RtpCommand extends AbstractPlayerCommand {
     UUID uuid = playerRef.getUuid();
 
     if (!CommandUtil.hasPermission(uuid, Permissions.RTP)) {
-      ctx.sendMessage(CommandUtil.error("You don't have permission to use random teleport."));
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Rtp.NO_PERMISSION));
       return;
     }
 
     String worldName = currentWorld.getName();
 
     if (rtpManager.isWorldBlacklisted(worldName)) {
-      ctx.sendMessage(CommandUtil.error("Random teleport is not allowed in this world."));
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Rtp.WORLD_BLACKLISTED));
       return;
     }
 
     if (warmupManager.isOnCooldown(uuid, "rtp", "rtp")) {
       int remaining = warmupManager.getRemainingCooldown(uuid, "rtp", "rtp");
-      ctx.sendMessage(CommandUtil.error("On cooldown. " + remaining + "s remaining."));
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Common.ON_COOLDOWN, remaining));
       return;
     }
 
     // Get player position for player-relative RTP
     TransformComponent transform = store.getComponent(ref, TransformComponent.getComponentType());
     if (transform == null) {
-      ctx.sendMessage(CommandUtil.error("Could not determine your position."));
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Common.CANNOT_GET_POSITION));
       return;
     }
 
@@ -86,7 +89,7 @@ public class RtpCommand extends AbstractPlayerCommand {
 
     boolean bypassFactions = CommandUtil.hasPermission(uuid, Permissions.RTP_BYPASS_FACTIONS);
 
-    ctx.sendMessage(CommandUtil.info("Searching for a safe random location..."));
+    ctx.sendMessage(HEMessageUtil.info(playerRef, CommandKeys.Rtp.SEARCHING, HEMessageUtil.COLOR_YELLOW));
 
     // Run search on world thread (chunk/block access required)
     currentWorld.execute(() -> {
@@ -94,7 +97,7 @@ public class RtpCommand extends AbstractPlayerCommand {
         currentWorld, worldName, playerX, playerZ, bypassFactions);
 
       if (result instanceof RtpResult.Failure failure) {
-        ctx.sendMessage(CommandUtil.error(failure.reason()));
+        ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Common.CANNOT_GET_POSITION));
         return;
       }
 
@@ -102,16 +105,19 @@ public class RtpCommand extends AbstractPlayerCommand {
 
       WarmupTask task = warmupManager.startWarmup(uuid, "rtp", "rtp", () -> {
         executeTeleport(ref, destination, () -> {
-          ctx.sendMessage(CommandUtil.success(String.format(
-            "Teleported to random location! (%.0f, %.0f, %.0f)",
-            destination.x(), destination.y(), destination.z())));
+          ctx.sendMessage(HEMessageUtil.success(playerRef, CommandKeys.Rtp.TELEPORTED,
+            String.format("%.0f", destination.x()),
+            String.format("%.0f", destination.y()),
+            String.format("%.0f", destination.z())));
         });
       });
 
       if (task != null) {
-        ctx.sendMessage(CommandUtil.info(String.format(
-          "Found location at (%.0f, %.0f, %.0f). Teleporting in %ds... Don't move!",
-          destination.x(), destination.y(), destination.z(), task.warmupSeconds())));
+        ctx.sendMessage(HEMessageUtil.info(playerRef, CommandKeys.Rtp.FOUND_LOCATION, HEMessageUtil.COLOR_YELLOW,
+          String.format("%.0f", destination.x()),
+          String.format("%.0f", destination.y()),
+          String.format("%.0f", destination.z()),
+          task.warmupSeconds()));
       }
     });
   }
@@ -123,7 +129,9 @@ public class RtpCommand extends AbstractPlayerCommand {
           currentWorld.getWorldConfig().getUuid().toString(),
           pos.getX(), pos.getY(), pos.getZ(), 0, 0);
       backManager.onTeleport(uuid, currentLoc, "rtp");
-    } catch (Exception ignored) {}
+    } catch (Exception e) {
+      ErrorHandler.report("[RTP] Failed to save back location", e);
+    }
   }
 
   private void executeTeleport(Ref<EntityStore> ref, Location dest, Runnable onComplete) {

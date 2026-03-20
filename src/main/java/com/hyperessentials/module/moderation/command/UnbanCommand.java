@@ -3,6 +3,8 @@ package com.hyperessentials.module.moderation.command;
 import com.hyperessentials.Permissions;
 import com.hyperessentials.command.util.CommandUtil;
 import com.hyperessentials.module.moderation.ModerationModule;
+import com.hyperessentials.util.CommandKeys;
+import com.hyperessentials.util.HEMessageUtil;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.server.core.command.system.CommandContext;
@@ -34,7 +36,7 @@ public class UnbanCommand extends AbstractPlayerCommand {
               @NotNull PlayerRef playerRef,
               @NotNull World world) {
     if (!CommandUtil.hasPermission(playerRef.getUuid(), Permissions.MODERATION_BAN)) {
-      ctx.sendMessage(CommandUtil.error("You don't have permission to unban players."));
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Moderation.UNBAN_NO_PERMISSION));
       return;
     }
 
@@ -42,21 +44,21 @@ public class UnbanCommand extends AbstractPlayerCommand {
     String[] parts = input != null ? input.trim().split("\\s+") : new String[0];
 
     if (parts.length < 2) {
-      ctx.sendMessage(CommandUtil.error("Usage: /unban <player>"));
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Moderation.UNBAN_USAGE));
       return;
     }
 
     String targetName = parts[1];
     UUID targetUuid = module.getModerationManager().findPlayerUuid(targetName);
     if (targetUuid == null) {
-      ctx.sendMessage(CommandUtil.error("Player '" + targetName + "' not found."));
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Common.PLAYER_NOT_FOUND, targetName));
       return;
     }
 
     if (module.getModerationManager().unban(targetUuid, playerRef.getUuid(), playerRef.getUsername())) {
-      ctx.sendMessage(CommandUtil.success("Unbanned " + targetName + "."));
+      ctx.sendMessage(HEMessageUtil.success(playerRef, CommandKeys.Moderation.UNBAN_SUCCESS, targetName));
     } else {
-      ctx.sendMessage(CommandUtil.error(targetName + " is not banned."));
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Moderation.UNBAN_NOT_BANNED, targetName));
     }
   }
 }

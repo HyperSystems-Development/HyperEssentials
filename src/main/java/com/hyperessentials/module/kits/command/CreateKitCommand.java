@@ -4,6 +4,8 @@ import com.hyperessentials.Permissions;
 import com.hyperessentials.command.util.CommandUtil;
 import com.hyperessentials.module.kits.KitsModule;
 import com.hyperessentials.module.kits.data.Kit;
+import com.hyperessentials.util.CommandKeys;
+import com.hyperessentials.util.HEMessageUtil;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.server.core.command.system.CommandContext;
@@ -34,7 +36,7 @@ public class CreateKitCommand extends AbstractPlayerCommand {
               @NotNull PlayerRef playerRef,
               @NotNull World world) {
     if (!CommandUtil.hasPermission(playerRef.getUuid(), Permissions.KIT_CREATE)) {
-      ctx.sendMessage(CommandUtil.error("You don't have permission to create kits."));
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Kit.CREATE_NO_PERMISSION));
       return;
     }
 
@@ -42,7 +44,7 @@ public class CreateKitCommand extends AbstractPlayerCommand {
     String[] parts = input != null ? input.trim().split("\\s+") : new String[0];
 
     if (parts.length < 2) {
-      ctx.sendMessage(CommandUtil.error("Usage: /createkit <name>"));
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Kit.CREATE_USAGE));
       return;
     }
 
@@ -50,17 +52,17 @@ public class CreateKitCommand extends AbstractPlayerCommand {
 
     // Check if name is valid
     if (!kitName.matches("[a-z0-9_-]+")) {
-      ctx.sendMessage(CommandUtil.error("Kit name must contain only lowercase letters, numbers, hyphens, and underscores."));
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Kit.CREATE_INVALID_NAME));
       return;
     }
 
     // Check if already exists
     if (module.getKitManager().getKit(kitName) != null) {
-      ctx.sendMessage(CommandUtil.error("Kit '" + kitName + "' already exists. Delete it first."));
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Kit.CREATE_ALREADY_EXISTS, kitName));
       return;
     }
 
     Kit kit = module.getKitManager().captureFromInventory(playerRef, store, ref, kitName);
-    ctx.sendMessage(CommandUtil.success("Kit '" + kit.displayName() + "' created with " + kit.items().size() + " item(s)."));
+    ctx.sendMessage(HEMessageUtil.success(playerRef, CommandKeys.Kit.CREATE_SUCCESS, kit.displayName(), kit.items().size()));
   }
 }

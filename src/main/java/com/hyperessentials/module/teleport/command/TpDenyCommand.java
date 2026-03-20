@@ -5,6 +5,8 @@ import com.hyperessentials.command.util.CommandUtil;
 import com.hyperessentials.data.TeleportRequest;
 import com.hyperessentials.module.teleport.TpaManager;
 import com.hyperessentials.platform.HyperEssentialsPlugin;
+import com.hyperessentials.util.CommandKeys;
+import com.hyperessentials.util.HEMessageUtil;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.server.core.command.system.CommandContext;
@@ -40,7 +42,7 @@ public class TpDenyCommand extends AbstractPlayerCommand {
     UUID uuid = playerRef.getUuid();
 
     if (!CommandUtil.hasPermission(uuid, Permissions.TPDENY)) {
-      ctx.sendMessage(CommandUtil.error("You don't have permission to deny requests."));
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Tpa.DENY_NO_PERMISSION));
       return;
     }
 
@@ -52,29 +54,29 @@ public class TpDenyCommand extends AbstractPlayerCommand {
     if (requesterName != null) {
       PlayerRef requesterRef = findPlayer(requesterName);
       if (requesterRef == null) {
-        ctx.sendMessage(CommandUtil.error("Player '" + requesterName + "' not found or offline."));
+        ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Common.PLAYER_NOT_FOUND, requesterName));
         return;
       }
       request = tpaManager.getIncomingRequest(uuid, requesterRef.getUuid());
       if (request == null) {
-        ctx.sendMessage(CommandUtil.error("No pending request from " + requesterName + "."));
+        ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Tpa.DENY_NO_REQUEST_FROM, requesterName));
         return;
       }
     } else {
       request = tpaManager.getMostRecentIncomingRequest(uuid);
       if (request == null) {
-        ctx.sendMessage(CommandUtil.error("You have no pending teleport requests."));
+        ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Tpa.DENY_NO_PENDING));
         return;
       }
     }
 
     tpaManager.denyRequest(request);
 
-    ctx.sendMessage(CommandUtil.success("Teleport request denied."));
+    ctx.sendMessage(HEMessageUtil.success(playerRef, CommandKeys.Tpa.DENY_SUCCESS));
 
     PlayerRef requesterRef = findPlayerByUuid(request.requester());
     if (requesterRef != null) {
-      requesterRef.sendMessage(CommandUtil.error(playerRef.getUsername() + " denied your teleport request."));
+      requesterRef.sendMessage(HEMessageUtil.error(requesterRef, CommandKeys.Tpa.DENY_NOTIFY, playerRef.getUsername()));
     }
   }
 

@@ -3,6 +3,8 @@ package com.hyperessentials.module.moderation.command;
 import com.hyperessentials.Permissions;
 import com.hyperessentials.command.util.CommandUtil;
 import com.hyperessentials.module.moderation.ModerationModule;
+import com.hyperessentials.util.CommandKeys;
+import com.hyperessentials.util.HEMessageUtil;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.server.core.command.system.CommandContext;
@@ -32,7 +34,7 @@ public class KickCommand extends AbstractPlayerCommand {
               @NotNull PlayerRef playerRef,
               @NotNull World world) {
     if (!CommandUtil.hasPermission(playerRef.getUuid(), Permissions.MODERATION_KICK)) {
-      ctx.sendMessage(CommandUtil.error("You don't have permission to kick players."));
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Moderation.KICK_NO_PERMISSION));
       return;
     }
 
@@ -40,7 +42,7 @@ public class KickCommand extends AbstractPlayerCommand {
     String[] parts = input != null ? input.trim().split("\\s+") : new String[0];
 
     if (parts.length < 2) {
-      ctx.sendMessage(CommandUtil.error("Usage: /kick <player> [reason...]"));
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Moderation.KICK_USAGE));
       return;
     }
 
@@ -49,7 +51,7 @@ public class KickCommand extends AbstractPlayerCommand {
 
     PlayerRef target = CommandUtil.findOnlinePlayer(targetName);
     if (target == null) {
-      ctx.sendMessage(CommandUtil.error("Player '" + targetName + "' is not online."));
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Common.PLAYER_NOT_ONLINE, targetName));
       return;
     }
 
@@ -57,7 +59,7 @@ public class KickCommand extends AbstractPlayerCommand {
       target.getUuid(), target.getUsername(),
       playerRef.getUuid(), playerRef.getUsername(), reason
     );
-    ctx.sendMessage(CommandUtil.success("Kicked " + target.getUsername() + "."));
+    ctx.sendMessage(HEMessageUtil.success(playerRef, CommandKeys.Moderation.KICK_SUCCESS, target.getUsername()));
   }
 
   private String joinArgs(String[] parts, int start) {

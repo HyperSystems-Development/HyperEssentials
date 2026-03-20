@@ -8,6 +8,9 @@ import com.hyperessentials.module.teleport.BackManager;
 import com.hyperessentials.module.teleport.TpaManager;
 import com.hyperessentials.module.warmup.WarmupManager;
 import com.hyperessentials.platform.HyperEssentialsPlugin;
+import com.hyperessentials.util.CommandKeys;
+import com.hyperessentials.util.ErrorHandler;
+import com.hyperessentials.util.HEMessageUtil;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.math.vector.Vector3d;
@@ -53,7 +56,7 @@ public class TpAcceptCommand extends AbstractPlayerCommand {
     UUID uuid = playerRef.getUuid();
 
     if (!CommandUtil.hasPermission(uuid, Permissions.TPACCEPT)) {
-      ctx.sendMessage(CommandUtil.error("You don't have permission to accept requests."));
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Tpa.ACCEPT_NO_PERMISSION));
       return;
     }
 
@@ -65,25 +68,25 @@ public class TpAcceptCommand extends AbstractPlayerCommand {
     if (requesterName != null) {
       PlayerRef requesterRef = findPlayer(requesterName);
       if (requesterRef == null) {
-        ctx.sendMessage(CommandUtil.error("Player '" + requesterName + "' not found or offline."));
+        ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Common.PLAYER_NOT_FOUND, requesterName));
         return;
       }
       request = tpaManager.getIncomingRequest(uuid, requesterRef.getUuid());
       if (request == null) {
-        ctx.sendMessage(CommandUtil.error("No pending request from " + requesterName + "."));
+        ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Tpa.ACCEPT_NO_REQUEST_FROM, requesterName));
         return;
       }
     } else {
       request = tpaManager.getMostRecentIncomingRequest(uuid);
       if (request == null) {
-        ctx.sendMessage(CommandUtil.error("You have no pending teleport requests."));
+        ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Tpa.ACCEPT_NO_PENDING));
         return;
       }
     }
 
     if (request.isExpired()) {
       tpaManager.denyRequest(request);
-      ctx.sendMessage(CommandUtil.error("That teleport request has expired."));
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Tpa.ACCEPT_EXPIRED));
       return;
     }
 
@@ -93,12 +96,12 @@ public class TpAcceptCommand extends AbstractPlayerCommand {
     PlayerRef destinationRef = findPlayerByUuid(request.getDestinationPlayer());
 
     if (teleportingRef == null || destinationRef == null) {
-      ctx.sendMessage(CommandUtil.error("The other player is no longer online."));
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Tpa.ACCEPT_PLAYER_OFFLINE));
       return;
     }
 
-    ctx.sendMessage(CommandUtil.success("Teleport request accepted."));
-    teleportingRef.sendMessage(CommandUtil.success("Request accepted! Teleporting..."));
+    ctx.sendMessage(HEMessageUtil.success(playerRef, CommandKeys.Tpa.ACCEPT_SUCCESS));
+    teleportingRef.sendMessage(HEMessageUtil.success(teleportingRef, CommandKeys.Tpa.ACCEPT_TELEPORTING));
 
     if (request.type() == TeleportRequest.Type.TPA) {
       // TPA: Requester teleports to us (the acceptor)
@@ -108,7 +111,7 @@ public class TpAcceptCommand extends AbstractPlayerCommand {
       // Our location is the destination
       TransformComponent transform = store.getComponent(ref, TransformComponent.getComponentType());
       if (transform == null) {
-        ctx.sendMessage(CommandUtil.error("Could not determine position."));
+        ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Common.CANNOT_GET_POSITION));
         return;
       }
       Vector3d pos = transform.getPosition();
@@ -134,14 +137,14 @@ public class TpAcceptCommand extends AbstractPlayerCommand {
       // Get requester's current position
       Ref<EntityStore> requesterEntityRef = destinationRef.getReference();
       if (requesterEntityRef == null || !requesterEntityRef.isValid()) {
-        ctx.sendMessage(CommandUtil.error("Could not locate the requesting player."));
+        ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Common.CANNOT_ACCESS_PLAYER));
         return;
       }
       Store<EntityStore> requesterStore = requesterEntityRef.getStore();
       TransformComponent requesterTransform = requesterStore.getComponent(
           requesterEntityRef, TransformComponent.getComponentType());
       if (requesterTransform == null) {
-        ctx.sendMessage(CommandUtil.error("Could not determine the requesting player's position."));
+        ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Common.CANNOT_GET_POSITION));
         return;
       }
 
@@ -154,7 +157,7 @@ public class TpAcceptCommand extends AbstractPlayerCommand {
       // Teleport us (the acceptor) to the requester
       executeTeleportPlayer(playerRef, dest);
 
-      destinationRef.sendMessage(CommandUtil.info("Teleporting " + playerRef.getUsername() + " to you..."));
+      destinationRef.sendMessage(HEMessageUtil.info(destinationRef, CommandKeys.Tpa.ACCEPT_TELEPORTING_TO_YOU, HEMessageUtil.COLOR_YELLOW, playerRef.getUsername()));
     }
   }
 
@@ -190,7 +193,9 @@ public class TpAcceptCommand extends AbstractPlayerCommand {
           world.getWorldConfig().getUuid().toString(),
           pos.getX(), pos.getY(), pos.getZ(), 0, 0);
       backManager.onTeleport(player.getUuid(), loc, "tpa");
-    } catch (Exception ignored) {}
+    } catch (Exception e) {
+      ErrorHandler.report("[TPA] Failed to save back location", e);
+    }
   }
 
   private PlayerRef findPlayer(String name) {

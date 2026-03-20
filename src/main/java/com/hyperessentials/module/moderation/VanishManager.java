@@ -3,6 +3,7 @@ package com.hyperessentials.module.moderation;
 import com.hyperessentials.command.util.CommandUtil;
 import com.hyperessentials.config.ConfigManager;
 import com.hyperessentials.platform.HyperEssentialsPlugin;
+import com.hyperessentials.util.ErrorHandler;
 import com.hyperessentials.util.Logger;
 import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
@@ -73,7 +74,7 @@ public class VanishManager {
       try {
         newPlayerRef.getHiddenPlayersManager().hidePlayer(vanishedUuid);
       } catch (Exception e) {
-        Logger.debug("[VanishManager] Failed to hide %s from new player: %s", vanishedUuid, e.getMessage());
+        ErrorHandler.report("[Vanish] Failed to hide " + vanishedUuid + " from new player", e);
       }
     }
   }
@@ -107,7 +108,7 @@ public class VanishManager {
         try {
           entry.getValue().getHiddenPlayersManager().hidePlayer(vanishedUuid);
         } catch (Exception e) {
-          Logger.debug("[VanishManager] Failed to hide from player: %s", e.getMessage());
+          ErrorHandler.report("[Vanish] Failed to hide from player", e);
         }
       }
     }
@@ -122,7 +123,7 @@ public class VanishManager {
         try {
           entry.getValue().getHiddenPlayersManager().showPlayer(vanishedUuid);
         } catch (Exception e) {
-          Logger.debug("[VanishManager] Failed to show to player: %s", e.getMessage());
+          ErrorHandler.report("[Vanish] Failed to show to player", e);
         }
       }
     }

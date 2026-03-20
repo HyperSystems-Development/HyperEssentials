@@ -4,7 +4,9 @@ import com.hyperessentials.Permissions;
 import com.hyperessentials.command.util.CommandUtil;
 import com.hyperessentials.module.moderation.ModerationModule;
 import com.hyperessentials.module.moderation.data.Punishment;
+import com.hyperessentials.util.CommandKeys;
 import com.hyperessentials.util.DurationParser;
+import com.hyperessentials.util.HEMessageUtil;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.server.core.Message;
@@ -15,7 +17,6 @@ import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import org.jetbrains.annotations.NotNull;
 
-import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -45,7 +46,7 @@ public class PunishmentsCommand extends AbstractPlayerCommand {
               @NotNull PlayerRef playerRef,
               @NotNull World world) {
     if (!CommandUtil.hasPermission(playerRef.getUuid(), Permissions.MODERATION_HISTORY)) {
-      ctx.sendMessage(CommandUtil.error("You don't have permission to view punishment history."));
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Moderation.HISTORY_NO_PERMISSION));
       return;
     }
 
@@ -53,49 +54,49 @@ public class PunishmentsCommand extends AbstractPlayerCommand {
     String[] parts = input != null ? input.trim().split("\\s+") : new String[0];
 
     if (parts.length < 2) {
-      ctx.sendMessage(CommandUtil.error("Usage: /punishments <player>"));
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Moderation.HISTORY_USAGE));
       return;
     }
 
     String targetName = parts[1];
     UUID targetUuid = module.getModerationManager().findPlayerUuid(targetName);
     if (targetUuid == null) {
-      ctx.sendMessage(CommandUtil.error("Player '" + targetName + "' not found."));
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Common.PLAYER_NOT_FOUND, targetName));
       return;
     }
 
     List<Punishment> history = module.getModerationManager().getHistory(targetUuid);
     if (history.isEmpty()) {
-      ctx.sendMessage(CommandUtil.info("No punishments found for " + targetName + "."));
+      ctx.sendMessage(HEMessageUtil.info(playerRef, CommandKeys.Moderation.HISTORY_EMPTY, HEMessageUtil.COLOR_YELLOW, targetName));
       return;
     }
 
-    ctx.sendMessage(CommandUtil.info("Punishment History for " + targetName + " (" + history.size() + "):"));
+    ctx.sendMessage(HEMessageUtil.info(playerRef, CommandKeys.Moderation.HISTORY_HEADER, HEMessageUtil.COLOR_YELLOW, targetName, history.size()));
 
     int shown = 0;
     for (int i = history.size() - 1; i >= 0 && shown < 10; i--, shown++) {
       Punishment p = history.get(i);
       String status = p.isEffective() ? "[ACTIVE]" : (p.active() ? "[EXPIRED]" : "[REVOKED]");
-      String statusColor = p.isEffective() ? CommandUtil.COLOR_RED : CommandUtil.COLOR_GRAY;
+      String statusColor = p.isEffective() ? HEMessageUtil.COLOR_RED : HEMessageUtil.COLOR_GRAY;
       String duration = p.isPermanent() ? "permanent" : DurationParser.formatCompact(
         p.expiresAt().toEpochMilli() - p.issuedAt().toEpochMilli());
 
-      Message line = CommandUtil.prefix()
+      Message line = HEMessageUtil.prefix()
         .insert(Message.raw("  " + status + " ").color(statusColor))
-        .insert(Message.raw(p.type().name() + " ").color(CommandUtil.COLOR_YELLOW))
-        .insert(Message.raw("by " + p.issuerName() + " ").color(CommandUtil.COLOR_WHITE))
-        .insert(Message.raw("(" + duration + ") ").color(CommandUtil.COLOR_GRAY))
-        .insert(Message.raw(DATE_FMT.format(p.issuedAt())).color(CommandUtil.COLOR_DARK_GRAY));
+        .insert(Message.raw(p.type().name() + " ").color(HEMessageUtil.COLOR_YELLOW))
+        .insert(Message.raw("by " + p.issuerName() + " ").color(HEMessageUtil.COLOR_WHITE))
+        .insert(Message.raw("(" + duration + ") ").color(HEMessageUtil.COLOR_GRAY))
+        .insert(Message.raw(DATE_FMT.format(p.issuedAt())).color(HEMessageUtil.COLOR_DARK_GRAY));
 
       ctx.sendMessage(line);
 
       if (p.reason() != null) {
-        ctx.sendMessage(CommandUtil.msg("    Reason: " + p.reason(), CommandUtil.COLOR_GRAY));
+        ctx.sendMessage(HEMessageUtil.info(playerRef, CommandKeys.Moderation.HISTORY_REASON, HEMessageUtil.COLOR_GRAY, p.reason()));
       }
     }
 
     if (history.size() > 10) {
-      ctx.sendMessage(CommandUtil.msg("  ... and " + (history.size() - 10) + " more", CommandUtil.COLOR_DARK_GRAY));
+      ctx.sendMessage(HEMessageUtil.info(playerRef, CommandKeys.Moderation.HISTORY_MORE, HEMessageUtil.COLOR_DARK_GRAY, history.size() - 10));
     }
   }
 }

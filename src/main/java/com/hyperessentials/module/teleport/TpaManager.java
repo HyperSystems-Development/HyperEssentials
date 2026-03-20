@@ -6,6 +6,7 @@ import com.hyperessentials.data.PlayerData;
 import com.hyperessentials.data.TeleportRequest;
 import com.hyperessentials.integration.PermissionManager;
 import com.hyperessentials.storage.PlayerDataStorage;
+import com.hyperessentials.util.ErrorHandler;
 import com.hyperessentials.util.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -47,18 +48,21 @@ public class TpaManager {
     if (onTpaChanged != null) {
       try {
         onTpaChanged.accept(uuid);
-      } catch (Exception ignored) {}
+      } catch (Exception e) {
+        ErrorHandler.report("[TPA] onTpaChanged callback failed", e);
+      }
     }
   }
 
   public CompletableFuture<PlayerData> loadPlayer(@NotNull UUID uuid, @NotNull String username) {
-    return storage.loadPlayerData(uuid).thenApply(opt -> {
-      PlayerData data = opt.orElseGet(() -> new PlayerData(uuid, username));
-      data.setUsername(username);
-      playerCache.put(uuid, data);
-      Logger.debug("Loaded teleport data for %s", username);
-      return data;
-    });
+    return ErrorHandler.guard("[TPA] Failed to load player " + username,
+      storage.loadPlayerData(uuid).thenApply(opt -> {
+        PlayerData data = opt.orElseGet(() -> new PlayerData(uuid, username));
+        data.setUsername(username);
+        playerCache.put(uuid, data);
+        Logger.debug("Loaded teleport data for %s", username);
+        return data;
+      }));
   }
 
   public CompletableFuture<Void> savePlayer(@NotNull UUID uuid) {
@@ -66,7 +70,7 @@ public class TpaManager {
     if (data == null) {
       return CompletableFuture.completedFuture(null);
     }
-    return storage.savePlayerData(data);
+    return ErrorHandler.guard("[TPA] Failed to save player " + uuid, storage.savePlayerData(data));
   }
 
   public CompletableFuture<Void> unloadPlayer(@NotNull UUID uuid) {
@@ -77,10 +81,11 @@ public class TpaManager {
       requests.removeIf(req -> req.requester().equals(uuid));
     }
 
-    return savePlayer(uuid).thenRun(() -> {
-      playerCache.remove(uuid);
-      Logger.debug("Unloaded player %s from TPA cache", uuid);
-    });
+    return ErrorHandler.guard("[TPA] Failed to unload player " + uuid,
+      savePlayer(uuid).thenRun(() -> {
+        playerCache.remove(uuid);
+        Logger.debug("Unloaded player %s from TPA cache", uuid);
+      }));
   }
 
   @Nullable
