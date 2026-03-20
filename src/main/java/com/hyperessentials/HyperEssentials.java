@@ -21,6 +21,7 @@ import com.hyperessentials.gui.player.PlayerDashboardPage;
 import com.hyperessentials.gui.player.StatsPage;
 import com.hyperessentials.gui.player.TpaPage;
 import com.hyperessentials.gui.player.WarpsPage;
+import com.hyperessentials.integration.ChatDelegation;
 import com.hyperessentials.integration.EcotaleIntegration;
 import com.hyperessentials.integration.HyperFactionsIntegration;
 import com.hyperessentials.integration.PermissionManager;
@@ -109,6 +110,9 @@ public class HyperEssentials {
     HyperFactionsIntegration.init();
     EcotaleIntegration.init();
     WerchatIntegration.init();
+
+    // Determine chat delegation (must follow integration init)
+    ChatDelegation.init();
 
     // Initialize VaultUnlocked economy
     vaultEconomy = new VaultEconomyProvider();
