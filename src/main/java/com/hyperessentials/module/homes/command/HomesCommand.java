@@ -7,6 +7,8 @@ import com.hyperessentials.data.Home;
 import com.hyperessentials.gui.GuiManager;
 import com.hyperessentials.integration.HyperFactionsIntegration;
 import com.hyperessentials.module.homes.HomeManager;
+import com.hyperessentials.util.CommandKeys;
+import com.hyperessentials.util.HEMessageUtil;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.server.core.command.system.CommandContext;
@@ -44,7 +46,7 @@ public class HomesCommand extends AbstractPlayerCommand {
     UUID uuid = playerRef.getUuid();
 
     if (!CommandUtil.hasPermission(uuid, Permissions.HOME_LIST)) {
-      ctx.sendMessage(CommandUtil.error("You don't have permission to list homes."));
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Home.LIST_NO_PERMISSION));
       return;
     }
 
@@ -61,21 +63,19 @@ public class HomesCommand extends AbstractPlayerCommand {
     String limitStr = limit < 0 ? "unlimited" : String.valueOf(limit);
 
     if (homes.isEmpty()) {
-      ctx.sendMessage(CommandUtil.info(
-          "You don't have any homes (0/" + limitStr + "). Use /sethome to create one."));
+      ctx.sendMessage(HEMessageUtil.info(playerRef, CommandKeys.Home.LIST_EMPTY, HEMessageUtil.COLOR_YELLOW, "0/" + limitStr));
       return;
     }
 
-    ctx.sendMessage(CommandUtil.info("Your homes (" + count + "/" + limitStr + "):"));
+    ctx.sendMessage(HEMessageUtil.info(playerRef, CommandKeys.Home.LIST_HEADER, HEMessageUtil.COLOR_YELLOW, count + "/" + limitStr));
 
     // Show faction home if available
     if (HyperFactionsIntegration.isAvailable() && HyperFactionsIntegration.hasFactionHome(uuid)) {
       String factionWorld = HyperFactionsIntegration.getFactionHomeWorld(uuid);
       double[] coords = HyperFactionsIntegration.getFactionHomeCoords(uuid);
       if (factionWorld != null && coords != null) {
-        ctx.sendMessage(CommandUtil.msg("  Faction Home: " + factionWorld + " (" +
-            String.format("%.0f, %.0f, %.0f", coords[0], coords[1], coords[2]) + ")",
-            CommandUtil.COLOR_GOLD));
+        ctx.sendMessage(HEMessageUtil.text(playerRef, CommandKeys.Home.LIST_FACTION_HOME, HEMessageUtil.COLOR_GOLD,
+            factionWorld, String.format("%.0f, %.0f, %.0f", coords[0], coords[1], coords[2])));
       }
     }
 
@@ -84,7 +84,7 @@ public class HomesCommand extends AbstractPlayerCommand {
       if (!sb.isEmpty()) sb.append(", ");
       sb.append(home.name());
     }
-    ctx.sendMessage(CommandUtil.msg(sb.toString(), CommandUtil.COLOR_GRAY));
+    ctx.sendMessage(HEMessageUtil.text(sb.toString(), HEMessageUtil.COLOR_GRAY));
   }
 
   private boolean tryOpenGui(@NotNull Store<EntityStore> store,

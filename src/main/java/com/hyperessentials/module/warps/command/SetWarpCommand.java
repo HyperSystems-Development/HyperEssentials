@@ -5,6 +5,8 @@ import com.hyperessentials.command.util.CommandUtil;
 import com.hyperessentials.config.modules.WarpsConfig;
 import com.hyperessentials.data.Warp;
 import com.hyperessentials.module.warps.WarpManager;
+import com.hyperessentials.util.CommandKeys;
+import com.hyperessentials.util.HEMessageUtil;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.math.vector.Vector3d;
@@ -45,7 +47,7 @@ public class SetWarpCommand extends AbstractPlayerCommand {
     UUID uuid = playerRef.getUuid();
 
     if (!CommandUtil.hasPermission(uuid, Permissions.WARP_SET)) {
-      ctx.sendMessage(CommandUtil.error("You don't have permission to create warps."));
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Warp.SET_NO_PERMISSION));
       return;
     }
 
@@ -53,7 +55,7 @@ public class SetWarpCommand extends AbstractPlayerCommand {
     String[] parts = input != null ? input.trim().split("\\s+") : new String[0];
 
     if (parts.length < 2) {
-      ctx.sendMessage(CommandUtil.error("Usage: /setwarp <name> [category]"));
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Warp.SET_USAGE));
       return;
     }
 
@@ -61,18 +63,18 @@ public class SetWarpCommand extends AbstractPlayerCommand {
     String category = parts.length > 2 ? parts[2] : config.getDefaultCategory();
 
     if (warpName.length() < 1 || warpName.length() > 32) {
-      ctx.sendMessage(CommandUtil.error("Warp name must be 1-32 characters."));
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Warp.SET_NAME_LENGTH));
       return;
     }
 
     if (!warpName.matches("[a-z0-9_-]+")) {
-      ctx.sendMessage(CommandUtil.error("Warp name can only contain letters, numbers, underscore, and dash."));
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Warp.SET_NAME_INVALID));
       return;
     }
 
     TransformComponent transform = store.getComponent(ref, TransformComponent.getComponentType());
     if (transform == null) {
-      ctx.sendMessage(CommandUtil.error("Could not get your position."));
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Common.CANNOT_GET_POSITION));
       return;
     }
 
@@ -107,9 +109,10 @@ public class SetWarpCommand extends AbstractPlayerCommand {
 
     warpManager.setWarp(warp);
 
-    ctx.sendMessage(CommandUtil.success("Warp '" + warpName + "' has been set!"));
-    ctx.sendMessage(CommandUtil.info(String.format("Location: %.0f, %.0f, %.0f in %s",
-      pos.getX(), pos.getY(), pos.getZ(), currentWorld.getName())));
-    ctx.sendMessage(CommandUtil.info("Category: " + category));
+    ctx.sendMessage(HEMessageUtil.success(playerRef, CommandKeys.Warp.SET_SUCCESS, warpName));
+    ctx.sendMessage(HEMessageUtil.info(playerRef, CommandKeys.Warp.SET_LOCATION, HEMessageUtil.COLOR_YELLOW,
+        String.format("%.0f", pos.getX()), String.format("%.0f", pos.getY()),
+        String.format("%.0f", pos.getZ()), currentWorld.getName()));
+    ctx.sendMessage(HEMessageUtil.info(playerRef, CommandKeys.Warp.SET_CATEGORY, HEMessageUtil.COLOR_YELLOW, category));
   }
 }

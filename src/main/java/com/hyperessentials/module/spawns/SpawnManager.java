@@ -2,6 +2,7 @@ package com.hyperessentials.module.spawns;
 
 import com.hyperessentials.data.Spawn;
 import com.hyperessentials.storage.SpawnStorage;
+import com.hyperessentials.util.ErrorHandler;
 import com.hyperessentials.util.Logger;
 import com.hypixel.hytale.math.vector.Transform;
 import com.hypixel.hytale.math.vector.Vector3d;
@@ -117,7 +118,7 @@ public class SpawnManager {
       }
       return imported;
     } catch (Exception e) {
-      Logger.warn("[Spawns] Failed to import world spawns: %s", e.getMessage());
+      ErrorHandler.report("[Spawns] Failed to import world spawns", e);
       return 0;
     }
   }

@@ -4,6 +4,8 @@ import com.hyperessentials.Permissions;
 import com.hyperessentials.command.util.CommandUtil;
 import com.hyperessentials.data.Home;
 import com.hyperessentials.module.homes.HomeManager;
+import com.hyperessentials.util.CommandKeys;
+import com.hyperessentials.util.HEMessageUtil;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.server.core.command.system.CommandContext;
@@ -40,7 +42,7 @@ public class DelHomeCommand extends AbstractPlayerCommand {
     UUID uuid = playerRef.getUuid();
 
     if (!CommandUtil.hasPermission(uuid, Permissions.HOME_DELETE)) {
-      ctx.sendMessage(CommandUtil.error("You don't have permission to delete homes."));
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Home.DEL_NO_PERMISSION));
       return;
     }
 
@@ -48,7 +50,7 @@ public class DelHomeCommand extends AbstractPlayerCommand {
     String[] parts = input != null ? input.trim().split("\\s+") : new String[0];
 
     if (parts.length < 2) {
-      ctx.sendMessage(CommandUtil.error("Usage: /delhome <name>"));
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Home.DEL_USAGE));
       Collection<Home> homes = homeManager.getHomes(uuid);
       if (!homes.isEmpty()) {
         StringBuilder sb = new StringBuilder();
@@ -56,7 +58,7 @@ public class DelHomeCommand extends AbstractPlayerCommand {
           if (!sb.isEmpty()) sb.append(", ");
           sb.append(h.name());
         }
-        ctx.sendMessage(CommandUtil.info("Your homes: " + sb));
+        ctx.sendMessage(HEMessageUtil.info(playerRef, CommandKeys.Home.YOUR_HOMES, HEMessageUtil.COLOR_YELLOW, sb.toString()));
       }
       return;
     }
@@ -64,9 +66,9 @@ public class DelHomeCommand extends AbstractPlayerCommand {
     String homeName = parts[1];
 
     if (homeManager.deleteHome(uuid, homeName)) {
-      ctx.sendMessage(CommandUtil.success("Home '" + homeName + "' has been deleted."));
+      ctx.sendMessage(HEMessageUtil.success(playerRef, CommandKeys.Home.DEL_SUCCESS, homeName));
     } else {
-      ctx.sendMessage(CommandUtil.error("Home '" + homeName + "' not found."));
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Home.DEL_NOT_FOUND, homeName));
     }
   }
 }

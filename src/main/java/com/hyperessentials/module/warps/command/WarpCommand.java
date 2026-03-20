@@ -10,6 +10,9 @@ import com.hyperessentials.module.teleport.BackManager;
 import com.hyperessentials.module.warps.WarpManager;
 import com.hyperessentials.module.warmup.WarmupManager;
 import com.hyperessentials.module.warmup.WarmupTask;
+import com.hyperessentials.util.CommandKeys;
+import com.hyperessentials.util.ErrorHandler;
+import com.hyperessentials.util.HEMessageUtil;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.math.vector.Vector3d;
@@ -56,7 +59,7 @@ public class WarpCommand extends AbstractPlayerCommand {
     UUID uuid = playerRef.getUuid();
 
     if (!CommandUtil.hasPermission(uuid, Permissions.WARP)) {
-      ctx.sendMessage(CommandUtil.error("You don't have permission to use warps."));
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Warp.NO_PERMISSION));
       return;
     }
 
@@ -66,16 +69,16 @@ public class WarpCommand extends AbstractPlayerCommand {
     if (parts.length < 2) {
       Collection<Warp> warps = warpManager.getAccessibleWarps(uuid);
       if (warps.isEmpty()) {
-        ctx.sendMessage(CommandUtil.info("No warps available."));
+        ctx.sendMessage(HEMessageUtil.info(playerRef, CommandKeys.Warp.NO_WARPS, HEMessageUtil.COLOR_YELLOW));
       } else {
-        ctx.sendMessage(CommandUtil.info("Available warps:"));
+        ctx.sendMessage(HEMessageUtil.info(playerRef, CommandKeys.Warp.AVAILABLE_WARPS, HEMessageUtil.COLOR_YELLOW));
         StringBuilder sb = new StringBuilder();
         for (Warp warp : warps) {
           if (!sb.isEmpty()) sb.append(", ");
           sb.append(warp.name());
         }
-        ctx.sendMessage(CommandUtil.msg(sb.toString(), CommandUtil.COLOR_GRAY));
-        ctx.sendMessage(CommandUtil.msg("Use /warp <name> to teleport.", CommandUtil.COLOR_GRAY));
+        ctx.sendMessage(HEMessageUtil.text(sb.toString(), HEMessageUtil.COLOR_GRAY));
+        ctx.sendMessage(HEMessageUtil.text(playerRef, CommandKeys.Warp.USE_WARP_HINT, HEMessageUtil.COLOR_GRAY));
       }
       return;
     }
@@ -84,12 +87,12 @@ public class WarpCommand extends AbstractPlayerCommand {
 
     Warp warp = warpManager.getWarp(warpName);
     if (warp == null) {
-      ctx.sendMessage(CommandUtil.error("Warp '" + warpName + "' not found."));
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Warp.NOT_FOUND, warpName));
       return;
     }
 
     if (!warpManager.canAccess(uuid, warp)) {
-      ctx.sendMessage(CommandUtil.error("You don't have permission to use this warp."));
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Warp.ACCESS_DENIED));
       return;
     }
 
@@ -99,7 +102,7 @@ public class WarpCommand extends AbstractPlayerCommand {
       FactionTerritoryChecker.Result zoneResult = FactionTerritoryChecker.checkZoneFlag(
           warp.world(), warp.x(), warp.z(), HyperFactionsIntegration.FLAG_WARPS);
       if (zoneResult != FactionTerritoryChecker.Result.ALLOWED) {
-        ctx.sendMessage(CommandUtil.error("You cannot warp to this location — zone restricted."));
+        ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Warp.ZONE_RESTRICTED));
         return;
       }
     }
@@ -107,7 +110,7 @@ public class WarpCommand extends AbstractPlayerCommand {
     // Check cooldown
     if (warmupManager.isOnCooldown(uuid, "warps", "warp")) {
       int remaining = warmupManager.getRemainingCooldown(uuid, "warps", "warp");
-      ctx.sendMessage(CommandUtil.error("On cooldown. " + remaining + "s remaining."));
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Common.ON_COOLDOWN, remaining));
       return;
     }
 
@@ -118,12 +121,12 @@ public class WarpCommand extends AbstractPlayerCommand {
 
     WarmupTask task = warmupManager.startWarmup(uuid, "warps", "warp", () -> {
       executeTeleport(ref, destination, () -> {
-        ctx.sendMessage(CommandUtil.success("Teleported to warp '" + warpName + "'!"));
+        ctx.sendMessage(HEMessageUtil.success(playerRef, CommandKeys.Warp.TELEPORTED, warpName));
       });
     });
 
     if (task != null) {
-      ctx.sendMessage(CommandUtil.info("Teleporting in " + task.warmupSeconds() + "s... Don't move!"));
+      ctx.sendMessage(HEMessageUtil.info(playerRef, CommandKeys.Common.WARMUP_STARTING, HEMessageUtil.COLOR_YELLOW, task.warmupSeconds()));
     }
   }
 
@@ -139,7 +142,9 @@ public class WarpCommand extends AbstractPlayerCommand {
             pos.getX(), pos.getY(), pos.getZ(), 0, 0);
         backManager.onTeleport(uuid, currentLoc, "warp");
       }
-    } catch (Exception ignored) {}
+    } catch (Exception e) {
+      ErrorHandler.report("[Warps] Failed to save back location", e);
+    }
   }
 
   private void executeTeleport(Ref<EntityStore> ref, Location dest, Runnable onComplete) {

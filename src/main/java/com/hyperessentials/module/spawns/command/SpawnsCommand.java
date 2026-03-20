@@ -4,6 +4,8 @@ import com.hyperessentials.Permissions;
 import com.hyperessentials.command.util.CommandUtil;
 import com.hyperessentials.data.Spawn;
 import com.hyperessentials.module.spawns.SpawnManager;
+import com.hyperessentials.util.CommandKeys;
+import com.hyperessentials.util.HEMessageUtil;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.server.core.command.system.CommandContext;
@@ -38,19 +40,19 @@ public class SpawnsCommand extends AbstractPlayerCommand {
     UUID uuid = playerRef.getUuid();
 
     if (!CommandUtil.hasPermission(uuid, Permissions.SPAWN_LIST)) {
-      ctx.sendMessage(CommandUtil.error("You don't have permission to list spawns."));
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Spawn.LIST_NO_PERMISSION));
       return;
     }
 
     Collection<Spawn> spawns = spawnManager.getAllSpawns();
 
     if (spawns.isEmpty()) {
-      ctx.sendMessage(CommandUtil.info("No spawns have been set."));
-      ctx.sendMessage(CommandUtil.msg("Use /setspawn to create one.", CommandUtil.COLOR_GRAY));
+      ctx.sendMessage(HEMessageUtil.info(playerRef, CommandKeys.Spawn.LIST_EMPTY, HEMessageUtil.COLOR_YELLOW));
+      ctx.sendMessage(HEMessageUtil.text(playerRef, CommandKeys.Spawn.LIST_HINT, HEMessageUtil.COLOR_GRAY));
       return;
     }
 
-    ctx.sendMessage(CommandUtil.msg("--- Server Spawns ---", CommandUtil.COLOR_GOLD));
+    ctx.sendMessage(HEMessageUtil.text(playerRef, CommandKeys.Spawn.LIST_HEADER, HEMessageUtil.COLOR_GOLD));
 
     for (Spawn spawn : spawns) {
       StringBuilder sb = new StringBuilder();
@@ -60,9 +62,9 @@ public class SpawnsCommand extends AbstractPlayerCommand {
       }
       sb.append(String.format(" (%.0f, %.0f, %.0f)", spawn.x(), spawn.y(), spawn.z()));
 
-      ctx.sendMessage(CommandUtil.msg("  " + sb, CommandUtil.COLOR_GRAY));
+      ctx.sendMessage(HEMessageUtil.text("  " + sb, HEMessageUtil.COLOR_GRAY));
     }
 
-    ctx.sendMessage(CommandUtil.msg("Use /spawn [world] to teleport.", CommandUtil.COLOR_GRAY));
+    ctx.sendMessage(HEMessageUtil.text(playerRef, CommandKeys.Spawn.LIST_USE_HINT, HEMessageUtil.COLOR_GRAY));
   }
 }

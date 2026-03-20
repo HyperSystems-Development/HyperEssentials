@@ -3,6 +3,7 @@ package com.hyperessentials.module.warps;
 import com.hyperessentials.data.Warp;
 import com.hyperessentials.integration.PermissionManager;
 import com.hyperessentials.storage.WarpStorage;
+import com.hyperessentials.util.ErrorHandler;
 import com.hyperessentials.util.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -33,7 +34,9 @@ public class WarpManager {
 
   private void fireWarpChanged() {
     if (onWarpChanged != null) {
-      try { onWarpChanged.run(); } catch (Exception ignored) {}
+      try { onWarpChanged.run(); } catch (Exception e) {
+        ErrorHandler.report("[Warps] Error in warp-changed callback", e);
+      }
     }
   }
 

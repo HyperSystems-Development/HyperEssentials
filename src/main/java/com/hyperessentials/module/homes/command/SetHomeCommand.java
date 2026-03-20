@@ -5,6 +5,8 @@ import com.hyperessentials.command.util.CommandUtil;
 import com.hyperessentials.data.Home;
 import com.hyperessentials.integration.FactionTerritoryChecker;
 import com.hyperessentials.module.homes.HomeManager;
+import com.hyperessentials.util.CommandKeys;
+import com.hyperessentials.util.HEMessageUtil;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.math.vector.Vector3d;
@@ -46,7 +48,7 @@ public class SetHomeCommand extends AbstractPlayerCommand {
     UUID uuid = playerRef.getUuid();
 
     if (!CommandUtil.hasPermission(uuid, Permissions.HOME_SET)) {
-      ctx.sendMessage(CommandUtil.error("You don't have permission to set homes."));
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Home.SET_NO_PERMISSION));
       return;
     }
 
@@ -57,15 +59,14 @@ public class SetHomeCommand extends AbstractPlayerCommand {
 
     // Validate name
     if (!NAME_PATTERN.matcher(homeName).matches()) {
-      ctx.sendMessage(CommandUtil.error(
-          "Home name must be 1-32 characters (letters, numbers, _ and - only)."));
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Home.SET_INVALID_NAME));
       return;
     }
 
     // Get player position
     TransformComponent transform = store.getComponent(ref, TransformComponent.getComponentType());
     if (transform == null) {
-      ctx.sendMessage(CommandUtil.error("Could not get your position."));
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Common.CANNOT_GET_POSITION));
       return;
     }
 
@@ -87,7 +88,7 @@ public class SetHomeCommand extends AbstractPlayerCommand {
     boolean isNew = homeManager.getHome(uuid, homeName) == null;
     if (isNew && homeManager.isAtLimit(uuid)) {
       int limit = homeManager.getHomeLimit(uuid);
-      ctx.sendMessage(CommandUtil.error("You have reached your home limit (" + limit + ")."));
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Home.SET_LIMIT_REACHED, limit));
       return;
     }
 
@@ -98,9 +99,10 @@ public class SetHomeCommand extends AbstractPlayerCommand {
 
     homeManager.setHome(uuid, home);
 
-    String action = isNew ? "set" : "updated";
-    ctx.sendMessage(CommandUtil.success("Home '" + homeName + "' has been " + action + "!"));
-    ctx.sendMessage(CommandUtil.info(String.format("Location: %.0f, %.0f, %.0f in %s",
-        pos.getX(), pos.getY(), pos.getZ(), currentWorld.getName())));
+    String key = isNew ? CommandKeys.Home.SET_SUCCESS : CommandKeys.Home.SET_UPDATED;
+    ctx.sendMessage(HEMessageUtil.success(playerRef, key, homeName));
+    ctx.sendMessage(HEMessageUtil.info(playerRef, CommandKeys.Home.SET_LOCATION, HEMessageUtil.COLOR_YELLOW,
+        String.format("%.0f", pos.getX()), String.format("%.0f", pos.getY()),
+        String.format("%.0f", pos.getZ()), currentWorld.getName()));
   }
 }

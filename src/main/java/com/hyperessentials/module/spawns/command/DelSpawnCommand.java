@@ -4,6 +4,8 @@ import com.hyperessentials.Permissions;
 import com.hyperessentials.command.util.CommandUtil;
 import com.hyperessentials.data.Spawn;
 import com.hyperessentials.module.spawns.SpawnManager;
+import com.hyperessentials.util.CommandKeys;
+import com.hyperessentials.util.HEMessageUtil;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.server.core.command.system.CommandContext;
@@ -39,7 +41,7 @@ public class DelSpawnCommand extends AbstractPlayerCommand {
     UUID uuid = playerRef.getUuid();
 
     if (!CommandUtil.hasPermission(uuid, Permissions.SPAWN_DELETE)) {
-      ctx.sendMessage(CommandUtil.error("You don't have permission to delete spawns."));
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Spawn.DEL_NO_PERMISSION));
       return;
     }
 
@@ -58,7 +60,7 @@ public class DelSpawnCommand extends AbstractPlayerCommand {
         }
       }
       if (found == null) {
-        ctx.sendMessage(CommandUtil.error("No spawn found for world '" + arg + "'."));
+        ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Spawn.DEL_NOT_FOUND, arg));
         return;
       }
       worldUuid = found.worldUuid();
@@ -69,9 +71,9 @@ public class DelSpawnCommand extends AbstractPlayerCommand {
     }
 
     if (spawnManager.deleteSpawn(worldUuid)) {
-      ctx.sendMessage(CommandUtil.success("Spawn for world '" + worldName + "' has been deleted."));
+      ctx.sendMessage(HEMessageUtil.success(playerRef, CommandKeys.Spawn.DEL_SUCCESS, worldName));
     } else {
-      ctx.sendMessage(CommandUtil.error("No spawn set for world '" + worldName + "'."));
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Spawn.DEL_NO_SPAWN, worldName));
     }
   }
 }

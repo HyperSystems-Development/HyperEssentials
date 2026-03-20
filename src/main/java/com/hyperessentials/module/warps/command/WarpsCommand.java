@@ -6,6 +6,8 @@ import com.hyperessentials.command.util.CommandUtil;
 import com.hyperessentials.data.Warp;
 import com.hyperessentials.gui.GuiManager;
 import com.hyperessentials.module.warps.WarpManager;
+import com.hyperessentials.util.CommandKeys;
+import com.hyperessentials.util.HEMessageUtil;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.server.core.command.system.CommandContext;
@@ -46,7 +48,7 @@ public class WarpsCommand extends AbstractPlayerCommand {
     UUID uuid = playerRef.getUuid();
 
     if (!CommandUtil.hasPermission(uuid, Permissions.WARP_LIST)) {
-      ctx.sendMessage(CommandUtil.error("You don't have permission to list warps."));
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Warp.LIST_NO_PERMISSION));
       return;
     }
 
@@ -64,17 +66,17 @@ public class WarpsCommand extends AbstractPlayerCommand {
     if (category != null) {
       warps = warpManager.getAccessibleWarpsByCategory(uuid, category);
       if (warps.isEmpty()) {
-        ctx.sendMessage(CommandUtil.info("No warps found in category '" + category + "'."));
+        ctx.sendMessage(HEMessageUtil.info(playerRef, CommandKeys.Warp.LIST_CATEGORY_EMPTY, HEMessageUtil.COLOR_YELLOW, category));
         return;
       }
-      ctx.sendMessage(CommandUtil.msg("--- Warps in '" + category + "' ---", CommandUtil.COLOR_GOLD));
+      ctx.sendMessage(HEMessageUtil.text(playerRef, CommandKeys.Warp.LIST_CATEGORY_HEADER, HEMessageUtil.COLOR_GOLD, category));
     } else {
       warps = warpManager.getAccessibleWarps(uuid);
       if (warps.isEmpty()) {
-        ctx.sendMessage(CommandUtil.info("No warps available."));
+        ctx.sendMessage(HEMessageUtil.info(playerRef, CommandKeys.Warp.LIST_EMPTY, HEMessageUtil.COLOR_YELLOW));
         return;
       }
-      ctx.sendMessage(CommandUtil.msg("--- Server Warps ---", CommandUtil.COLOR_GOLD));
+      ctx.sendMessage(HEMessageUtil.text(playerRef, CommandKeys.Warp.LIST_HEADER, HEMessageUtil.COLOR_GOLD));
     }
 
     Map<String, List<Warp>> grouped = warps.stream()
@@ -85,7 +87,7 @@ public class WarpsCommand extends AbstractPlayerCommand {
       List<Warp> catWarps = entry.getValue();
 
       if (category == null) {
-        ctx.sendMessage(CommandUtil.msg("[" + cat + "]", CommandUtil.COLOR_GRAY));
+        ctx.sendMessage(HEMessageUtil.text("[" + cat + "]", HEMessageUtil.COLOR_GRAY));
       }
 
       StringBuilder sb = new StringBuilder();
@@ -93,18 +95,18 @@ public class WarpsCommand extends AbstractPlayerCommand {
         if (!sb.isEmpty()) sb.append(", ");
         sb.append(warp.displayName());
       }
-      ctx.sendMessage(CommandUtil.msg("  " + sb, CommandUtil.COLOR_WHITE));
+      ctx.sendMessage(HEMessageUtil.text("  " + sb, HEMessageUtil.COLOR_WHITE));
     }
 
     if (category == null) {
       Set<String> categories = warpManager.getCategories();
       if (categories.size() > 1) {
-        ctx.sendMessage(CommandUtil.msg("Categories: " + String.join(", ", categories), CommandUtil.COLOR_GRAY));
-        ctx.sendMessage(CommandUtil.msg("Use /warps <category> to filter.", CommandUtil.COLOR_GRAY));
+        ctx.sendMessage(HEMessageUtil.text(playerRef, CommandKeys.Warp.LIST_CATEGORIES, HEMessageUtil.COLOR_GRAY, String.join(", ", categories)));
+        ctx.sendMessage(HEMessageUtil.text(playerRef, CommandKeys.Warp.LIST_FILTER_HINT, HEMessageUtil.COLOR_GRAY));
       }
     }
 
-    ctx.sendMessage(CommandUtil.msg("Use /warp <name> to teleport.", CommandUtil.COLOR_GRAY));
+    ctx.sendMessage(HEMessageUtil.text(playerRef, CommandKeys.Warp.USE_WARP_HINT, HEMessageUtil.COLOR_GRAY));
   }
 
   private boolean tryOpenGui(@NotNull Store<EntityStore> store,

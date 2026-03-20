@@ -4,6 +4,8 @@ import com.hyperessentials.Permissions;
 import com.hyperessentials.command.util.CommandUtil;
 import com.hyperessentials.data.Warp;
 import com.hyperessentials.module.warps.WarpManager;
+import com.hyperessentials.util.CommandKeys;
+import com.hyperessentials.util.HEMessageUtil;
 import com.hyperessentials.util.TimeUtil;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
@@ -39,7 +41,7 @@ public class WarpInfoCommand extends AbstractPlayerCommand {
     UUID uuid = playerRef.getUuid();
 
     if (!CommandUtil.hasPermission(uuid, Permissions.WARP_INFO)) {
-      ctx.sendMessage(CommandUtil.error("You don't have permission to view warp info."));
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Warp.INFO_NO_PERMISSION));
       return;
     }
 
@@ -47,7 +49,7 @@ public class WarpInfoCommand extends AbstractPlayerCommand {
     String[] parts = input != null ? input.trim().split("\\s+") : new String[0];
 
     if (parts.length < 2) {
-      ctx.sendMessage(CommandUtil.error("Usage: /warpinfo <name>"));
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Warp.INFO_USAGE));
       return;
     }
 
@@ -55,27 +57,27 @@ public class WarpInfoCommand extends AbstractPlayerCommand {
 
     Warp warp = warpManager.getWarp(warpName);
     if (warp == null) {
-      ctx.sendMessage(CommandUtil.error("Warp '" + warpName + "' not found."));
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Warp.NOT_FOUND, warpName));
       return;
     }
 
-    ctx.sendMessage(CommandUtil.msg("--- Warp: " + warp.displayName() + " ---", CommandUtil.COLOR_GOLD));
-    ctx.sendMessage(CommandUtil.msg("Name: " + warp.name(), CommandUtil.COLOR_GRAY));
-    ctx.sendMessage(CommandUtil.msg("Category: " + warp.category(), CommandUtil.COLOR_GRAY));
-    ctx.sendMessage(CommandUtil.msg("World: " + warp.world(), CommandUtil.COLOR_GRAY));
-    ctx.sendMessage(CommandUtil.msg(String.format("Location: %.1f, %.1f, %.1f",
-      warp.x(), warp.y(), warp.z()), CommandUtil.COLOR_GRAY));
+    ctx.sendMessage(HEMessageUtil.text(playerRef, CommandKeys.Warp.INFO_HEADER, HEMessageUtil.COLOR_GOLD, warp.displayName()));
+    ctx.sendMessage(HEMessageUtil.text(playerRef, CommandKeys.Warp.INFO_NAME, HEMessageUtil.COLOR_GRAY, warp.name()));
+    ctx.sendMessage(HEMessageUtil.text(playerRef, CommandKeys.Warp.INFO_CATEGORY, HEMessageUtil.COLOR_GRAY, warp.category()));
+    ctx.sendMessage(HEMessageUtil.text(playerRef, CommandKeys.Warp.INFO_WORLD, HEMessageUtil.COLOR_GRAY, warp.world()));
+    ctx.sendMessage(HEMessageUtil.text(playerRef, CommandKeys.Warp.INFO_LOCATION, HEMessageUtil.COLOR_GRAY,
+        String.format("%.1f", warp.x()), String.format("%.1f", warp.y()), String.format("%.1f", warp.z())));
 
     if (warp.description() != null && !warp.description().isEmpty()) {
-      ctx.sendMessage(CommandUtil.msg("Description: " + warp.description(), CommandUtil.COLOR_GRAY));
+      ctx.sendMessage(HEMessageUtil.text(playerRef, CommandKeys.Warp.INFO_DESCRIPTION, HEMessageUtil.COLOR_GRAY, warp.description()));
     }
 
     if (warp.permission() != null && !warp.permission().isEmpty()) {
-      ctx.sendMessage(CommandUtil.msg("Permission: " + warp.permission(), CommandUtil.COLOR_GRAY));
+      ctx.sendMessage(HEMessageUtil.text(playerRef, CommandKeys.Warp.INFO_PERMISSION, HEMessageUtil.COLOR_GRAY, warp.permission()));
       boolean hasAccess = warpManager.canAccess(uuid, warp);
-      ctx.sendMessage(CommandUtil.msg("You have access: " + (hasAccess ? "Yes" : "No"), CommandUtil.COLOR_GRAY));
+      ctx.sendMessage(HEMessageUtil.text(playerRef, CommandKeys.Warp.INFO_ACCESS, HEMessageUtil.COLOR_GRAY, hasAccess ? "Yes" : "No"));
     }
 
-    ctx.sendMessage(CommandUtil.msg("Created: " + TimeUtil.formatRelativeTime(warp.createdAt()), CommandUtil.COLOR_GRAY));
+    ctx.sendMessage(HEMessageUtil.text(playerRef, CommandKeys.Warp.INFO_CREATED, HEMessageUtil.COLOR_GRAY, TimeUtil.formatRelativeTime(warp.createdAt())));
   }
 }

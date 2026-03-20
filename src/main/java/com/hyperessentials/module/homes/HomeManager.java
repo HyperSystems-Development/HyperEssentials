@@ -7,6 +7,7 @@ import com.hyperessentials.config.modules.HomesConfig;
 import com.hyperessentials.data.Home;
 import com.hyperessentials.data.PlayerHomes;
 import com.hyperessentials.storage.HomeStorage;
+import com.hyperessentials.util.ErrorHandler;
 import com.hyperessentials.util.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -41,7 +42,9 @@ public class HomeManager {
 
   private void fireHomeChanged(@NotNull UUID uuid) {
     if (onHomeChanged != null) {
-      try { onHomeChanged.accept(uuid); } catch (Exception ignored) {}
+      try { onHomeChanged.accept(uuid); } catch (Exception e) {
+        ErrorHandler.report("[Homes] Error in home-changed callback", e);
+      }
     }
   }
 

@@ -10,6 +10,9 @@ import com.hyperessentials.module.homes.HomeManager;
 import com.hyperessentials.module.teleport.BackManager;
 import com.hyperessentials.module.warmup.WarmupManager;
 import com.hyperessentials.module.warmup.WarmupTask;
+import com.hyperessentials.util.CommandKeys;
+import com.hyperessentials.util.ErrorHandler;
+import com.hyperessentials.util.HEMessageUtil;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.math.vector.Vector3d;
@@ -57,7 +60,7 @@ public class HomeCommand extends AbstractPlayerCommand {
     UUID uuid = playerRef.getUuid();
 
     if (!CommandUtil.hasPermission(uuid, Permissions.HOME_TELEPORT)) {
-      ctx.sendMessage(CommandUtil.error("You don't have permission to use homes."));
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Home.NO_PERMISSION));
       return;
     }
 
@@ -68,7 +71,7 @@ public class HomeCommand extends AbstractPlayerCommand {
 
     // Check for faction home shortcut
     if (hasExplicitName && (parts[1].equalsIgnoreCase("factionhome") || parts[1].equalsIgnoreCase("faction"))) {
-      handleFactionHome(ctx, uuid, ref, store, currentWorld);
+      handleFactionHome(ctx, uuid, playerRef, ref, store, currentWorld);
       return;
     }
 
@@ -77,26 +80,26 @@ public class HomeCommand extends AbstractPlayerCommand {
     if (!hasExplicitName) {
       Collection<Home> homes = homeManager.getHomes(uuid);
       if (homes.isEmpty()) {
-        ctx.sendMessage(CommandUtil.info("You don't have any homes. Use /sethome to create one."));
+        ctx.sendMessage(HEMessageUtil.info(playerRef, CommandKeys.Home.NO_HOMES, HEMessageUtil.COLOR_YELLOW));
         return;
       }
 
       home = homeManager.resolveDefaultHome(uuid);
       if (home == null) {
-        ctx.sendMessage(CommandUtil.error("No default home set. Specify a name: /home <name>"));
+        ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Home.NO_DEFAULT));
         StringBuilder sb = new StringBuilder();
         for (Home h : homes) {
           if (!sb.isEmpty()) sb.append(", ");
           sb.append(h.name());
         }
-        ctx.sendMessage(CommandUtil.info("Your homes: " + sb));
+        ctx.sendMessage(HEMessageUtil.info(playerRef, CommandKeys.Home.YOUR_HOMES, HEMessageUtil.COLOR_YELLOW, sb.toString()));
         return;
       }
     } else {
       String homeName = parts[1];
       home = homeManager.getHome(uuid, homeName);
       if (home == null) {
-        ctx.sendMessage(CommandUtil.error("Home '" + homeName + "' not found."));
+        ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Home.NOT_FOUND, homeName));
         Collection<Home> homes = homeManager.getHomes(uuid);
         if (!homes.isEmpty()) {
           StringBuilder sb = new StringBuilder();
@@ -104,7 +107,7 @@ public class HomeCommand extends AbstractPlayerCommand {
             if (!sb.isEmpty()) sb.append(", ");
             sb.append(h.name());
           }
-          ctx.sendMessage(CommandUtil.info("Your homes: " + sb));
+          ctx.sendMessage(HEMessageUtil.info(playerRef, CommandKeys.Home.YOUR_HOMES, HEMessageUtil.COLOR_YELLOW, sb.toString()));
         }
         return;
       }
@@ -124,7 +127,7 @@ public class HomeCommand extends AbstractPlayerCommand {
     // Check cooldown
     if (warmupManager.isOnCooldown(uuid, "homes", "home")) {
       int remaining = warmupManager.getRemainingCooldown(uuid, "homes", "home");
-      ctx.sendMessage(CommandUtil.error("On cooldown. " + remaining + "s remaining."));
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Common.ON_COOLDOWN, remaining));
       return;
     }
 
@@ -135,28 +138,28 @@ public class HomeCommand extends AbstractPlayerCommand {
 
     WarmupTask task = warmupManager.startWarmup(uuid, "homes", "home", () -> {
       executeTeleport(ref, destination, () -> {
-        ctx.sendMessage(CommandUtil.success("Teleported to home '" + home.name() + "'!"));
+        ctx.sendMessage(HEMessageUtil.success(playerRef, CommandKeys.Home.TELEPORTED, home.name()));
       });
     });
 
     if (task != null) {
-      ctx.sendMessage(CommandUtil.info(
-          "Teleporting in " + task.warmupSeconds() + "s... Don't move!"));
+      ctx.sendMessage(HEMessageUtil.info(playerRef, CommandKeys.Common.WARMUP_STARTING, HEMessageUtil.COLOR_YELLOW, task.warmupSeconds()));
     }
   }
 
   private void handleFactionHome(@NotNull CommandContext ctx, @NotNull UUID uuid,
+                                  @NotNull PlayerRef playerRef,
                                   @NotNull Ref<EntityStore> ref, @NotNull Store<EntityStore> store,
                                   @NotNull World currentWorld) {
     if (!HyperFactionsIntegration.isAvailable() || !HyperFactionsIntegration.hasFactionHome(uuid)) {
-      ctx.sendMessage(CommandUtil.error("Your faction does not have a home set."));
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Home.FACTION_NO_HOME));
       return;
     }
 
     String world = HyperFactionsIntegration.getFactionHomeWorld(uuid);
     double[] coords = HyperFactionsIntegration.getFactionHomeCoords(uuid);
     if (world == null || coords == null) {
-      ctx.sendMessage(CommandUtil.error("Could not resolve faction home location."));
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Home.FACTION_RESOLVE_FAILED));
       return;
     }
 
@@ -166,7 +169,7 @@ public class HomeCommand extends AbstractPlayerCommand {
       FactionTerritoryChecker.Result zoneResult = FactionTerritoryChecker.checkZoneFlag(
           world, coords[0], coords[2], HyperFactionsIntegration.FLAG_HOMES);
       if (zoneResult != FactionTerritoryChecker.Result.ALLOWED) {
-        ctx.sendMessage(CommandUtil.error("You cannot teleport to your faction home — zone restricted."));
+        ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Home.FACTION_ZONE_RESTRICTED));
         return;
       }
     }
@@ -174,14 +177,14 @@ public class HomeCommand extends AbstractPlayerCommand {
     // Check cooldown (uses separate factionhome module)
     if (warmupManager.isOnCooldown(uuid, "factionhome", "factionhome")) {
       int remaining = warmupManager.getRemainingCooldown(uuid, "factionhome", "factionhome");
-      ctx.sendMessage(CommandUtil.error("On cooldown. " + remaining + "s remaining."));
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Common.ON_COOLDOWN, remaining));
       return;
     }
 
     // Resolve world UUID
     World resolvedWorld = Universe.get().getWorld(world);
     if (resolvedWorld == null) {
-      ctx.sendMessage(CommandUtil.error("Faction home world not found."));
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Home.FACTION_WORLD_NOT_FOUND));
       return;
     }
     String worldUuid = resolvedWorld.getWorldConfig().getUuid().toString();
@@ -194,13 +197,12 @@ public class HomeCommand extends AbstractPlayerCommand {
 
     WarmupTask task = warmupManager.startWarmup(uuid, "factionhome", "factionhome", () -> {
       executeTeleport(ref, destination, () -> {
-        ctx.sendMessage(CommandUtil.success("Teleported to faction home!"));
+        ctx.sendMessage(HEMessageUtil.success(playerRef, CommandKeys.Home.FACTION_TELEPORTED));
       });
     });
 
     if (task != null) {
-      ctx.sendMessage(CommandUtil.info(
-          "Teleporting in " + task.warmupSeconds() + "s... Don't move!"));
+      ctx.sendMessage(HEMessageUtil.info(playerRef, CommandKeys.Common.WARMUP_STARTING, HEMessageUtil.COLOR_YELLOW, task.warmupSeconds()));
     }
   }
 
@@ -217,7 +219,9 @@ public class HomeCommand extends AbstractPlayerCommand {
             pos.getX(), pos.getY(), pos.getZ(), 0, 0);
         backManager.onTeleport(uuid, currentLoc, source);
       }
-    } catch (Exception ignored) {}
+    } catch (Exception e) {
+      ErrorHandler.report("[Homes] Failed to save back location", e);
+    }
   }
 
   private void executeTeleport(Ref<EntityStore> ref, Location dest, Runnable onComplete) {

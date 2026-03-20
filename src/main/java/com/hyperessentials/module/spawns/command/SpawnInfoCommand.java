@@ -4,6 +4,8 @@ import com.hyperessentials.Permissions;
 import com.hyperessentials.command.util.CommandUtil;
 import com.hyperessentials.data.Spawn;
 import com.hyperessentials.module.spawns.SpawnManager;
+import com.hyperessentials.util.CommandKeys;
+import com.hyperessentials.util.HEMessageUtil;
 import com.hyperessentials.util.TimeUtil;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
@@ -39,7 +41,7 @@ public class SpawnInfoCommand extends AbstractPlayerCommand {
     UUID uuid = playerRef.getUuid();
 
     if (!CommandUtil.hasPermission(uuid, Permissions.SPAWN_INFO)) {
-      ctx.sendMessage(CommandUtil.error("You don't have permission to view spawn info."));
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Spawn.INFO_NO_PERMISSION));
       return;
     }
 
@@ -57,25 +59,25 @@ public class SpawnInfoCommand extends AbstractPlayerCommand {
         }
       }
       if (spawn == null) {
-        ctx.sendMessage(CommandUtil.error("No spawn found for world '" + worldArg + "'."));
+        ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Spawn.INFO_NOT_FOUND, worldArg));
         return;
       }
     } else {
       String worldUuid = currentWorld.getWorldConfig().getUuid().toString();
       spawn = spawnManager.getSpawnForWorld(worldUuid);
       if (spawn == null) {
-        ctx.sendMessage(CommandUtil.error("No spawn set for this world."));
+        ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Spawn.INFO_NO_SPAWN));
         return;
       }
     }
 
-    ctx.sendMessage(CommandUtil.msg("--- Spawn: " + spawn.worldName() + " ---", CommandUtil.COLOR_GOLD));
-    ctx.sendMessage(CommandUtil.msg(String.format("Location: %.1f, %.1f, %.1f",
-      spawn.x(), spawn.y(), spawn.z()), CommandUtil.COLOR_GRAY));
-    ctx.sendMessage(CommandUtil.msg("Global: " + (spawn.isGlobal() ? "Yes" : "No"), CommandUtil.COLOR_GRAY));
+    ctx.sendMessage(HEMessageUtil.text(playerRef, CommandKeys.Spawn.INFO_HEADER, HEMessageUtil.COLOR_GOLD, spawn.worldName()));
+    ctx.sendMessage(HEMessageUtil.text(playerRef, CommandKeys.Spawn.INFO_LOCATION, HEMessageUtil.COLOR_GRAY,
+        String.format("%.1f", spawn.x()), String.format("%.1f", spawn.y()), String.format("%.1f", spawn.z())));
+    ctx.sendMessage(HEMessageUtil.text(playerRef, CommandKeys.Spawn.INFO_GLOBAL, HEMessageUtil.COLOR_GRAY, spawn.isGlobal() ? "Yes" : "No"));
     if (spawn.createdBy() != null) {
-      ctx.sendMessage(CommandUtil.msg("Created by: " + spawn.createdBy(), CommandUtil.COLOR_GRAY));
+      ctx.sendMessage(HEMessageUtil.text(playerRef, CommandKeys.Spawn.INFO_CREATED_BY, HEMessageUtil.COLOR_GRAY, spawn.createdBy()));
     }
-    ctx.sendMessage(CommandUtil.msg("Created: " + TimeUtil.formatRelativeTime(spawn.createdAt()), CommandUtil.COLOR_GRAY));
+    ctx.sendMessage(HEMessageUtil.text(playerRef, CommandKeys.Spawn.INFO_CREATED, HEMessageUtil.COLOR_GRAY, TimeUtil.formatRelativeTime(spawn.createdAt())));
   }
 }

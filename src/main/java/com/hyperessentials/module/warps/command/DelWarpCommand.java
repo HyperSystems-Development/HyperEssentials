@@ -3,6 +3,8 @@ package com.hyperessentials.module.warps.command;
 import com.hyperessentials.Permissions;
 import com.hyperessentials.command.util.CommandUtil;
 import com.hyperessentials.module.warps.WarpManager;
+import com.hyperessentials.util.CommandKeys;
+import com.hyperessentials.util.HEMessageUtil;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.server.core.command.system.CommandContext;
@@ -38,7 +40,7 @@ public class DelWarpCommand extends AbstractPlayerCommand {
     UUID uuid = playerRef.getUuid();
 
     if (!CommandUtil.hasPermission(uuid, Permissions.WARP_DELETE)) {
-      ctx.sendMessage(CommandUtil.error("You don't have permission to delete warps."));
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Warp.DEL_NO_PERMISSION));
       return;
     }
 
@@ -46,16 +48,16 @@ public class DelWarpCommand extends AbstractPlayerCommand {
     String[] parts = input != null ? input.trim().split("\\s+") : new String[0];
 
     if (parts.length < 2) {
-      ctx.sendMessage(CommandUtil.error("Usage: /delwarp <name>"));
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Warp.DEL_USAGE));
       return;
     }
 
     String warpName = parts[1].toLowerCase();
 
     if (warpManager.deleteWarp(warpName)) {
-      ctx.sendMessage(CommandUtil.success("Warp '" + warpName + "' has been deleted."));
+      ctx.sendMessage(HEMessageUtil.success(playerRef, CommandKeys.Warp.DEL_SUCCESS, warpName));
     } else {
-      ctx.sendMessage(CommandUtil.error("Warp '" + warpName + "' not found."));
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Warp.DEL_NOT_FOUND, warpName));
     }
   }
 }

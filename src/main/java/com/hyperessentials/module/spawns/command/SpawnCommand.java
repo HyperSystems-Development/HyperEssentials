@@ -9,6 +9,9 @@ import com.hyperessentials.module.spawns.SpawnManager;
 import com.hyperessentials.module.teleport.BackManager;
 import com.hyperessentials.module.warmup.WarmupManager;
 import com.hyperessentials.module.warmup.WarmupTask;
+import com.hyperessentials.util.CommandKeys;
+import com.hyperessentials.util.ErrorHandler;
+import com.hyperessentials.util.HEMessageUtil;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.math.vector.Vector3d;
@@ -54,7 +57,7 @@ public class SpawnCommand extends AbstractPlayerCommand {
     UUID uuid = playerRef.getUuid();
 
     if (!CommandUtil.hasPermission(uuid, Permissions.SPAWN)) {
-      ctx.sendMessage(CommandUtil.error("You don't have permission to use spawn."));
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Spawn.NO_PERMISSION));
       return;
     }
 
@@ -66,7 +69,7 @@ public class SpawnCommand extends AbstractPlayerCommand {
     if (worldArg != null) {
       spawn = findSpawnByWorldName(worldArg);
       if (spawn == null) {
-        ctx.sendMessage(CommandUtil.error("No spawn found for world '" + worldArg + "'."));
+        ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Spawn.NOT_FOUND_WORLD, worldArg));
         return;
       }
     } else {
@@ -79,13 +82,13 @@ public class SpawnCommand extends AbstractPlayerCommand {
     }
 
     if (spawn == null) {
-      ctx.sendMessage(CommandUtil.error("No spawn point has been set."));
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Spawn.NOT_SET));
       return;
     }
 
     if (warmupManager.isOnCooldown(uuid, "spawns", "spawn")) {
       int remaining = warmupManager.getRemainingCooldown(uuid, "spawns", "spawn");
-      ctx.sendMessage(CommandUtil.error("On cooldown. " + remaining + "s remaining."));
+      ctx.sendMessage(HEMessageUtil.error(playerRef, CommandKeys.Common.ON_COOLDOWN, remaining));
       return;
     }
 
@@ -96,12 +99,12 @@ public class SpawnCommand extends AbstractPlayerCommand {
 
     WarmupTask task = warmupManager.startWarmup(uuid, "spawns", "spawn", () -> {
       executeTeleport(ref, destination, () -> {
-        ctx.sendMessage(CommandUtil.success("Teleported to spawn!"));
+        ctx.sendMessage(HEMessageUtil.success(playerRef, CommandKeys.Spawn.TELEPORTED));
       });
     });
 
     if (task != null) {
-      ctx.sendMessage(CommandUtil.info("Teleporting in " + task.warmupSeconds() + "s... Don't move!"));
+      ctx.sendMessage(HEMessageUtil.info(playerRef, CommandKeys.Common.WARMUP_STARTING, HEMessageUtil.COLOR_YELLOW, task.warmupSeconds()));
     }
   }
 
@@ -126,7 +129,9 @@ public class SpawnCommand extends AbstractPlayerCommand {
             pos.getX(), pos.getY(), pos.getZ(), 0, 0);
         backManager.onTeleport(uuid, currentLoc, "spawn");
       }
-    } catch (Exception ignored) {}
+    } catch (Exception e) {
+      ErrorHandler.report("[Spawns] Failed to save back location", e);
+    }
   }
 
   private void executeTeleport(Ref<EntityStore> ref, Location dest, Runnable onComplete) {
