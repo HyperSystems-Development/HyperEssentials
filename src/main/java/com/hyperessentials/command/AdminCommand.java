@@ -6,6 +6,7 @@ import com.hyperessentials.api.HyperEssentialsAPI;
 import com.hyperessentials.command.util.CommandUtil;
 import com.hyperessentials.config.ConfigManager;
 import com.hyperessentials.gui.GuiManager;
+import com.hyperessentials.importer.AdminImportHandler;
 import com.hyperessentials.module.spawns.SpawnManager;
 import com.hyperessentials.module.spawns.SpawnsModule;
 import com.hypixel.hytale.component.Ref;
@@ -16,6 +17,7 @@ import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
+import java.util.Arrays;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -48,6 +50,7 @@ public class AdminCommand extends AbstractPlayerCommand {
     switch (subcommand) {
       case "reload" -> handleReload(ctx, playerRef);
       case "importspawns" -> handleImportSpawns(ctx, playerRef);
+      case "import" -> handleImport(ctx, playerRef, input);
       case "version", "ver" -> showVersion(ctx);
       case "help" -> showFullHelp(ctx);
       case "admin" -> openAdminGui(ctx, store, ref, playerRef);
@@ -92,6 +95,20 @@ public class AdminCommand extends AbstractPlayerCommand {
     }
   }
 
+  private void handleImport(@NotNull CommandContext ctx, @NotNull PlayerRef playerRef, String input) {
+    if (!CommandUtil.hasPermission(playerRef.getUuid(), Permissions.ADMIN_IMPORT)) {
+      ctx.sendMessage(CommandUtil.error("You don't have permission to import data."));
+      return;
+    }
+
+    // Extract args after "import": "/he import <source> [path] [flags]"
+    String[] parts = input != null ? input.trim().split("\\s+") : new String[0];
+    // parts[0]="he", parts[1]="import", parts[2+]=args for handler
+    String[] importArgs = parts.length > 2 ? Arrays.copyOfRange(parts, 2, parts.length) : new String[0];
+
+    new AdminImportHandler().handleImport(ctx, playerRef, importArgs);
+  }
+
   private void showVersion(@NotNull CommandContext ctx) {
     ctx.sendMessage(CommandUtil.info("HyperEssentials v" + BuildInfo.VERSION));
   }
@@ -133,7 +150,7 @@ public class AdminCommand extends AbstractPlayerCommand {
     if (isModuleEnabled("announcements")) {
       ctx.sendMessage(CommandUtil.msg("[Announcements] /broadcast, /announce", CommandUtil.COLOR_AQUA));
     }
-    ctx.sendMessage(CommandUtil.msg("[Admin] /he reload | version | help | importspawns", CommandUtil.COLOR_AQUA));
+    ctx.sendMessage(CommandUtil.msg("[Admin] /he reload | version | help | importspawns | import", CommandUtil.COLOR_AQUA));
   }
 
   private void openPlayerGui(@NotNull CommandContext ctx,

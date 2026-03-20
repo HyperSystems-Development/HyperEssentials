@@ -473,4 +473,22 @@ public final class CommandKeys {
 
     private Announce() {}
   }
+
+  /** /essimport command messages. */
+  public static final class Import {
+    private static final String P = "hyperessentials.cmd.import.";
+    public static final String UNKNOWN_SOURCE = P + "unknown_source";
+    public static final String UNKNOWN_FLAG = P + "unknown_flag";
+    public static final String ALREADY_IN_PROGRESS = P + "already_in_progress";
+    public static final String STARTING = P + "starting";
+    public static final String DRY_RUN_NOTICE = P + "dry_run_notice";
+    public static final String COMPLETE = P + "complete";
+    public static final String FAILED = P + "failed";
+    public static final String HELP_USAGE = P + "help_usage";
+    public static final String HELP_SOURCES_HEADER = P + "help_sources_header";
+    public static final String HELP_NO_SOURCES = P + "help_no_sources";
+    public static final String HELP_FLAGS_HEADER = P + "help_flags_header";
+
+    private Import() {}
+  }
 }

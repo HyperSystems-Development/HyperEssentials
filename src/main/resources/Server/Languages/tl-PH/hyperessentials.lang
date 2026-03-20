@@ -346,3 +346,16 @@ hyperessentials.cmd.announce.bc_sent=Broadcast sent.
 hyperessentials.cmd.mod.warn_no_permission=You don't have permission to warn players.
 hyperessentials.cmd.mod.warn_usage=Usage: /warn <player> [reason...]
 hyperessentials.cmd.mod.warn_success=Warned {0}.
+
+# === Import Commands ===
+hyperessentials.cmd.import.unknown_source=Unknown import source: '{0}'. Use /essimport help for available sources.
+hyperessentials.cmd.import.unknown_flag=Unknown flag: '{0}'.
+hyperessentials.cmd.import.already_in_progress=An import is already in progress. Please wait.
+hyperessentials.cmd.import.starting=Starting import from {0}...
+hyperessentials.cmd.import.dry_run_notice=(Dry run - no changes will be made)
+hyperessentials.cmd.import.complete={0} import {1}complete!
+hyperessentials.cmd.import.failed={0} import failed.
+hyperessentials.cmd.import.help_usage=Usage: /essimport <source> [path] [--dry-run] [--overwrite]
+hyperessentials.cmd.import.help_sources_header=Available sources:
+hyperessentials.cmd.import.help_no_sources=  (no importers registered yet)
+hyperessentials.cmd.import.help_flags_header=Flags:

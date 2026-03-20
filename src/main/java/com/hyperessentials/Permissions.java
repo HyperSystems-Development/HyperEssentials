@@ -126,6 +126,7 @@ public final class Permissions {
   public static final String ADMIN_RELOAD = ADMIN + ".reload";
   public static final String ADMIN_SETTINGS = ADMIN + ".settings";
   public static final String ADMIN_GUI = ADMIN + ".gui";
+  public static final String ADMIN_IMPORT = ADMIN + ".import";
 
   // === RTP ===
   public static final String RTP = ROOT + ".rtp";

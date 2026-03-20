@@ -5,6 +5,7 @@ import com.hyperessentials.api.HyperEssentialsAPI;
 import com.hyperessentials.config.ConfigManager;
 import com.hyperessentials.config.ModuleConfig;
 import com.hyperessentials.config.modules.UtilityConfig;
+import com.hyperessentials.importer.AdminImportHandler;
 import com.hyperessentials.module.AbstractModule;
 import com.hyperessentials.module.utility.command.*;
 import com.hyperessentials.platform.HyperEssentialsPlugin;
@@ -121,6 +122,9 @@ public class UtilityModule extends AbstractModule {
           plugin.getCommandRegistry().registerCommand(new MaxStackCommand());
         if (config.isSleepPercentageEnabled())
           plugin.getCommandRegistry().registerCommand(new SleepPercentageCommand());
+
+        // Import command (always registered, permission-gated)
+        plugin.getCommandRegistry().registerCommand(new ImportCommand(new AdminImportHandler()));
 
         Logger.info("[Utility] Registered utility commands");
       } catch (Exception e) {
