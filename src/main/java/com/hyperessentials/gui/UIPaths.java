@@ -79,4 +79,5 @@ public final class UIPaths {
   public static final String ADMIN_BACKUP_ENTRY = BASE + "admin/admin_backup_entry.ui";
   public static final String ADMIN_CONFIG = BASE + "admin/admin_config.ui";
   public static final String ADMIN_CONFIG_ENTRY = BASE + "admin/admin_config_entry.ui";
+  public static final String ADMIN_PERMISSION_ADD = BASE + "admin/admin_permission_add.ui";
 }

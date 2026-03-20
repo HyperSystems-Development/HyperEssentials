@@ -80,6 +80,14 @@ hyperessentials.admin.settings.data_dir=Data: {0}
 hyperessentials.admin.settings.module_enabled=Enabled
 hyperessentials.admin.settings.module_disabled=Disabled
 
+# === Permission Quick-Add ===
+hyperessentials.admin.perms.title=Manage Permissions
+hyperessentials.admin.perms.node_label=Node:
+hyperessentials.admin.perms.roles_header=Roles
+hyperessentials.admin.perms.add=Add
+hyperessentials.admin.perms.remove=Remove
+hyperessentials.admin.perms.no_roles=No roles available.
+
 # === Player Moderation Page ===
 hyperessentials.admin.playermod.search_placeholder=Search player...
 hyperessentials.admin.playermod.search_empty=No Players Found

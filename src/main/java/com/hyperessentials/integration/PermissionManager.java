@@ -4,6 +4,7 @@ import com.hyperessentials.Permissions;
 import com.hyperessentials.config.ConfigManager;
 import com.hyperessentials.util.Logger;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,6 +19,7 @@ public class PermissionManager {
   private static final PermissionManager INSTANCE = new PermissionManager();
 
   private final List<PermissionProvider> providers = new ArrayList<>();
+  private @Nullable HyperPermsProviderAdapter hyperPermsAdapter;
   private boolean initialized = false;
 
   private PermissionManager() {}
@@ -34,6 +36,7 @@ public class PermissionManager {
     hyperPermsProvider.init();
     if (hyperPermsProvider.isAvailable()) {
       providers.add(hyperPermsProvider);
+      hyperPermsAdapter = hyperPermsProvider;
     }
 
     initialized = true;
@@ -44,6 +47,17 @@ public class PermissionManager {
       Logger.info("[PermissionManager] Initialized with %d provider(s): %s",
         providers.size(), getProviderNames());
     }
+  }
+
+  /**
+   * Gets the HyperPerms provider adapter, if available.
+   * Used by admin GUI pages for group permission management.
+   *
+   * @return the adapter, or null if HyperPerms is not installed
+   */
+  @Nullable
+  public HyperPermsProviderAdapter getHyperPermsAdapter() {
+    return hyperPermsAdapter;
   }
 
   public boolean hasPermission(@NotNull UUID playerUuid, @NotNull String permission) {

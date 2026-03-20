@@ -188,4 +188,17 @@ public final class AdminKeys {
 
     private Settings() {}
   }
+
+  /** Admin permission quick-add view. */
+  public static final class Perms {
+    private static final String P = "hyperessentials.admin.perms.";
+    public static final String TITLE = P + "title";
+    public static final String NODE_LABEL = P + "node_label";
+    public static final String ROLES_HEADER = P + "roles_header";
+    public static final String ADD = P + "add";
+    public static final String REMOVE = P + "remove";
+    public static final String NO_ROLES = P + "no_roles";
+
+    private Perms() {}
+  }
 }

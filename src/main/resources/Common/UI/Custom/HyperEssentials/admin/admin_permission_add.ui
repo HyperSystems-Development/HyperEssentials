@@ -1,0 +1,71 @@
+$C = "../../Common.ui";
+$S = "../shared/styles.ui";
+
+Group {
+  LayoutMode: Top;
+  Padding: (Left: 4, Right: 4);
+
+  // Back button row
+  Group {
+    Anchor: (Height: 28, Bottom: 6);
+    LayoutMode: Left;
+
+    TextButton #PermBackBtn {
+      Text: "Back";
+      Style: $S.@ButtonStyle;
+      Anchor: (Width: 70, Height: 24);
+    }
+
+    Group { Anchor: (Width: 10); }
+
+    Label #PermTitle {
+      Text: "Permissions";
+      Style: (FontSize: 14, TextColor: #FFAA00, RenderBold: true, VerticalAlignment: Center);
+      Anchor: (Height: 24);
+    }
+  }
+
+  // Divider
+  Group {
+    Anchor: (Height: 1, Bottom: 8);
+    Background: (Color: #2a3a4a);
+  }
+
+  // Permission node (read-only)
+  Group {
+    Anchor: (Height: 24, Bottom: 8);
+    LayoutMode: Left;
+
+    Label #PermNodeLabel {
+      Text: "Node:";
+      Style: (FontSize: 12, TextColor: #7c8b99, VerticalAlignment: Center);
+      Anchor: (Width: 50);
+    }
+
+    Label #PermNodeValue {
+      Text: "";
+      Style: (FontSize: 12, TextColor: #55FFFF, VerticalAlignment: Center);
+      FlexWeight: 1;
+    }
+  }
+
+  // Divider
+  Group {
+    Anchor: (Height: 1, Bottom: 8);
+    Background: (Color: #2a3a4a);
+  }
+
+  // Roles header
+  Label #PermRolesHeader {
+    Text: "Roles";
+    Style: (FontSize: 12, TextColor: #7c8b99, VerticalAlignment: Center);
+    Anchor: (Height: 20, Bottom: 4);
+  }
+
+  // Scrollable role list
+  Group #PermRoleList {
+    LayoutMode: TopScrolling;
+    ScrollbarStyle: $C.@DefaultScrollbarStyle;
+    FlexWeight: 1;
+  }
+}

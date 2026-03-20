@@ -7,6 +7,8 @@ import com.hyperessentials.gui.NavBarHelper;
 import com.hyperessentials.gui.UIHelper;
 import com.hyperessentials.gui.UIPaths;
 import com.hyperessentials.gui.data.AdminPageData;
+import com.hyperessentials.integration.HyperPermsProviderAdapter;
+import com.hyperessentials.integration.PermissionManager;
 import com.hyperessentials.module.warps.WarpManager;
 import com.hyperessentials.util.AdminKeys;
 import com.hyperessentials.util.HEMessages;
@@ -32,7 +34,8 @@ import java.util.List;
 
 /**
  * Admin warps page — list all warps with create/delete/edit.
- * Supports a detail edit mode for modifying individual warp properties.
+ * Supports a detail edit mode for modifying individual warp properties,
+ * and a permission management mode for quick-adding permissions to HyperPerms roles.
  */
 public class AdminWarpsPage extends InteractiveCustomUIPage<AdminPageData> {
 
@@ -44,6 +47,10 @@ public class AdminWarpsPage extends InteractiveCustomUIPage<AdminPageData> {
   /** Name of the warp being edited, null for list mode. */
   @Nullable
   private String editingWarp;
+
+  /** Permission node being managed, null when not in permission mode. */
+  @Nullable
+  private String managingPermission;
 
   public AdminWarpsPage(
       @NotNull Player player,
@@ -67,7 +74,9 @@ public class AdminWarpsPage extends InteractiveCustomUIPage<AdminPageData> {
   }
 
   private void buildContent(@NotNull UICommandBuilder cmd, @NotNull UIEventBuilder events) {
-    if (editingWarp != null) {
+    if (managingPermission != null) {
+      buildPermissionView(cmd, events);
+    } else if (editingWarp != null) {
       buildEditView(cmd, events);
     } else {
       buildWarpList(cmd, events);
@@ -208,6 +217,109 @@ public class AdminWarpsPage extends InteractiveCustomUIPage<AdminPageData> {
         EventData.of("Button", "CancelEdit"),
         false
     );
+
+    // Show "Permissions" button only when HyperPerms is available
+    HyperPermsProviderAdapter adapter = PermissionManager.get().getHyperPermsAdapter();
+    if (adapter != null) {
+      // Determine the permission node for this warp
+      String permNode = warp.permission() != null ? warp.permission() : "hyperessentials.warp." + warp.name();
+
+      // Add Permissions button after save/cancel row — inline within the edit template area
+      cmd.appendInline("#IndexCards",
+          "Group { Anchor: (Height: 34, Top: 6); LayoutMode: Left; "
+          + "Group { FlexWeight: 1; } "
+          + "TextButton #PermBtn { Text: \"Permissions\"; "
+          + "Anchor: (Width: 120, Height: 28); } "
+          + "Group { FlexWeight: 1; } }");
+
+      events.addEventBinding(
+          CustomUIEventBindingType.Activating,
+          "#IndexCards[1] #PermBtn",
+          EventData.of("Button", "ManagePerms").append("Target", permNode),
+          false
+      );
+    }
+  }
+
+  // =====================================================================
+  // Permission Management Mode
+  // =====================================================================
+
+  private void buildPermissionView(@NotNull UICommandBuilder cmd, @NotNull UIEventBuilder events) {
+    if (managingPermission == null) return;
+
+    HyperPermsProviderAdapter adapter = PermissionManager.get().getHyperPermsAdapter();
+    if (adapter == null) {
+      managingPermission = null;
+      buildEditView(cmd, events);
+      return;
+    }
+
+    cmd.set("#WarpCount.Text", HEMessages.get(playerRef, AdminKeys.Perms.TITLE));
+
+    // Replace list area with permission template
+    cmd.clear("#WarpList");
+    cmd.appendInline("#WarpList", "Group #IndexCards { LayoutMode: Top; }");
+    cmd.append("#IndexCards", UIPaths.ADMIN_PERMISSION_ADD);
+    String perm = "#IndexCards[0]";
+
+    // Populate header
+    cmd.set(perm + " #PermTitle.Text", HEMessages.get(playerRef, AdminKeys.Perms.TITLE));
+    cmd.set(perm + " #PermNodeLabel.Text", HEMessages.get(playerRef, AdminKeys.Perms.NODE_LABEL));
+    cmd.set(perm + " #PermNodeValue.Text", managingPermission);
+    cmd.set(perm + " #PermRolesHeader.Text", HEMessages.get(playerRef, AdminKeys.Perms.ROLES_HEADER));
+
+    // Wire back button
+    events.addEventBinding(
+        CustomUIEventBindingType.Activating,
+        perm + " #PermBackBtn",
+        EventData.of("Button", "CancelPerms"),
+        false
+    );
+
+    // Build role list
+    List<String> groups = adapter.getGroupNames();
+    if (groups.isEmpty()) {
+      cmd.appendInline(perm + " #PermRoleList",
+          "Group { Anchor: (Height: 30); "
+          + "Label { Text: \"" + HEMessages.get(playerRef, AdminKeys.Perms.NO_ROLES)
+          + "\"; Style: (FontSize: 12, TextColor: #7c8b99, HorizontalAlignment: Center, "
+          + "VerticalAlignment: Center); Anchor: (Height: 28); } }");
+      return;
+    }
+
+    int i = 0;
+    for (String groupName : groups) {
+      boolean hasPerm = adapter.groupHasPermission(groupName, managingPermission);
+
+      String btnText = hasPerm
+          ? HEMessages.get(playerRef, AdminKeys.Perms.REMOVE)
+          : HEMessages.get(playerRef, AdminKeys.Perms.ADD);
+      String btnAction = hasPerm ? "RemovePerm" : "AddPerm";
+
+      // Build inline row: group name + add/remove button
+      String statusColor = hasPerm ? "#44cc44" : "#7c8b99";
+      String rowUi = "Group { Anchor: (Height: 32, Bottom: 2); Background: (Color: #141c26); LayoutMode: Left; "
+          + "Group { Anchor: (Width: 8); } "
+          + "Group { Anchor: (Width: 8, Height: 8, Top: 12); Background: (Color: " + statusColor + "); } "
+          + "Group { Anchor: (Width: 8); } "
+          + "Label #RoleName { Text: \"" + groupName + "\"; "
+          + "Style: (FontSize: 12, TextColor: #FFFFFF, VerticalAlignment: Center); FlexWeight: 1; } "
+          + "Group { Anchor: (Width: 80); Padding: (Right: 6, Top: 4, Bottom: 4); "
+          + "TextButton #PermToggle { Text: \"" + btnText + "\"; Anchor: (Width: 74, Height: 24); } } }";
+
+      cmd.appendInline(perm + " #PermRoleList", rowUi);
+      String rowIdx = perm + " #PermRoleList[" + i + "]";
+
+      events.addEventBinding(
+          CustomUIEventBindingType.Activating,
+          rowIdx + " #PermToggle",
+          EventData.of("Button", btnAction).append("Target", groupName),
+          false
+      );
+
+      i++;
+    }
   }
 
   // =====================================================================
@@ -238,6 +350,10 @@ public class AdminWarpsPage extends InteractiveCustomUIPage<AdminPageData> {
       case "Edit" -> handleEdit(data.target);
       case "SaveEdit" -> handleSaveEdit(data);
       case "CancelEdit" -> handleCancelEdit();
+      case "ManagePerms" -> handleManagePerms(data.target);
+      case "CancelPerms" -> handleCancelPerms();
+      case "AddPerm" -> handleAddPerm(data.target);
+      case "RemovePerm" -> handleRemovePerm(data.target);
       default -> sendUpdate();
     }
   }
@@ -328,6 +444,38 @@ public class AdminWarpsPage extends InteractiveCustomUIPage<AdminPageData> {
 
   private void handleCancelEdit() {
     editingWarp = null;
+    rebuildContent();
+  }
+
+  private void handleManagePerms(@Nullable String permNode) {
+    if (permNode == null) return;
+    managingPermission = permNode;
+    rebuildContent();
+  }
+
+  private void handleCancelPerms() {
+    managingPermission = null;
+    // Return to edit view (editingWarp is still set)
+    rebuildContent();
+  }
+
+  private void handleAddPerm(@Nullable String groupName) {
+    if (groupName == null || managingPermission == null) return;
+    HyperPermsProviderAdapter adapter = PermissionManager.get().getHyperPermsAdapter();
+    if (adapter != null) {
+      adapter.addPermissionToGroup(groupName, managingPermission);
+    }
+    // Rebuild to reflect the change
+    rebuildContent();
+  }
+
+  private void handleRemovePerm(@Nullable String groupName) {
+    if (groupName == null || managingPermission == null) return;
+    HyperPermsProviderAdapter adapter = PermissionManager.get().getHyperPermsAdapter();
+    if (adapter != null) {
+      adapter.removePermissionFromGroup(groupName, managingPermission);
+    }
+    // Rebuild to reflect the change
     rebuildContent();
   }
 
