@@ -35,7 +35,8 @@ import java.util.List;
 /**
  * Admin warps page — list all warps with create/delete/edit.
  * Supports a detail edit mode for modifying individual warp properties,
- * and a permission management mode for quick-adding permissions to HyperPerms roles.
+ * a permission management mode for quick-adding permissions to HyperPerms roles,
+ * and a create modal for naming new warps.
  */
 public class AdminWarpsPage extends InteractiveCustomUIPage<AdminPageData> {
 
@@ -51,6 +52,13 @@ public class AdminWarpsPage extends InteractiveCustomUIPage<AdminPageData> {
   /** Permission node being managed, null when not in permission mode. */
   @Nullable
   private String managingPermission;
+
+  /** Whether the create modal is showing. */
+  private boolean showingCreateModal;
+
+  /** Current search filter text. */
+  @Nullable
+  private String searchFilter;
 
   public AdminWarpsPage(
       @NotNull Player player,
@@ -78,6 +86,8 @@ public class AdminWarpsPage extends InteractiveCustomUIPage<AdminPageData> {
       buildPermissionView(cmd, events);
     } else if (editingWarp != null) {
       buildEditView(cmd, events);
+    } else if (showingCreateModal) {
+      buildCreateModal(cmd, events);
     } else {
       buildWarpList(cmd, events);
     }
@@ -89,23 +99,31 @@ public class AdminWarpsPage extends InteractiveCustomUIPage<AdminPageData> {
 
   private void buildWarpList(@NotNull UICommandBuilder cmd, @NotNull UIEventBuilder events) {
     Collection<Warp> allWarps = warpManager.getAllWarps();
-    cmd.set("#WarpCount.Text", allWarps.size() + " warp" + (allWarps.size() != 1 ? "s" : ""));
 
-    // Set placeholder text on the name input
-    cmd.set("#WarpNameInput.PlaceholderText",
-        HEMessages.get(playerRef, AdminKeys.Warps.NAME_PLACEHOLDER));
+    // Set search placeholder
+    cmd.set("#SearchInput.PlaceholderText",
+        HEMessages.get(playerRef, AdminKeys.Warps.SEARCH_PLACEHOLDER));
 
-    // Create button — reads the name input value
+    // Create button — opens the create modal, captures search text
     events.addEventBinding(
         CustomUIEventBindingType.Activating, "#CreateBtn",
-        EventData.of("Button", "Create")
-            .append("@InputName", "#WarpNameInput.Value"),
+        EventData.of("Button", "ShowCreateModal")
+            .append("@SearchInput", "#SearchInput.Value"),
         false
     );
 
     // Build warp list sorted by category then name
     List<Warp> sorted = new ArrayList<>(allWarps);
     sorted.sort(Comparator.comparing(Warp::category).thenComparing(Warp::name));
+
+    // Apply search filter
+    if (searchFilter != null && !searchFilter.isBlank()) {
+      String filter = searchFilter.toLowerCase();
+      sorted.removeIf(w -> !w.name().toLowerCase().contains(filter)
+          && !w.displayName().toLowerCase().contains(filter));
+    }
+
+    cmd.set("#WarpCount.Text", sorted.size() + " warp" + (sorted.size() != 1 ? "s" : ""));
 
     cmd.clear("#WarpList");
     cmd.appendInline("#WarpList", "Group #IndexCards { LayoutMode: Top; }");
@@ -130,19 +148,72 @@ public class AdminWarpsPage extends InteractiveCustomUIPage<AdminPageData> {
       events.addEventBinding(
           CustomUIEventBindingType.Activating,
           idx + " #EditBtn",
-          EventData.of("Button", "Edit").append("Target", warp.name()),
+          EventData.of("Button", "Edit").append("Target", warp.name())
+              .append("@SearchInput", "#SearchInput.Value"),
           false
       );
 
       events.addEventBinding(
           CustomUIEventBindingType.Activating,
           idx + " #DeleteBtn",
-          EventData.of("Button", "Delete").append("Target", warp.name()),
+          EventData.of("Button", "Delete").append("Target", warp.name())
+              .append("@SearchInput", "#SearchInput.Value"),
           false
       );
 
       i++;
     }
+  }
+
+  // =====================================================================
+  // Create Modal
+  // =====================================================================
+
+  private void buildCreateModal(@NotNull UICommandBuilder cmd, @NotNull UIEventBuilder events) {
+    cmd.set("#WarpCount.Text", HEMessages.get(playerRef, AdminKeys.Warps.CREATE_TITLE));
+
+    // Hide the header row elements and replace with modal content
+    cmd.clear("#WarpList");
+    cmd.appendInline("#WarpList", "Group #IndexCards { LayoutMode: Top; }");
+
+    // Build a simple create form inline
+    String modalUi =
+        "Group { Anchor: (Height: 200); LayoutMode: Top; Padding: (Left: 40, Right: 40, Top: 30); "
+        // Title
+        + "Label { Text: \"" + HEMessages.get(playerRef, AdminKeys.Warps.CREATE_TITLE)
+        + "\"; Style: (FontSize: 16, TextColor: #FFFFFF, HorizontalAlignment: Center); Anchor: (Height: 28, Bottom: 20); } "
+        // Name label
+        + "Label { Text: \"" + HEMessages.get(playerRef, AdminKeys.Warps.NAME_PLACEHOLDER)
+        + "\"; Style: (FontSize: 12, TextColor: #7c8b99); Anchor: (Height: 18, Bottom: 4); } "
+        // Name input
+        + "Group { Anchor: (Height: 30, Bottom: 20); Background: (Color: #0d1520); Padding: (Left: 6, Right: 6); "
+        + "TextField #ModalNameInput { Anchor: (Height: 26); Style: (FontSize: 12, TextColor: #ffffff); } } "
+        // Button row
+        + "Group { Anchor: (Height: 32); LayoutMode: Left; "
+        + "Group { FlexWeight: 1; } "
+        + "TextButton #ModalCancelBtn { Text: \"Cancel\"; Anchor: (Width: 90, Height: 28); } "
+        + "Group { Anchor: (Width: 8); } "
+        + "TextButton #ModalCreateBtn { Text: \"Create\"; Anchor: (Width: 90, Height: 28); } "
+        + "Group { FlexWeight: 1; } } }";
+
+    cmd.appendInline("#IndexCards", modalUi);
+
+    // Wire create button — reads the name input value
+    events.addEventBinding(
+        CustomUIEventBindingType.Activating,
+        "#IndexCards[0] #ModalCreateBtn",
+        EventData.of("Button", "Create")
+            .append("@InputName", "#IndexCards[0] #ModalNameInput.Value"),
+        false
+    );
+
+    // Wire cancel button
+    events.addEventBinding(
+        CustomUIEventBindingType.Activating,
+        "#IndexCards[0] #ModalCancelBtn",
+        EventData.of("Button", "CancelCreate"),
+        false
+    );
   }
 
   // =====================================================================
@@ -339,13 +410,20 @@ public class AdminWarpsPage extends InteractiveCustomUIPage<AdminPageData> {
       return;
     }
 
+    // Capture search filter from any event that includes it
+    if (data.inputSearch != null) {
+      searchFilter = data.inputSearch.isBlank() ? null : data.inputSearch.trim();
+    }
+
     if (data.button == null) {
       sendUpdate();
       return;
     }
 
     switch (data.button) {
+      case "ShowCreateModal" -> { showingCreateModal = true; rebuildContent(); }
       case "Create" -> handleCreate(data);
+      case "CancelCreate" -> handleCancelCreate();
       case "Delete" -> handleDelete(data.target);
       case "Edit" -> handleEdit(data.target);
       case "SaveEdit" -> handleSaveEdit(data);
@@ -373,7 +451,7 @@ public class AdminWarpsPage extends InteractiveCustomUIPage<AdminPageData> {
       }
     }
 
-    // Use the name from the text input, or fall back to auto-generated
+    // Use the name from the modal input, or fall back to auto-generated
     String name = (data.inputName != null && !data.inputName.isBlank())
         ? data.inputName.trim().toLowerCase().replaceAll("\\s+", "_")
         : "warp_" + System.currentTimeMillis() % 100000;
@@ -384,6 +462,12 @@ public class AdminWarpsPage extends InteractiveCustomUIPage<AdminPageData> {
         playerRef.getUuid().toString());
     warpManager.setWarp(warp);
 
+    showingCreateModal = false;
+    rebuildContent();
+  }
+
+  private void handleCancelCreate() {
+    showingCreateModal = false;
     rebuildContent();
   }
 

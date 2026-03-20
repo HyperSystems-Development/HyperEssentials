@@ -33,7 +33,7 @@ import java.util.List;
 
 /**
  * Admin kits page — list all kits with create from inventory/delete/preview/edit.
- * Supports list, preview, edit, and permission management modes.
+ * Supports list, preview, edit, permission management, and create modal modes.
  */
 public class AdminKitsPage extends InteractiveCustomUIPage<AdminPageData> {
 
@@ -58,6 +58,13 @@ public class AdminKitsPage extends InteractiveCustomUIPage<AdminPageData> {
   /** Permission node being managed, null when not in permission mode. */
   @Nullable
   private String managingPermission;
+
+  /** Whether the create modal is showing. */
+  private boolean showingCreateModal;
+
+  /** Current search filter text. */
+  @Nullable
+  private String searchFilter;
 
   public AdminKitsPage(
       @NotNull Player player,
@@ -91,6 +98,8 @@ public class AdminKitsPage extends InteractiveCustomUIPage<AdminPageData> {
       buildPreviewView(cmd, events);
     } else if (editingKit != null) {
       buildEditView(cmd, events);
+    } else if (showingCreateModal) {
+      buildCreateModal(cmd, events);
     } else {
       buildKitList(cmd, events);
     }
@@ -102,23 +111,31 @@ public class AdminKitsPage extends InteractiveCustomUIPage<AdminPageData> {
 
   private void buildKitList(@NotNull UICommandBuilder cmd, @NotNull UIEventBuilder events) {
     Collection<Kit> allKits = kitManager.getAllKits();
-    cmd.set("#KitCount.Text", allKits.size() + " kit" + (allKits.size() != 1 ? "s" : ""));
 
-    // Set placeholder text on the name input
-    cmd.set("#KitNameInput.PlaceholderText",
-        HEMessages.get(playerRef, AdminKeys.Kits.NAME_PLACEHOLDER));
+    // Set search placeholder
+    cmd.set("#SearchInput.PlaceholderText",
+        HEMessages.get(playerRef, AdminKeys.Kits.SEARCH_PLACEHOLDER));
 
-    // Create button — reads the name input value
+    // Create button — opens the create modal, captures search text
     events.addEventBinding(
         CustomUIEventBindingType.Activating, "#CreateBtn",
-        EventData.of("Button", "Create")
-            .append("@InputName", "#KitNameInput.Value"),
+        EventData.of("Button", "ShowCreateModal")
+            .append("@SearchInput", "#SearchInput.Value"),
         false
     );
 
     // Sort kits by name
     List<Kit> sorted = new ArrayList<>(allKits);
     sorted.sort(Comparator.comparing(Kit::name));
+
+    // Apply search filter
+    if (searchFilter != null && !searchFilter.isBlank()) {
+      String filter = searchFilter.toLowerCase();
+      sorted.removeIf(k -> !k.name().toLowerCase().contains(filter)
+          && !k.displayName().toLowerCase().contains(filter));
+    }
+
+    cmd.set("#KitCount.Text", sorted.size() + " kit" + (sorted.size() != 1 ? "s" : ""));
 
     cmd.clear("#KitList");
     cmd.appendInline("#KitList", "Group #IndexCards { LayoutMode: Top; }");
@@ -152,7 +169,8 @@ public class AdminKitsPage extends InteractiveCustomUIPage<AdminPageData> {
       events.addEventBinding(
           CustomUIEventBindingType.Activating,
           idx + " #PreviewBtn",
-          EventData.of("Button", "Preview").append("Target", kit.name()),
+          EventData.of("Button", "Preview").append("Target", kit.name())
+              .append("@SearchInput", "#SearchInput.Value"),
           false
       );
 
@@ -160,7 +178,8 @@ public class AdminKitsPage extends InteractiveCustomUIPage<AdminPageData> {
       events.addEventBinding(
           CustomUIEventBindingType.Activating,
           idx + " #EditBtn",
-          EventData.of("Button", "Edit").append("Target", kit.name()),
+          EventData.of("Button", "Edit").append("Target", kit.name())
+              .append("@SearchInput", "#SearchInput.Value"),
           false
       );
 
@@ -168,12 +187,64 @@ public class AdminKitsPage extends InteractiveCustomUIPage<AdminPageData> {
       events.addEventBinding(
           CustomUIEventBindingType.Activating,
           idx + " #DeleteBtn",
-          EventData.of("Button", "Delete").append("Target", kit.name()),
+          EventData.of("Button", "Delete").append("Target", kit.name())
+              .append("@SearchInput", "#SearchInput.Value"),
           false
       );
 
       i++;
     }
+  }
+
+  // =====================================================================
+  // Create Modal
+  // =====================================================================
+
+  private void buildCreateModal(@NotNull UICommandBuilder cmd, @NotNull UIEventBuilder events) {
+    cmd.set("#KitCount.Text", HEMessages.get(playerRef, AdminKeys.Kits.CREATE_TITLE));
+
+    // Replace list area with modal content
+    cmd.clear("#KitList");
+    cmd.appendInline("#KitList", "Group #IndexCards { LayoutMode: Top; }");
+
+    // Build a simple create form inline
+    String modalUi =
+        "Group { Anchor: (Height: 200); LayoutMode: Top; Padding: (Left: 40, Right: 40, Top: 30); "
+        // Title
+        + "Label { Text: \"" + HEMessages.get(playerRef, AdminKeys.Kits.CREATE_TITLE)
+        + "\"; Style: (FontSize: 16, TextColor: #FFFFFF, HorizontalAlignment: Center); Anchor: (Height: 28, Bottom: 20); } "
+        // Name label
+        + "Label { Text: \"" + HEMessages.get(playerRef, AdminKeys.Kits.NAME_PLACEHOLDER)
+        + "\"; Style: (FontSize: 12, TextColor: #7c8b99); Anchor: (Height: 18, Bottom: 4); } "
+        // Name input
+        + "Group { Anchor: (Height: 30, Bottom: 20); Background: (Color: #0d1520); Padding: (Left: 6, Right: 6); "
+        + "TextField #ModalNameInput { Anchor: (Height: 26); Style: (FontSize: 12, TextColor: #ffffff); } } "
+        // Button row
+        + "Group { Anchor: (Height: 32); LayoutMode: Left; "
+        + "Group { FlexWeight: 1; } "
+        + "TextButton #ModalCancelBtn { Text: \"Cancel\"; Anchor: (Width: 90, Height: 28); } "
+        + "Group { Anchor: (Width: 8); } "
+        + "TextButton #ModalCreateBtn { Text: \"Create\"; Anchor: (Width: 90, Height: 28); } "
+        + "Group { FlexWeight: 1; } } }";
+
+    cmd.appendInline("#IndexCards", modalUi);
+
+    // Wire create button — reads the name input value
+    events.addEventBinding(
+        CustomUIEventBindingType.Activating,
+        "#IndexCards[0] #ModalCreateBtn",
+        EventData.of("Button", "Create")
+            .append("@InputName", "#IndexCards[0] #ModalNameInput.Value"),
+        false
+    );
+
+    // Wire cancel button
+    events.addEventBinding(
+        CustomUIEventBindingType.Activating,
+        "#IndexCards[0] #ModalCancelBtn",
+        EventData.of("Button", "CancelCreate"),
+        false
+    );
   }
 
   // =====================================================================
@@ -481,13 +552,20 @@ public class AdminKitsPage extends InteractiveCustomUIPage<AdminPageData> {
       return;
     }
 
+    // Capture search filter from any event that includes it
+    if (data.inputSearch != null) {
+      searchFilter = data.inputSearch.isBlank() ? null : data.inputSearch.trim();
+    }
+
     if (data.button == null) {
       sendUpdate();
       return;
     }
 
     switch (data.button) {
+      case "ShowCreateModal" -> { showingCreateModal = true; rebuildContent(); }
       case "Create" -> handleCreate(data);
+      case "CancelCreate" -> handleCancelCreate();
       case "Delete" -> handleDelete(data.target);
       case "Preview" -> handlePreview(data.target);
       case "CancelPreview" -> handleCancelPreview();
@@ -505,12 +583,18 @@ public class AdminKitsPage extends InteractiveCustomUIPage<AdminPageData> {
   }
 
   private void handleCreate(@NotNull AdminPageData data) {
-    // Use the name from the text input, or fall back to auto-generated
+    // Use the name from the modal input, or fall back to auto-generated
     String name = (data.inputName != null && !data.inputName.isBlank())
         ? data.inputName.trim().toLowerCase().replaceAll("\\s+", "_")
         : "kit_" + System.currentTimeMillis() % 100000;
 
     kitManager.captureFromInventory(playerRef, pageStore, pageRef, name);
+    showingCreateModal = false;
+    rebuildContent();
+  }
+
+  private void handleCancelCreate() {
+    showingCreateModal = false;
     rebuildContent();
   }
 

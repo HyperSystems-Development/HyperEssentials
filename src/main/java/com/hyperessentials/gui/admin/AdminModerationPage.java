@@ -78,12 +78,9 @@ public class AdminModerationPage extends InteractiveCustomUIPage<AdminPageData> 
     );
 
     // Player Search button (navigates to AdminPlayerModerationPage)
-    // Added inline after the filter buttons row in the list rebuild
-    cmd.appendInline("#PunishmentList",
-        "Group { Anchor: (Height: 28, Bottom: 6); LayoutMode: Left; "
-        + "TextButton #PlayerSearchBtn { Text: \"Player Search\"; Anchor: (Width: 110, Height: 26); } }");
+    // Button is defined in admin_moderation.ui at the page level
     events.addEventBinding(
-        CustomUIEventBindingType.Activating, "#PunishmentList #PlayerSearchBtn",
+        CustomUIEventBindingType.Activating, "#PlayerSearchBtn",
         EventData.of("Button", "PlayerSearch"), false
     );
 

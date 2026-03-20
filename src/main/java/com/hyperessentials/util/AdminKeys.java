@@ -8,7 +8,7 @@ package com.hyperessentials.util;
  * spawns, kits, players, moderation, announcements, settings).
  *
  * <p>
- * Key format: {@code hyperessentials.admin.{page}.{element}}
+ * Key format: {@code hyperessentials_admin.{page}.{element}}
  */
 public final class AdminKeys {
 
@@ -16,7 +16,7 @@ public final class AdminKeys {
 
   /** Admin navigation bar labels. */
   public static final class Nav {
-    private static final String P = "hyperessentials.admin.nav.";
+    private static final String P = "hyperessentials_admin.nav.";
     public static final String TITLE = P + "title";
 
     private Nav() {}
@@ -24,7 +24,7 @@ public final class AdminKeys {
 
   /** Admin dashboard page. */
   public static final class Dashboard {
-    private static final String P = "hyperessentials.admin.dashboard.";
+    private static final String P = "hyperessentials_admin.dashboard.";
     public static final String MODULE_ENABLED = P + "module_enabled";
     public static final String MODULE_DISABLED = P + "module_disabled";
 
@@ -33,7 +33,7 @@ public final class AdminKeys {
 
   /** Admin players page. */
   public static final class Players {
-    private static final String P = "hyperessentials.admin.players.";
+    private static final String P = "hyperessentials_admin.players.";
     public static final String EMPTY_TITLE = P + "empty_title";
     public static final String EMPTY_MESSAGE = P + "empty_message";
     public static final String PLAYER_INFO = P + "player_info";
@@ -55,7 +55,7 @@ public final class AdminKeys {
 
   /** Admin warps page. */
   public static final class Warps {
-    private static final String P = "hyperessentials.admin.warps.";
+    private static final String P = "hyperessentials_admin.warps.";
     public static final String EMPTY_TITLE = P + "empty_title";
     public static final String EMPTY_MESSAGE = P + "empty_message";
     public static final String EDIT_TITLE = P + "edit_title";
@@ -66,13 +66,15 @@ public final class AdminKeys {
     public static final String EDIT_WORLD = P + "edit_world";
     public static final String EDIT_COORDS = P + "edit_coords";
     public static final String NAME_PLACEHOLDER = P + "name_placeholder";
+    public static final String CREATE_TITLE = P + "create_title";
+    public static final String SEARCH_PLACEHOLDER = P + "search_placeholder";
 
     private Warps() {}
   }
 
   /** Admin spawns page. */
   public static final class Spawns {
-    private static final String P = "hyperessentials.admin.spawns.";
+    private static final String P = "hyperessentials_admin.spawns.";
     public static final String EMPTY_TITLE = P + "empty_title";
     public static final String EMPTY_MESSAGE = P + "empty_message";
     public static final String GLOBAL_BADGE = P + "global_badge";
@@ -84,7 +86,7 @@ public final class AdminKeys {
 
   /** Admin kits page. */
   public static final class Kits {
-    private static final String P = "hyperessentials.admin.kits.";
+    private static final String P = "hyperessentials_admin.kits.";
     public static final String EMPTY_TITLE = P + "empty_title";
     public static final String EMPTY_MESSAGE = P + "empty_message";
     public static final String ONE_TIME = P + "one_time";
@@ -95,13 +97,15 @@ public final class AdminKeys {
     public static final String EDIT_PERMISSION = P + "edit_permission";
     public static final String PREVIEW_TITLE = P + "preview_title";
     public static final String PREVIEW_NO_ITEMS = P + "preview_no_items";
+    public static final String CREATE_TITLE = P + "create_title";
+    public static final String SEARCH_PLACEHOLDER = P + "search_placeholder";
 
     private Kits() {}
   }
 
   /** Admin moderation page. */
   public static final class Moderation {
-    private static final String P = "hyperessentials.admin.mod.";
+    private static final String P = "hyperessentials_admin.mod.";
     public static final String EMPTY_ACTIVE_TITLE = P + "empty_active_title";
     public static final String EMPTY_ALL_TITLE = P + "empty_all_title";
     public static final String EMPTY_MESSAGE = P + "empty_message";
@@ -115,7 +119,7 @@ public final class AdminKeys {
 
   /** Admin player moderation page. */
   public static final class PlayerMod {
-    private static final String P = "hyperessentials.admin.playermod.";
+    private static final String P = "hyperessentials_admin.playermod.";
     public static final String SEARCH_PLACEHOLDER = P + "search_placeholder";
     public static final String SEARCH_EMPTY = P + "search_empty";
     public static final String SEARCH_HINT = P + "search_hint";
@@ -141,7 +145,7 @@ public final class AdminKeys {
 
   /** Admin announcements page. */
   public static final class Announcements {
-    private static final String P = "hyperessentials.admin.announce.";
+    private static final String P = "hyperessentials_admin.announce.";
     public static final String INTERVAL_LABEL = P + "interval_label";
     public static final String DISABLED = P + "disabled";
     public static final String MODE_RANDOM = P + "mode_random";
@@ -156,7 +160,7 @@ public final class AdminKeys {
 
   /** Admin backups page. */
   public static final class Backups {
-    private static final String P = "hyperessentials.admin.backups.";
+    private static final String P = "hyperessentials_admin.backups.";
     public static final String CREATING = P + "creating";
     public static final String CREATED = P + "created";
     public static final String CREATE_FAILED = P + "create_failed";
@@ -172,7 +176,7 @@ public final class AdminKeys {
 
   /** Admin config editor page. */
   public static final class Config {
-    private static final String P = "hyperessentials.admin.config.";
+    private static final String P = "hyperessentials_admin.config.";
     public static final String SAVED = P + "saved";
     public static final String CHANGED = P + "changed";
 
@@ -181,7 +185,7 @@ public final class AdminKeys {
 
   /** Admin settings page. */
   public static final class Settings {
-    private static final String P = "hyperessentials.admin.settings.";
+    private static final String P = "hyperessentials_admin.settings.";
     public static final String DATA_DIR = P + "data_dir";
     public static final String MODULE_ENABLED = P + "module_enabled";
     public static final String MODULE_DISABLED = P + "module_disabled";
@@ -191,7 +195,7 @@ public final class AdminKeys {
 
   /** Admin permission quick-add view. */
   public static final class Perms {
-    private static final String P = "hyperessentials.admin.perms.";
+    private static final String P = "hyperessentials_admin.perms.";
     public static final String TITLE = P + "title";
     public static final String NODE_LABEL = P + "node_label";
     public static final String ROLES_HEADER = P + "roles_header";

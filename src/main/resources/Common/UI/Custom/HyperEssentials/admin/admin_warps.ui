@@ -18,20 +18,20 @@ $C.@PageOverlay {
       LayoutMode: Top;
       Padding: (Left: 15, Right: 15, Top: 10, Bottom: 10);
 
-      // Header row: count + name input + create button
-      Group {
+      // Header row: count + search + create button
+      Group #HeaderRow {
         Anchor: (Height: 28, Bottom: 6);
         LayoutMode: Left;
 
         Label #WarpCount {
           Text: "0 warps";
           Style: (FontSize: 13, TextColor: #7c8b99, VerticalAlignment: Center);
-          Anchor: (Width: 120);
+          Anchor: (Width: 90);
         }
 
         Group { FlexWeight: 1; }
 
-        $C.@TextField #WarpNameInput {
+        $C.@TextField #SearchInput {
           Anchor: (Width: 150, Height: 26);
           Style: (FontSize: 12, TextColor: #ffffff);
         }

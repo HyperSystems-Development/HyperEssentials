@@ -46,6 +46,20 @@ $C.@PageOverlay {
         }
       }
 
+      // Player Search button
+      Group {
+        Anchor: (Height: 28, Bottom: 6);
+        LayoutMode: Left;
+
+        Group { FlexWeight: 1; }
+
+        TextButton #PlayerSearchBtn {
+          Text: "Player Search";
+          Style: $S.@ButtonStyle;
+          Anchor: (Width: 110, Height: 26);
+        }
+      }
+
       // Divider
       Group {
         Anchor: (Height: 1, Bottom: 8);

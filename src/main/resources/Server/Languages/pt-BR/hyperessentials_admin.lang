@@ -1,110 +1,130 @@
 # HyperEssentials - Admin GUI Messages (en-US)
-# Key format: hyperessentials.admin.{page}.{element}
+# Format: key = value
+# Note: Keys are auto-prefixed with "hyperessentials_admin." by Hytale's I18nModule
 
 # === Navigation ===
-hyperessentials.admin.nav.title=HE Admin
+nav.title = HE Admin
 
 # === Dashboard ===
-hyperessentials.admin.dashboard.module_enabled=Enabled
-hyperessentials.admin.dashboard.module_disabled=Disabled
+dashboard.module_enabled = Enabled
+dashboard.module_disabled = Disabled
 
 # === Players Page ===
-hyperessentials.admin.players.empty_title=No Players
-hyperessentials.admin.players.empty_message=No players are currently online.
-hyperessentials.admin.players.player_info={0}
-hyperessentials.admin.players.detail_uuid=UUID
-hyperessentials.admin.players.detail_first_join=First Joined
-hyperessentials.admin.players.detail_last_seen=Last Seen
-hyperessentials.admin.players.detail_playtime=Playtime
-hyperessentials.admin.players.detail_punishments=Punishments
-hyperessentials.admin.players.detail_status=Status
-hyperessentials.admin.players.detail_status_online=Online
-hyperessentials.admin.players.detail_status_banned=Banned
-hyperessentials.admin.players.detail_status_muted=Muted
-hyperessentials.admin.players.kicked=Player kicked.
-hyperessentials.admin.players.muted=Player muted.
-hyperessentials.admin.players.banned=Player banned.
+players.empty_title = No Players
+players.empty_message = No players are currently online.
+players.player_info = {0}
+players.detail_uuid = UUID
+players.detail_first_join = First Joined
+players.detail_last_seen = Last Seen
+players.detail_playtime = Playtime
+players.detail_punishments = Punishments
+players.detail_status = Status
+players.detail_status_online = Online
+players.detail_status_banned = Banned
+players.detail_status_muted = Muted
+players.kicked = Player kicked.
+players.muted = Player muted.
+players.banned = Player banned.
 
 # === Warps Page ===
-hyperessentials.admin.warps.empty_title=No Warps
-hyperessentials.admin.warps.empty_message=Create one at your current location.
-hyperessentials.admin.warps.edit_title=Edit Warp
-hyperessentials.admin.warps.edit_display_name=Display Name:
-hyperessentials.admin.warps.edit_category=Category:
-hyperessentials.admin.warps.edit_description=Description:
-hyperessentials.admin.warps.edit_permission=Permission:
-hyperessentials.admin.warps.edit_world=World:
-hyperessentials.admin.warps.edit_coords=Coords:
-hyperessentials.admin.warps.name_placeholder=Warp name...
+warps.empty_title = No Warps
+warps.empty_message = Create one at your current location.
+warps.edit_title = Edit Warp
+warps.edit_display_name = Display Name:
+warps.edit_category = Category:
+warps.edit_description = Description:
+warps.edit_permission = Permission:
+warps.edit_world = World:
+warps.edit_coords = Coords:
+warps.name_placeholder = Warp name...
+warps.create_title = Create Warp
+warps.search_placeholder = Search warps...
 
 # === Spawns Page ===
-hyperessentials.admin.spawns.empty_title=No Spawns
-hyperessentials.admin.spawns.empty_message=Set a spawn at your current location.
-hyperessentials.admin.spawns.global_badge=GLOBAL
-hyperessentials.admin.spawns.default_badge=(Default)
-hyperessentials.admin.spawns.default_coords=World default
+spawns.empty_title = No Spawns
+spawns.empty_message = Set a spawn at your current location.
+spawns.global_badge = GLOBAL
+spawns.default_badge = (Default)
+spawns.default_coords = World default
 
 # === Kits Page ===
-hyperessentials.admin.kits.empty_title=No Kits
-hyperessentials.admin.kits.empty_message=Create one from your current inventory.
-hyperessentials.admin.kits.one_time=One-time
-hyperessentials.admin.kits.name_placeholder=Kit name...
-hyperessentials.admin.kits.edit_title=Edit Kit
-hyperessentials.admin.kits.edit_display_name=Display Name:
-hyperessentials.admin.kits.edit_cooldown=Cooldown (sec):
-hyperessentials.admin.kits.edit_permission=Permission:
-hyperessentials.admin.kits.preview_title=Kit Preview
-hyperessentials.admin.kits.preview_no_items=No items in this kit.
+kits.empty_title = No Kits
+kits.empty_message = Create one from your current inventory.
+kits.one_time = One-time
+kits.name_placeholder = Kit name...
+kits.edit_title = Edit Kit
+kits.edit_display_name = Display Name:
+kits.edit_cooldown = Cooldown (sec):
+kits.edit_permission = Permission:
+kits.preview_title = Kit Preview
+kits.preview_no_items = No items in this kit.
+kits.create_title = Create Kit
+kits.search_placeholder = Search kits...
 
 # === Moderation Page ===
-hyperessentials.admin.mod.empty_active_title=No Active Punishments
-hyperessentials.admin.mod.empty_all_title=No Punishments
-hyperessentials.admin.mod.empty_message=No punishment records found.
-hyperessentials.admin.mod.no_reason=No reason
-hyperessentials.admin.mod.permanent=Permanent
-hyperessentials.admin.mod.expired=Expired
-hyperessentials.admin.mod.revoked=Revoked
+mod.empty_active_title = No Active Punishments
+mod.empty_all_title = No Punishments
+mod.empty_message = No punishment records found.
+mod.no_reason = No reason
+mod.permanent = Permanent
+mod.expired = Expired
+mod.revoked = Revoked
 
 # === Announcements Page ===
-hyperessentials.admin.announce.interval_label=Interval: {0}
-hyperessentials.admin.announce.disabled=Announcements disabled
-hyperessentials.admin.announce.mode_random=Mode: Random
-hyperessentials.admin.announce.mode_sequential=Mode: Sequential
-hyperessentials.admin.announce.edit_title=Edit Announcement
-hyperessentials.admin.announce.events_title=Event Announcements
-hyperessentials.admin.announce.empty_title=No Announcements
-hyperessentials.admin.announce.empty_message=Click "+ New" to create one.
+announce.interval_label = Interval: {0}
+announce.disabled = Announcements disabled
+announce.mode_random = Mode: Random
+announce.mode_sequential = Mode: Sequential
+announce.edit_title = Edit Announcement
+announce.events_title = Event Announcements
+announce.empty_title = No Announcements
+announce.empty_message = Click "+ New" to create one.
+
+# === Backups Page ===
+backups.creating = Creating backup...
+backups.created = Backup created: {0}
+backups.create_failed = Failed to create backup.
+backups.restoring = Restoring backup...
+backups.restored = Restored {1} files from {0}. Reload config to apply.
+backups.restore_failed = Failed to restore backup.
+backups.deleting = Deleting...
+backups.deleted = Deleted backup: {0}
+backups.delete_failed = Failed to delete backup.
+
+# === Config Editor Page ===
+config.saved = Configuration saved to disk.
+config.changed = Changed: {0}
 
 # === Settings Page ===
-hyperessentials.admin.settings.data_dir=Data: {0}
-hyperessentials.admin.settings.module_enabled=Enabled
-hyperessentials.admin.settings.module_disabled=Disabled
+settings.data_dir = Data: {0}
+settings.module_enabled = Enabled
+settings.module_disabled = Disabled
 
 # === Permission Quick-Add ===
-hyperessentials.admin.perms.title=Manage Permissions
-hyperessentials.admin.perms.node_label=Node:
-hyperessentials.admin.perms.roles_header=Roles
-hyperessentials.admin.perms.add=Add
-hyperessentials.admin.perms.remove=Remove
-hyperessentials.admin.perms.no_roles=No roles available.
+perms.title = Manage Permissions
+perms.node_label = Node:
+perms.roles_header = Roles
+perms.add = Add
+perms.remove = Remove
+perms.no_roles = No roles available.
 
 # === Player Moderation Page ===
-hyperessentials.admin.playermod.search_placeholder=Search player...
-hyperessentials.admin.playermod.search_empty=No Players Found
-hyperessentials.admin.playermod.search_hint=Search by name or use the online player list.
-hyperessentials.admin.playermod.online_badge=Online
-hyperessentials.admin.playermod.offline_badge=Offline
-hyperessentials.admin.playermod.detail_uuid=UUID
-hyperessentials.admin.playermod.detail_status=Status
-hyperessentials.admin.playermod.detail_first_join=First Joined
-hyperessentials.admin.playermod.detail_last_seen=Last Seen
-hyperessentials.admin.playermod.detail_playtime=Playtime
-hyperessentials.admin.playermod.detail_history=Punishment History
-hyperessentials.admin.playermod.detail_no_history=No punishments recorded.
-hyperessentials.admin.playermod.action_duration=Duration
-hyperessentials.admin.playermod.action_reason=Reason
-hyperessentials.admin.playermod.action_confirm=Confirm
-hyperessentials.admin.playermod.action_cancel=Cancel
-hyperessentials.admin.playermod.action_success=Action applied successfully.
-hyperessentials.admin.playermod.action_failed=Failed to apply action.
-hyperessentials.admin.playermod.player_not_found=Player not found.
+playermod.search_placeholder = Search player...
+playermod.search_empty = No Players Found
+playermod.search_hint = Search by name or use the online player list.
+playermod.online_badge = Online
+playermod.offline_badge = Offline
+playermod.detail_uuid = UUID
+playermod.detail_status = Status
+playermod.detail_first_join = First Joined
+playermod.detail_last_seen = Last Seen
+playermod.detail_playtime = Playtime
+playermod.detail_history = Punishment History
+playermod.detail_no_history = No punishments recorded.
+playermod.action_duration = Duration
+playermod.action_reason = Reason
+playermod.action_confirm = Confirm
+playermod.action_cancel = Cancel
+playermod.action_success = Action applied successfully.
+playermod.action_failed = Failed to apply action.
+playermod.player_not_found = Player not found.
