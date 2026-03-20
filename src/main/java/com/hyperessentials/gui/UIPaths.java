@@ -55,6 +55,7 @@ public final class UIPaths {
   public static final String ADMIN_MODULE_CARD = BASE + "admin/admin_module_card.ui";
   public static final String ADMIN_WARPS = BASE + "admin/admin_warps.ui";
   public static final String ADMIN_WARP_ENTRY = BASE + "admin/admin_warp_entry.ui";
+  public static final String ADMIN_WARP_EDIT = BASE + "admin/admin_warp_edit.ui";
   public static final String ADMIN_SPAWNS = BASE + "admin/admin_spawns.ui";
   public static final String ADMIN_SPAWN_ENTRY = BASE + "admin/admin_spawn_entry.ui";
   public static final String ADMIN_KITS = BASE + "admin/admin_kits.ui";

@@ -58,6 +58,14 @@ public final class AdminKeys {
     private static final String P = "hyperessentials.admin.warps.";
     public static final String EMPTY_TITLE = P + "empty_title";
     public static final String EMPTY_MESSAGE = P + "empty_message";
+    public static final String EDIT_TITLE = P + "edit_title";
+    public static final String EDIT_DISPLAY_NAME = P + "edit_display_name";
+    public static final String EDIT_CATEGORY = P + "edit_category";
+    public static final String EDIT_DESCRIPTION = P + "edit_description";
+    public static final String EDIT_PERMISSION = P + "edit_permission";
+    public static final String EDIT_WORLD = P + "edit_world";
+    public static final String EDIT_COORDS = P + "edit_coords";
+    public static final String NAME_PLACEHOLDER = P + "name_placeholder";
 
     private Warps() {}
   }

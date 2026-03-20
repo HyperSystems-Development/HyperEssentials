@@ -18,6 +18,12 @@ public class AdminPageData {
   public @Nullable String filter;
   public int page;
 
+  // Dynamic text input fields (read from UI elements via @ prefix)
+  public @Nullable String inputName;
+  public @Nullable String inputCategory;
+  public @Nullable String inputDescription;
+  public @Nullable String inputPermission;
+
   public static final BuilderCodec<AdminPageData> CODEC = BuilderCodec
       .builder(AdminPageData.class, AdminPageData::new)
       .addField(
@@ -49,6 +55,26 @@ public class AdminPageData {
           new KeyedCodec<>("Page", Codec.INTEGER),
           (data, v) -> data.page = v,
           data -> data.page
+      )
+      .addField(
+          new KeyedCodec<>("@InputName", Codec.STRING),
+          (data, v) -> data.inputName = v,
+          data -> data.inputName
+      )
+      .addField(
+          new KeyedCodec<>("@InputCategory", Codec.STRING),
+          (data, v) -> data.inputCategory = v,
+          data -> data.inputCategory
+      )
+      .addField(
+          new KeyedCodec<>("@InputDescription", Codec.STRING),
+          (data, v) -> data.inputDescription = v,
+          data -> data.inputDescription
+      )
+      .addField(
+          new KeyedCodec<>("@InputPermission", Codec.STRING),
+          (data, v) -> data.inputPermission = v,
+          data -> data.inputPermission
       )
       .build();
 

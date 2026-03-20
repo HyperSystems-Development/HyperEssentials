@@ -28,6 +28,14 @@ hyperessentials.admin.players.banned=Player banned.
 # === Warps Page ===
 hyperessentials.admin.warps.empty_title=No Warps
 hyperessentials.admin.warps.empty_message=Create one at your current location.
+hyperessentials.admin.warps.edit_title=Edit Warp
+hyperessentials.admin.warps.edit_display_name=Display Name:
+hyperessentials.admin.warps.edit_category=Category:
+hyperessentials.admin.warps.edit_description=Description:
+hyperessentials.admin.warps.edit_permission=Permission:
+hyperessentials.admin.warps.edit_world=World:
+hyperessentials.admin.warps.edit_coords=Coords:
+hyperessentials.admin.warps.name_placeholder=Warp name...
 
 # === Spawns Page ===
 hyperessentials.admin.spawns.empty_title=No Spawns

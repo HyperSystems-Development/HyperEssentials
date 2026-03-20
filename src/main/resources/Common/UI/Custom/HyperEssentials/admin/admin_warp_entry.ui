@@ -54,9 +54,17 @@ Group {
 
   // Action buttons
   Group {
-    Anchor: (Width: 75);
+    Anchor: (Width: 145);
     Padding: (Right: 8, Top: 10, Bottom: 10);
     LayoutMode: Left;
+
+    TextButton #EditBtn {
+      Text: "Edit";
+      Style: $S.@AquaButtonStyle;
+      Anchor: (Width: 55, Height: 24);
+    }
+
+    Group { Anchor: (Width: 6); }
 
     TextButton #DeleteBtn {
       Text: "Delete";
