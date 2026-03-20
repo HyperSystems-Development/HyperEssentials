@@ -29,6 +29,9 @@ desktop.ini
 .env
 .env.local
 
+# Sentry auth token
+.sentry-auth-token
+
 # Compiled
 *.class
 *.jar
