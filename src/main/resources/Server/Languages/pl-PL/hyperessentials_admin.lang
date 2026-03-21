@@ -2,6 +2,14 @@
 # Format: key = value
 # Note: Keys are auto-prefixed with "hyperessentials_admin." by Hytale's I18nModule
 
+# === Common Labels ===
+common.on = ON
+common.off = OFF
+common.yes = Yes
+common.no = No
+common.enabled = Enabled
+common.disabled = Disabled
+
 # === Navigation ===
 nav.title = HE Admin
 
@@ -46,6 +54,7 @@ spawns.empty_message = Set a spawn at your current location.
 spawns.global_badge = GLOBAL
 spawns.default_badge = (Default)
 spawns.default_coords = World default
+spawns.set_custom = Set Custom
 
 # === Kits Page ===
 kits.empty_title = No Kits
@@ -79,6 +88,7 @@ announce.edit_title = Edit Announcement
 announce.events_title = Event Announcements
 announce.empty_title = No Announcements
 announce.empty_message = Click "+ New" to create one.
+announce.enabled = Enabled
 
 # === Backups Page ===
 backups.creating = Creating backup...
@@ -90,6 +100,14 @@ backups.restore_failed = Failed to restore backup.
 backups.deleting = Deleting...
 backups.deleted = Deleted backup: {0}
 backups.delete_failed = Failed to delete backup.
+backups.detail_type = Type: {0}
+backups.detail_created = Created: {0}
+backups.detail_size = Size: {0}
+backups.restore_warning = This will overwrite current data. Click again to confirm.
+backups.confirm_restore = Confirm Restore
+backups.restore = Restore
+backups.confirm_delete = Confirm Delete
+backups.delete = Delete
 
 # === Config Editor Page ===
 config.saved = Configuration saved to disk.

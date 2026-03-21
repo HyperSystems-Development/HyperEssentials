@@ -7,6 +7,8 @@ import com.hyperessentials.gui.UIHelper;
 import com.hyperessentials.gui.UIPaths;
 import com.hyperessentials.gui.data.PlayerPageData;
 import com.hyperessentials.module.utility.UtilityManager;
+import com.hyperessentials.util.GuiKeys;
+import com.hyperessentials.util.HEMessages;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.protocol.packets.interface_.CustomPageLifetime;
@@ -71,18 +73,18 @@ public class StatsPage extends InteractiveCustomUIPage<PlayerPageData> {
       // First join date
       Instant firstJoin = utilityManager.getFirstJoin(uuid);
       if (firstJoin != null) {
-        appendStatRow(cmd, statIdx++, "First Joined", DATE_FORMAT.format(firstJoin));
+        appendStatRow(cmd, statIdx++, HEMessages.get(playerRef, GuiKeys.Stats.FIRST_JOINED), DATE_FORMAT.format(firstJoin));
       }
 
       // Total playtime
       long playtimeMs = utilityManager.getTotalPlaytimeMs(uuid);
-      appendStatRow(cmd, statIdx++, "Total Playtime", UIHelper.formatPlaytime(playtimeMs));
+      appendStatRow(cmd, statIdx++, HEMessages.get(playerRef, GuiKeys.Stats.TOTAL_PLAYTIME), UIHelper.formatPlaytime(playtimeMs));
 
       // Session time
       Instant sessionStart = utilityManager.getSessionStart(uuid);
       if (sessionStart != null) {
         long sessionMs = System.currentTimeMillis() - sessionStart.toEpochMilli();
-        appendStatRow(cmd, statIdx++, "Current Session", UIHelper.formatPlaytime(sessionMs));
+        appendStatRow(cmd, statIdx++, HEMessages.get(playerRef, GuiKeys.Stats.CURRENT_SESSION), UIHelper.formatPlaytime(sessionMs));
       }
     }
 

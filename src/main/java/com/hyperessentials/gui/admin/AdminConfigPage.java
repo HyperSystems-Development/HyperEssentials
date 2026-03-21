@@ -6,6 +6,8 @@ import com.hyperessentials.gui.GuiType;
 import com.hyperessentials.gui.NavBarHelper;
 import com.hyperessentials.gui.UIPaths;
 import com.hyperessentials.gui.data.AdminPageData;
+import com.hyperessentials.util.AdminKeys;
+import com.hyperessentials.util.HEMessages;
 import com.hyperessentials.util.Logger;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
@@ -195,7 +197,7 @@ public class AdminConfigPage extends InteractiveCustomUIPage<AdminPageData> {
         // Boolean toggle button
         boolean boolVal = currentValue instanceof Boolean b && b;
         cmd.set(idx + " #ToggleBtn.Visible", true);
-        cmd.set(idx + " #ToggleBtn.Text", boolVal ? "ON" : "OFF");
+        cmd.set(idx + " #ToggleBtn.Text", HEMessages.get(playerRef, boolVal ? AdminKeys.Common.ON : AdminKeys.Common.OFF));
         cmd.set(idx + " #ValueInput.Visible", false);
 
         events.addEventBinding(CustomUIEventBindingType.Activating, idx + " #ToggleBtn",

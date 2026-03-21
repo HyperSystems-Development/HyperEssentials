@@ -372,7 +372,7 @@ public class AdminKitsPage extends InteractiveCustomUIPage<AdminPageData> {
 
     // One-time toggle button text
     editOneTimeState = kit.oneTime();
-    cmd.set(edit + " #EditOneTimeToggle.Text", editOneTimeState ? "Yes" : "No");
+    cmd.set(edit + " #EditOneTimeToggle.Text", HEMessages.get(playerRef, editOneTimeState ? AdminKeys.Common.YES : AdminKeys.Common.NO));
 
     if (kit.permission() != null) {
       cmd.set(edit + " #EditPermission.Value", kit.permission());

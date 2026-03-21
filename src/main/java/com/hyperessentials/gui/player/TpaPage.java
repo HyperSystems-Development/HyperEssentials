@@ -9,6 +9,8 @@ import com.hyperessentials.gui.RefreshablePage;
 import com.hyperessentials.gui.data.PlayerPageData;
 import com.hyperessentials.module.teleport.TpaManager;
 import com.hyperessentials.platform.HyperEssentialsPlugin;
+import com.hyperessentials.util.GuiKeys;
+import com.hyperessentials.util.HEMessages;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.protocol.packets.interface_.CustomPageLifetime;
@@ -73,8 +75,8 @@ public class TpaPage extends InteractiveCustomUIPage<PlayerPageData> implements 
 
     // Toggle button
     boolean accepting = tpaManager.isAcceptingRequests(uuid);
-    cmd.set("#ToggleBtn.Text", accepting ? "ENABLED" : "DISABLED");
-    cmd.set("#ToggleLabel.Text", accepting ? "Accepting TPA requests" : "TPA requests disabled");
+    cmd.set("#ToggleBtn.Text", HEMessages.get(playerRef, accepting ? GuiKeys.Tpa.TOGGLE_ENABLED : GuiKeys.Tpa.TOGGLE_DISABLED));
+    cmd.set("#ToggleLabel.Text", HEMessages.get(playerRef, accepting ? GuiKeys.Tpa.TOGGLE_LABEL_ON : GuiKeys.Tpa.TOGGLE_LABEL_OFF));
 
     events.addEventBinding(
         CustomUIEventBindingType.Activating, "#ToggleBtn",
@@ -83,15 +85,16 @@ public class TpaPage extends InteractiveCustomUIPage<PlayerPageData> implements 
 
     // Request list
     List<TeleportRequest> incoming = tpaManager.getIncomingRequests(uuid);
-    cmd.set("#RequestCount.Text", incoming.size() + " incoming request" + (incoming.size() != 1 ? "s" : ""));
+    cmd.set("#RequestCount.Text", HEMessages.get(playerRef,
+        incoming.size() != 1 ? GuiKeys.Tpa.REQUEST_COUNT_PLURAL : GuiKeys.Tpa.REQUEST_COUNT, incoming.size()));
 
     cmd.clear("#RequestList");
     cmd.appendInline("#RequestList", "Group #IndexCards { LayoutMode: Top; }");
 
     if (incoming.isEmpty()) {
       cmd.append("#IndexCards", UIPaths.EMPTY_STATE);
-      cmd.set("#IndexCards[0] #EmptyTitle.Text", "No Requests");
-      cmd.set("#IndexCards[0] #EmptyMessage.Text", "No pending TPA requests.");
+      cmd.set("#IndexCards[0] #EmptyTitle.Text", HEMessages.get(playerRef, GuiKeys.Tpa.EMPTY_TITLE));
+      cmd.set("#IndexCards[0] #EmptyMessage.Text", HEMessages.get(playerRef, GuiKeys.Tpa.EMPTY_MESSAGE));
       return;
     }
 
@@ -105,14 +108,14 @@ public class TpaPage extends InteractiveCustomUIPage<PlayerPageData> implements 
       cmd.set(idx + " #RequesterName.Text", requesterName);
 
       // Request type
-      String typeLabel = request.type() == TeleportRequest.Type.TPA ? "wants to teleport to you" : "wants you to teleport to them";
+      String typeLabel = HEMessages.get(playerRef, request.type() == TeleportRequest.Type.TPA ? GuiKeys.Tpa.TYPE_TPA : GuiKeys.Tpa.TYPE_TPAHERE);
       cmd.set(idx + " #RequestType.Text", typeLabel);
 
       // Time remaining
       long remainingMs = request.getRemainingTime();
       if (remainingMs > 0) {
         int remainingSecs = (int) (remainingMs / 1000);
-        cmd.set(idx + " #TimeRemaining.Text", remainingSecs + "s left");
+        cmd.set(idx + " #TimeRemaining.Text", HEMessages.get(playerRef, GuiKeys.Tpa.TIME_REMAINING, remainingSecs));
       }
 
       events.addEventBinding(

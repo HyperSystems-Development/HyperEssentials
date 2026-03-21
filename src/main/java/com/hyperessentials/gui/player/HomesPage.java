@@ -125,7 +125,7 @@ public class HomesPage extends InteractiveCustomUIPage<PlayerPageData> implement
       }
 
       if (remaining > 0) {
-        cmd.set(idx + " #HomeCooldown.Text", "Cooldown: " + UIHelper.formatDuration(remaining));
+        cmd.set(idx + " #HomeCooldown.Text", HEMessages.get(playerRef, GuiKeys.Homes.COOLDOWN_LABEL, UIHelper.formatDuration(remaining)));
       } else {
         // Cooldown expired — full rebuild to re-enable buttons and restore coords
         needsRebuild = true;
@@ -146,7 +146,7 @@ public class HomesPage extends InteractiveCustomUIPage<PlayerPageData> implement
     int limit = homeManager.getHomeLimit(uuid);
     boolean canShare = CommandUtil.hasPermission(uuid, Permissions.HOME_SHARE);
 
-    cmd.set("#HomeCount.Text", homes.size() + " / " + UIHelper.formatLimit(limit) + " homes");
+    cmd.set("#HomeCount.Text", HEMessages.get(playerRef, GuiKeys.Homes.HOME_COUNT, homes.size(), UIHelper.formatLimit(limit)));
 
     cmd.clear("#HomeList");
     cmd.appendInline("#HomeList", "Group #IndexCards { LayoutMode: Top; }");
@@ -315,7 +315,7 @@ public class HomesPage extends InteractiveCustomUIPage<PlayerPageData> implement
         String idx = "#IndexCards[" + i + "]";
 
         cmd.set(idx + " #HomeName.Text", shared.home().name());
-        cmd.set(idx + " #OwnerName.Text", "Shared by " + resolvePlayerName(shared.ownerUuid()));
+        cmd.set(idx + " #OwnerName.Text", HEMessages.get(playerRef, GuiKeys.Homes.SHARED_BY, resolvePlayerName(shared.ownerUuid())));
         cmd.set(idx + " #HomeCoords.Text",
             UIHelper.formatCoords(shared.home().x(), shared.home().y(), shared.home().z()));
 

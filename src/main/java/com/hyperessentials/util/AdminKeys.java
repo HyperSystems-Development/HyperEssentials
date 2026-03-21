@@ -14,6 +14,19 @@ public final class AdminKeys {
 
   private AdminKeys() {}
 
+  /** Shared admin GUI labels. */
+  public static final class Common {
+    private static final String P = "hyperessentials_admin.common.";
+    public static final String ON = P + "on";
+    public static final String OFF = P + "off";
+    public static final String YES = P + "yes";
+    public static final String NO = P + "no";
+    public static final String ENABLED = P + "enabled";
+    public static final String DISABLED = P + "disabled";
+
+    private Common() {}
+  }
+
   /** Admin navigation bar labels. */
   public static final class Nav {
     private static final String P = "hyperessentials_admin.nav.";
@@ -80,6 +93,7 @@ public final class AdminKeys {
     public static final String GLOBAL_BADGE = P + "global_badge";
     public static final String DEFAULT_BADGE = P + "default_badge";
     public static final String DEFAULT_COORDS = P + "default_coords";
+    public static final String SET_CUSTOM = P + "set_custom";
 
     private Spawns() {}
   }
@@ -154,6 +168,7 @@ public final class AdminKeys {
     public static final String EVENTS_TITLE = P + "events_title";
     public static final String EMPTY_TITLE = P + "empty_title";
     public static final String EMPTY_MESSAGE = P + "empty_message";
+    public static final String ENABLED = P + "enabled";
 
     private Announcements() {}
   }
@@ -170,6 +185,14 @@ public final class AdminKeys {
     public static final String DELETING = P + "deleting";
     public static final String DELETED = P + "deleted";
     public static final String DELETE_FAILED = P + "delete_failed";
+    public static final String DETAIL_TYPE = P + "detail_type";
+    public static final String DETAIL_CREATED = P + "detail_created";
+    public static final String DETAIL_SIZE = P + "detail_size";
+    public static final String RESTORE_WARNING = P + "restore_warning";
+    public static final String CONFIRM_RESTORE = P + "confirm_restore";
+    public static final String RESTORE = P + "restore";
+    public static final String CONFIRM_DELETE = P + "confirm_delete";
+    public static final String DELETE = P + "delete";
 
     private Backups() {}
   }

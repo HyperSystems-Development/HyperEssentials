@@ -172,26 +172,26 @@ public class AdminBackupsPage extends InteractiveCustomUIPage<AdminPageData> {
 
     if (expanded) {
       cmd.set(idx + " #DetailSection.Visible", true);
-      cmd.set(idx + " #DetailTypeLabel.Text", "Type: " + backup.type().getDisplayName());
-      cmd.set(idx + " #DetailCreatedLabel.Text", "Created: " + backup.getFormattedTimestamp());
-      cmd.set(idx + " #DetailSizeLabel.Text", "Size: " + backup.getFormattedSize());
+      cmd.set(idx + " #DetailTypeLabel.Text", HEMessages.get(playerRef, AdminKeys.Backups.DETAIL_TYPE, backup.type().getDisplayName()));
+      cmd.set(idx + " #DetailCreatedLabel.Text", HEMessages.get(playerRef, AdminKeys.Backups.DETAIL_CREATED, backup.getFormattedTimestamp()));
+      cmd.set(idx + " #DetailSizeLabel.Text", HEMessages.get(playerRef, AdminKeys.Backups.DETAIL_SIZE, backup.getFormattedSize()));
 
       // Restore
       if (name.equals(confirmingRestore)) {
         cmd.set(idx + " #RestoreWarning.Visible", true);
-        cmd.set(idx + " #RestoreWarning.Text", "This will overwrite current data. Click again to confirm.");
-        cmd.set(idx + " #RestoreBtn.Text", "Confirm Restore");
+        cmd.set(idx + " #RestoreWarning.Text", HEMessages.get(playerRef, AdminKeys.Backups.RESTORE_WARNING));
+        cmd.set(idx + " #RestoreBtn.Text", HEMessages.get(playerRef, AdminKeys.Backups.CONFIRM_RESTORE));
       } else {
-        cmd.set(idx + " #RestoreBtn.Text", "Restore");
+        cmd.set(idx + " #RestoreBtn.Text", HEMessages.get(playerRef, AdminKeys.Backups.RESTORE));
       }
       events.addEventBinding(CustomUIEventBindingType.Activating, idx + " #RestoreBtn",
           EventData.of("Button", "Restore").append("Target", name), false);
 
       // Delete
       if (name.equals(confirmingDelete)) {
-        cmd.set(idx + " #DeleteBtn.Text", "Confirm Delete");
+        cmd.set(idx + " #DeleteBtn.Text", HEMessages.get(playerRef, AdminKeys.Backups.CONFIRM_DELETE));
       } else {
-        cmd.set(idx + " #DeleteBtn.Text", "Delete");
+        cmd.set(idx + " #DeleteBtn.Text", HEMessages.get(playerRef, AdminKeys.Backups.DELETE));
       }
       events.addEventBinding(CustomUIEventBindingType.Activating, idx + " #DeleteBtn",
           EventData.of("Button", "Delete").append("Target", name), false);

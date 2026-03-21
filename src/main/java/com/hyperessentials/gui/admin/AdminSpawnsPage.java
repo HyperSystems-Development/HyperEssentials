@@ -179,7 +179,7 @@ public class AdminSpawnsPage extends InteractiveCustomUIPage<AdminPageData> {
         );
       } else {
         // For unconfigured worlds, replace Delete with "Set Custom" (creates spawn at world default)
-        cmd.set(idx + " #DeleteBtn.Text", "Set Custom");
+        cmd.set(idx + " #DeleteBtn.Text", HEMessages.get(playerRef, AdminKeys.Spawns.SET_CUSTOM));
         events.addEventBinding(
             CustomUIEventBindingType.Activating,
             idx + " #DeleteBtn",

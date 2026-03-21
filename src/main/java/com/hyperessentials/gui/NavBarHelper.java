@@ -1,6 +1,9 @@
 package com.hyperessentials.gui;
 
 import com.hyperessentials.integration.PermissionManager;
+import com.hyperessentials.util.AdminKeys;
+import com.hyperessentials.util.GuiKeys;
+import com.hyperessentials.util.HEMessages;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.protocol.packets.interface_.CustomUIEventBindingType;
@@ -38,7 +41,7 @@ public final class NavBarHelper {
       return;
     }
 
-    cmd.set("#NavBar #NavBarTitle #NavBarTitleLabel.Text", "HyperEssentials");
+    cmd.set("#NavBar #NavBarTitle #NavBarTitleLabel.Text", HEMessages.get(playerRef, GuiKeys.Nav.TITLE));
     cmd.appendInline("#NavBar #NavBarButtons", "Group #NavCards { LayoutMode: Left; }");
     buildButtons(entries, cmd, events);
   }
@@ -59,7 +62,7 @@ public final class NavBarHelper {
       return;
     }
 
-    cmd.set("#NavBar #NavBarTitle #NavBarTitleLabel.Text", "HE Admin");
+    cmd.set("#NavBar #NavBarTitle #NavBarTitleLabel.Text", HEMessages.get(playerRef, AdminKeys.Nav.TITLE));
     cmd.appendInline("#NavBar #NavBarButtons", "Group #NavCards { LayoutMode: Left; }");
     buildButtons(entries, cmd, events);
   }

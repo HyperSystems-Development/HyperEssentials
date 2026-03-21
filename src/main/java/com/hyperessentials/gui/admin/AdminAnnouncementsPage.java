@@ -238,7 +238,7 @@ public class AdminAnnouncementsPage extends InteractiveCustomUIPage<AdminPageDat
 
     // Enabled toggle
     editEnabledState = ann.enabled();
-    cmd.set(edit + " #EditEnabledToggle.Text", editEnabledState ? "Enabled" : "Disabled");
+    cmd.set(edit + " #EditEnabledToggle.Text", HEMessages.get(playerRef, editEnabledState ? AdminKeys.Announcements.ENABLED : AdminKeys.Announcements.DISABLED));
 
     // Optional fields
     if (ann.permission() != null) {
