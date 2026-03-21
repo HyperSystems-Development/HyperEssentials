@@ -44,6 +44,20 @@ public final class NavBarHelper {
     cmd.set("#NavBar #NavBarTitle #NavBarTitleLabel.Text", HEMessages.get(playerRef, GuiKeys.Nav.TITLE));
     cmd.appendInline("#NavBar #NavBarButtons", "Group #NavCards { LayoutMode: Left; }");
     buildButtons(entries, cmd, events);
+
+    // Flex spacer pushes "Player" button to far right
+    cmd.appendInline("#NavBar #NavBarButtons", "Group { FlexWeight: 1; }");
+
+    // "Player" button on far right
+    cmd.append("#NavBar #NavBarButtons", UIPaths.NAV_BUTTON);
+    cmd.set("#NavBar #NavBarButtons[2] #NavActionButton.Text",
+        HEMessages.get(playerRef, GuiKeys.Nav.PLAYER_MENU));
+    events.addEventBinding(
+        CustomUIEventBindingType.Activating,
+        "#NavBar #NavBarButtons[2] #NavActionButton",
+        EventData.of("Button", "Nav").append("NavTarget", "player_settings"),
+        false
+    );
   }
 
   /**
