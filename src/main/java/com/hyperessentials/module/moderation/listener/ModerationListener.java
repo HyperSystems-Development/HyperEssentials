@@ -14,9 +14,12 @@ import com.hyperessentials.util.Logger;
 import com.hypixel.hytale.server.core.event.events.player.PlayerChatEvent;
 import com.hypixel.hytale.server.core.event.events.player.PlayerConnectEvent;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
+import io.netty.channel.Channel;
+import io.netty.handler.codec.quic.QuicStreamChannel;
 import org.jetbrains.annotations.NotNull;
 
 import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 
 /**
  * Handles player connect and chat events for ban/mute enforcement, IP bans, and vanish.
@@ -57,9 +60,10 @@ public class ModerationListener {
 
     // Check for IP ban
     try {
-      InetSocketAddress addr = (InetSocketAddress) playerRef.getPacketHandler()
-          .getChannel().remoteAddress();
-      if (addr != null) {
+      Channel channel = playerRef.getPacketHandler().getChannel();
+      SocketAddress socketAddress = (channel instanceof QuicStreamChannel quic)
+          ? quic.parent().remoteSocketAddress() : channel.remoteAddress();
+      if (socketAddress instanceof InetSocketAddress addr) {
         String ip = addr.getAddress().getHostAddress();
         if (modManager.isIpBanned(ip)) {
           try {

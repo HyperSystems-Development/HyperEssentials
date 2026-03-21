@@ -18,8 +18,22 @@ public final class GuiKeys {
   public static final class Nav {
     private static final String P = "hyperessentials_gui.nav.";
     public static final String TITLE = P + "title";
+    public static final String PLAYER_MENU = P + "player_menu";
 
     private Nav() {}
+  }
+
+  /** Player settings page. */
+  public static final class PlayerSettings {
+    private static final String P = "hyperessentials_gui.player_settings.";
+    public static final String TITLE = P + "title";
+    public static final String LANGUAGE_SECTION = P + "language_section";
+    public static final String AUTO_DETECT = P + "auto_detect";
+    public static final String AUTO_DETECT_DESC = P + "auto_detect_desc";
+    public static final String LANGUAGE_LABEL = P + "language_label";
+    public static final String LANGUAGE_CHANGED = P + "language_changed";
+
+    private PlayerSettings() {}
   }
 
   /** Player dashboard page. */

@@ -161,11 +161,14 @@ public class KitManager {
     return remaining > 0 ? remaining : 0;
   }
 
+  /**
+   * Captures items from a player's inventory without saving.
+   * Used by the admin create view to preview items before committing.
+   */
   @NotNull
-  public Kit captureFromInventory(@NotNull PlayerRef playerRef, @NotNull Store<EntityStore> store,
-                  @NotNull Ref<EntityStore> ref, @NotNull String kitName) {
+  public List<KitItem> captureInventoryItems(@NotNull Store<EntityStore> store,
+                                              @NotNull Ref<EntityStore> ref) {
     List<KitItem> items = new ArrayList<>();
-
     try {
       Player playerComponent = store.getComponent(ref, Player.getComponentType());
       if (playerComponent != null) {
@@ -178,6 +181,13 @@ public class KitManager {
     } catch (Exception e) {
       ErrorHandler.report("[Kits] Failed to capture inventory", e);
     }
+    return items;
+  }
+
+  @NotNull
+  public Kit captureFromInventory(@NotNull PlayerRef playerRef, @NotNull Store<EntityStore> store,
+                  @NotNull Ref<EntityStore> ref, @NotNull String kitName) {
+    List<KitItem> items = captureInventoryItems(store, ref);
 
     int defaultCooldown = ConfigManager.get().kits().getDefaultCooldownSeconds();
     boolean defaultOneTime = ConfigManager.get().kits().isOneTimeDefault();

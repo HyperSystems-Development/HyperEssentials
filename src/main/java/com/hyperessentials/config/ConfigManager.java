@@ -133,6 +133,33 @@ public class ConfigManager {
     Logger.info("[Config] Configuration reloaded");
   }
 
+  /**
+   * Resets all configs to defaults by deleting the config files and reloading.
+   */
+  public void resetAllDefaults() {
+    Logger.info("[Config] Resetting all configuration to defaults...");
+    try {
+      java.nio.file.Files.deleteIfExists(coreConfig.getFilePath());
+      java.nio.file.Files.deleteIfExists(homesConfig.getFilePath());
+      java.nio.file.Files.deleteIfExists(warpsConfig.getFilePath());
+      java.nio.file.Files.deleteIfExists(spawnsConfig.getFilePath());
+      java.nio.file.Files.deleteIfExists(teleportConfig.getFilePath());
+      java.nio.file.Files.deleteIfExists(warmupConfig.getFilePath());
+      java.nio.file.Files.deleteIfExists(kitsConfig.getFilePath());
+      java.nio.file.Files.deleteIfExists(moderationConfig.getFilePath());
+      java.nio.file.Files.deleteIfExists(vanishConfig.getFilePath());
+      java.nio.file.Files.deleteIfExists(utilityConfig.getFilePath());
+      java.nio.file.Files.deleteIfExists(announcementsConfig.getFilePath());
+      java.nio.file.Files.deleteIfExists(debugConfig.getFilePath());
+      java.nio.file.Files.deleteIfExists(backupConfig.getFilePath());
+    } catch (java.io.IOException e) {
+      Logger.warn("[Config] Failed to delete config files: %s", e.getMessage());
+    }
+    reloadAll();
+    saveAll();
+    Logger.info("[Config] Configuration reset to defaults");
+  }
+
   public void saveAll() {
     coreConfig.save();
     homesConfig.save();

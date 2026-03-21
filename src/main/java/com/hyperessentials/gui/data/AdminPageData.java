@@ -20,6 +20,7 @@ public class AdminPageData {
 
   // Dynamic text input fields (read from UI elements via @ prefix)
   public @Nullable String inputName;
+  public @Nullable String inputDisplayName;
   public @Nullable String inputCategory;
   public @Nullable String inputDescription;
   public @Nullable String inputPermission;
@@ -30,6 +31,7 @@ public class AdminPageData {
   public @Nullable String backupInputName;
   public @Nullable String filterValue;
   public @Nullable String configValue;
+  public @Nullable String sortMode;
 
   public static final BuilderCodec<AdminPageData> CODEC = BuilderCodec
       .builder(AdminPageData.class, AdminPageData::new)
@@ -67,6 +69,11 @@ public class AdminPageData {
           new KeyedCodec<>("@InputName", Codec.STRING),
           (data, v) -> data.inputName = v,
           data -> data.inputName
+      )
+      .addField(
+          new KeyedCodec<>("@InputDisplayName", Codec.STRING),
+          (data, v) -> data.inputDisplayName = v,
+          data -> data.inputDisplayName
       )
       .addField(
           new KeyedCodec<>("@InputCategory", Codec.STRING),
@@ -117,6 +124,11 @@ public class AdminPageData {
           new KeyedCodec<>("@ConfigValue", Codec.STRING),
           (data, v) -> data.configValue = v,
           data -> data.configValue
+      )
+      .addField(
+          new KeyedCodec<>("@SortMode", Codec.STRING),
+          (data, v) -> data.sortMode = v,
+          data -> data.sortMode
       )
       .build();
 

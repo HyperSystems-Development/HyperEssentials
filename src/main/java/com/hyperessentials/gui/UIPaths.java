@@ -42,6 +42,9 @@ public final class UIPaths {
   public static final String KIT_PREVIEW_PAGE = BASE + "kits/kit_preview_page.ui";
   public static final String KIT_PREVIEW_ITEM = BASE + "kits/kit_preview_item.ui";
 
+  // === Player Settings ===
+  public static final String PLAYER_SETTINGS = BASE + "player/player_settings.ui";
+
   // === Teleport ===
   public static final String TPA_PAGE = BASE + "teleport/tpa_page.ui";
   public static final String TPA_ENTRY = BASE + "teleport/tpa_entry.ui";
@@ -62,6 +65,7 @@ public final class UIPaths {
   public static final String ADMIN_KIT_ENTRY = BASE + "admin/admin_kit_entry.ui";
   public static final String ADMIN_KIT_PREVIEW = BASE + "admin/admin_kit_preview.ui";
   public static final String ADMIN_KIT_EDIT = BASE + "admin/admin_kit_edit.ui";
+  public static final String ADMIN_KIT_CREATE = BASE + "admin/admin_kit_create.ui";
   public static final String ADMIN_PLAYERS = BASE + "admin/admin_players.ui";
   public static final String ADMIN_PLAYER_ENTRY = BASE + "admin/admin_player_entry.ui";
   public static final String ADMIN_PLAYER_DETAIL = BASE + "admin/admin_player_detail.ui";
@@ -73,11 +77,33 @@ public final class UIPaths {
   public static final String ADMIN_ANNOUNCEMENTS = BASE + "admin/admin_announcements.ui";
   public static final String ADMIN_ANNOUNCEMENT_ENTRY = BASE + "admin/admin_announcement_entry.ui";
   public static final String ADMIN_ANNOUNCEMENT_EDIT = BASE + "admin/admin_announcement_edit.ui";
-  public static final String ADMIN_SETTINGS = BASE + "admin/admin_settings.ui";
   public static final String ADMIN_MODULE_TOGGLE = BASE + "admin/admin_module_toggle.ui";
   public static final String ADMIN_BACKUPS = BASE + "admin/admin_backups.ui";
   public static final String ADMIN_BACKUP_ENTRY = BASE + "admin/admin_backup_entry.ui";
   public static final String ADMIN_CONFIG = BASE + "admin/admin_config.ui";
   public static final String ADMIN_CONFIG_ENTRY = BASE + "admin/admin_config_entry.ui";
   public static final String ADMIN_PERMISSION_ADD = BASE + "admin/admin_permission_add.ui";
+  public static final String ADMIN_PERM_ROLE_ENTRY = BASE + "admin/admin_perm_role_entry.ui";
+  public static final String ADMIN_PLAYER_DETAIL_HEADER = BASE + "admin/admin_player_detail_header.ui";
+  public static final String ADMIN_KIT_PREVIEW_ITEM = BASE + "admin/admin_kit_preview_item.ui";
+  public static final String ADMIN_CREATE_MODAL = BASE + "admin/admin_create_modal.ui";
+
+  // === Admin Config Editor (tabbed) ===
+  public static final String ADMIN_CONFIG_STANDARD = BASE + "admin/admin_config_standard.ui";
+  public static final String ADMIN_CONFIG_NARROW = BASE + "admin/admin_config_narrow.ui";
+  public static final String ADMIN_CONFIG_SECTION = BASE + "admin/admin_config_section.ui";
+  public static final String ADMIN_CONFIG_BOOL_ROW = BASE + "admin/admin_config_bool_row.ui";
+  public static final String ADMIN_CONFIG_NUM_ROW = BASE + "admin/admin_config_num_row.ui";
+  public static final String ADMIN_CONFIG_STR_ROW = BASE + "admin/admin_config_str_row.ui";
+  public static final String ADMIN_CONFIG_COLOR_ROW = BASE + "admin/admin_config_color_row.ui";
+  public static final String ADMIN_CONFIG_ENUM_ROW = BASE + "admin/admin_config_enum_row.ui";
+
+  public static final String ADMIN_ANNOUNCEMENT_HEADER = BASE + "admin/admin_announcement_header.ui";
+  public static final String ADMIN_ANNOUNCEMENT_EVENTS_HEADER = BASE + "admin/admin_announcement_events_header.ui";
+  public static final String ADMIN_ANNOUNCEMENT_EVENT_TOGGLE = BASE + "admin/admin_announcement_event_toggle.ui";
+  public static final String ADMIN_ANNOUNCEMENT_EVENT_ENTRY = BASE + "admin/admin_announcement_event_entry.ui";
+  public static final String ADMIN_PLAYER_MOD_ACTIONS = BASE + "admin/admin_player_mod_actions.ui";
+
+  // === Admin Updates ===
+  public static final String ADMIN_UPDATES = BASE + "admin/admin_updates.ui";
 }

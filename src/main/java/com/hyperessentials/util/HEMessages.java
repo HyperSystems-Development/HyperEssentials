@@ -73,6 +73,17 @@ public final class HEMessages {
   }
 
   /**
+   * Gets the current language override for a player.
+   *
+   * @param uuid The player's UUID
+   * @return The language code, or null if using auto-detect
+   */
+  @Nullable
+  public static String getLanguageOverride(@NotNull UUID uuid) {
+    return languageOverrides.get(uuid);
+  }
+
+  /**
    * Clears the language override for a player.
    * Called on player disconnect.
    *
@@ -168,8 +179,6 @@ public final class HEMessages {
     // Fallback: check if HyperFactions has a stored preference
     String hfLang = HyperFactionsIntegration.getHFLanguage(player.getUuid());
     if (hfLang != null && isLocaleSupported(hfLang)) {
-      // Cache it locally so we don't query HF every time
-      languageOverrides.put(player.getUuid(), hfLang);
       return hfLang;
     }
 

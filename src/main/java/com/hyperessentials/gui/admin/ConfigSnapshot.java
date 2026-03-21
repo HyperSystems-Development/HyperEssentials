@@ -438,6 +438,61 @@ public final class ConfigSnapshot {
     };
   }
 
+  /**
+   * Returns a human-readable display name for a config key.
+   * Converts "backAllowInOwnTerritory" → "Back Allow In Own Territory".
+   */
+  public static String getSettingDisplayName(String key) {
+    String name = key.contains(".") ? key.substring(key.indexOf('.') + 1) : key;
+    StringBuilder sb = new StringBuilder();
+    for (int i = 0; i < name.length(); i++) {
+      char c = name.charAt(i);
+      if (i > 0 && Character.isUpperCase(c)) {
+        sb.append(' ');
+      }
+      sb.append(i == 0 ? Character.toUpperCase(c) : c);
+    }
+    return sb.toString();
+  }
+
+  /**
+   * Returns the minimum valid value for an integer setting.
+   */
+  public static int getIntMin(String key) {
+    return 0;
+  }
+
+  /**
+   * Returns the maximum valid value for an integer setting.
+   */
+  public static int getIntMax(String key) {
+    return switch (key) {
+      case "teleport.rtpMaxRadius" -> 100000;
+      case "teleport.rtpMaxAttempts" -> 100;
+      case "utility.maxNearRadius" -> 5000;
+      case "utility.clearChatLines" -> 1000;
+      case "moderation.maxHistoryPerPlayer" -> 1000;
+      default -> Integer.MAX_VALUE;
+    };
+  }
+
+  /**
+   * Returns the minimum valid value for a double setting.
+   */
+  public static double getDoubleMin(String key) {
+    return 0.0;
+  }
+
+  /**
+   * Returns the maximum valid value for a double setting.
+   */
+  public static double getDoubleMax(String key) {
+    return switch (key) {
+      case "debug.sentryTracesSampleRate" -> 1.0;
+      default -> Double.MAX_VALUE;
+    };
+  }
+
   private static boolean toBool(Object value) {
     if (value instanceof Boolean b) return b;
     return Boolean.parseBoolean(String.valueOf(value));

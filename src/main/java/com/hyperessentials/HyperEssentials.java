@@ -12,7 +12,7 @@ import com.hyperessentials.gui.admin.AdminDashboardPage;
 import com.hyperessentials.gui.admin.AdminKitsPage;
 import com.hyperessentials.gui.admin.AdminModerationPage;
 import com.hyperessentials.gui.admin.AdminPlayersPage;
-import com.hyperessentials.gui.admin.AdminSettingsPage;
+import com.hyperessentials.gui.admin.AdminUpdatesPage;
 import com.hyperessentials.gui.admin.AdminSpawnsPage;
 import com.hyperessentials.gui.admin.AdminWarpsPage;
 import com.hyperessentials.gui.player.HomesPage;
@@ -337,6 +337,14 @@ public class HyperEssentials {
         true, 0
     ));
 
+    // Player Settings page (not in navbar — accessed via far-right "Player Menu" button)
+    playerReg.registerEntry(new PageRegistry.Entry(
+        "player_settings", "Player Menu", "core", null,
+        (player, ref, store, playerRef, gm) ->
+            new com.hyperessentials.gui.player.PlayerSettingsPage(player, playerRef, gm),
+        false, 999
+    ));
+
     int pageCount = playerReg.getEntries().size();
     if (pageCount > 0) {
       Logger.info("[GUI] Registered %d player page(s)", pageCount);
@@ -430,12 +438,12 @@ public class HyperEssentials {
         true, 80
     ));
 
-    // Admin Settings
+    // Admin Updates
     adminReg.registerEntry(new PageRegistry.Entry(
-        "settings", "Settings", "core", Permissions.ADMIN_SETTINGS,
+        "updates", "Updates", "core", Permissions.ADMIN_SETTINGS,
         (player, ref, store, playerRef, gm) ->
-            new AdminSettingsPage(player, playerRef, gm, moduleRegistry, dataDir),
-        true, 90
+            new AdminUpdatesPage(player, playerRef, gm),
+        true, 85
     ));
 
     int adminPageCount = adminReg.getEntries().size();

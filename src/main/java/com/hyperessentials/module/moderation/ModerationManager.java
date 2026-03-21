@@ -16,10 +16,13 @@ import com.hyperessentials.util.ErrorHandler;
 import com.hyperessentials.util.Logger;
 import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
+import io.netty.channel.Channel;
+import io.netty.handler.codec.quic.QuicStreamChannel;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -100,9 +103,10 @@ public class ModerationManager {
    */
   public void onPlayerConnect(@NotNull PlayerRef playerRef) {
     try {
-      InetSocketAddress addr = (InetSocketAddress) playerRef.getPacketHandler()
-          .getChannel().remoteAddress();
-      if (addr != null) {
+      Channel channel = playerRef.getPacketHandler().getChannel();
+      SocketAddress socketAddress = (channel instanceof QuicStreamChannel quic)
+          ? quic.parent().remoteSocketAddress() : channel.remoteAddress();
+      if (socketAddress instanceof InetSocketAddress addr) {
         String ip = addr.getAddress().getHostAddress();
         playerIps.put(playerRef.getUuid(), ip);
       }

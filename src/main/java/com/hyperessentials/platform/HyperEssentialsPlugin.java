@@ -5,6 +5,7 @@ import com.hyperessentials.HyperEssentials;
 import com.hyperessentials.api.HyperEssentialsAPI;
 import com.hyperessentials.command.AdminCommand;
 import com.hyperessentials.config.ConfigManager;
+import com.hyperessentials.integration.PermissionManager;
 import com.hyperessentials.config.modules.SpawnsConfig;
 import com.hyperessentials.config.modules.TeleportConfig;
 import com.hyperessentials.config.modules.WarpsConfig;
@@ -266,6 +267,9 @@ public class HyperEssentialsPlugin extends JavaPlugin {
     if (tm != null && tm.isEnabled() && tm.getTpaManager() != null) {
       tm.getTpaManager().unloadPlayer(playerRef.getUuid());
     }
+
+    // Clear admin bypass state
+    PermissionManager.get().clearAdminBypass(uuid);
 
     Logger.debug("Player disconnected: %s", playerRef.getUsername());
   }

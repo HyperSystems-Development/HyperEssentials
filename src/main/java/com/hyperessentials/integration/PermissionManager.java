@@ -8,8 +8,10 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Unified permission manager with chain-of-responsibility pattern.
@@ -21,6 +23,9 @@ public class PermissionManager {
   private final List<PermissionProvider> providers = new ArrayList<>();
   private @Nullable HyperPermsProviderAdapter hyperPermsAdapter;
   private boolean initialized = false;
+
+  /** Per-player admin bypass toggle. Must be enabled for bypass permissions to take effect. */
+  private final Map<UUID, Boolean> adminBypassEnabled = new ConcurrentHashMap<>();
 
   private PermissionManager() {}
 
@@ -61,6 +66,13 @@ public class PermissionManager {
   }
 
   public boolean hasPermission(@NotNull UUID playerUuid, @NotNull String permission) {
+    // Gate bypass permissions on admin bypass toggle (except count-based limits)
+    if (permission.startsWith(Permissions.BYPASS) && !permission.equals(Permissions.BYPASS_LIMIT)) {
+      if (!adminBypassEnabled.getOrDefault(playerUuid, false)) {
+        return false;
+      }
+    }
+
     boolean isUserLevel = isUserLevelPermission(permission);
 
     for (PermissionProvider provider : providers) {
@@ -166,5 +178,36 @@ public class PermissionManager {
 
   public boolean hasProviders() {
     return !providers.isEmpty();
+  }
+
+  // =====================================================================
+  // Admin Bypass Toggle
+  // =====================================================================
+
+  /**
+   * Checks if admin bypass is enabled for a player.
+   * When enabled, bypass permissions take effect. When disabled (default),
+   * all bypass permission checks return false regardless of grants.
+   */
+  public boolean isAdminBypassEnabled(@NotNull UUID playerUuid) {
+    return adminBypassEnabled.getOrDefault(playerUuid, false);
+  }
+
+  /**
+   * Toggles admin bypass state for a player.
+   *
+   * @return true if bypass is now enabled, false if now disabled
+   */
+  public boolean toggleAdminBypass(@NotNull UUID playerUuid) {
+    boolean newState = !isAdminBypassEnabled(playerUuid);
+    adminBypassEnabled.put(playerUuid, newState);
+    return newState;
+  }
+
+  /**
+   * Clears admin bypass state for a player. Called on disconnect.
+   */
+  public void clearAdminBypass(@NotNull UUID playerUuid) {
+    adminBypassEnabled.remove(playerUuid);
   }
 }
