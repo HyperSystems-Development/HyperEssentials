@@ -60,10 +60,9 @@ Group {
       Anchor: (Width: 90);
     }
 
-    TextButton #EditTypeToggle {
-      Text: "CHAT";
-      Style: $S.@ButtonStyle;
-      Anchor: (Width: 120, Height: 24);
+    DropdownBox #EditTypeDropdown {
+      Style: $C.@DefaultDropdownBoxStyle;
+      Anchor: (Width: 150, Height: 26);
     }
   }
 
@@ -99,24 +98,6 @@ Group {
     $C.@TextField #EditOrder {
       Anchor: (Width: 80, Height: 26);
       Style: (FontSize: 12, TextColor: #ffffff);
-    }
-  }
-
-  // Permission
-  Group {
-    Anchor: (Height: 28, Bottom: 4);
-    LayoutMode: Left;
-
-    Label {
-      Text: "Permission:";
-      Style: (FontSize: 12, TextColor: #7c8b99, VerticalAlignment: Center);
-      Anchor: (Width: 90);
-    }
-
-    $C.@TextField #EditPermission {
-      Anchor: (Height: 26);
-      Style: (FontSize: 12, TextColor: #ffffff);
-      FlexWeight: 1;
     }
   }
 
@@ -169,7 +150,7 @@ Group {
     Background: (Color: #2a3a4a);
   }
 
-  // Save / Cancel buttons
+  // Action bar: Cancel / Save
   Group {
     LayoutMode: Left;
     Anchor: (Height: 30);
@@ -186,7 +167,7 @@ Group {
 
     TextButton #EditSaveBtn {
       Text: "Save";
-      Style: $S.@FlatGreenButtonStyle;
+      Style: $S.@CyanButtonStyle;
       Anchor: (Width: 90, Height: 28);
     }
 

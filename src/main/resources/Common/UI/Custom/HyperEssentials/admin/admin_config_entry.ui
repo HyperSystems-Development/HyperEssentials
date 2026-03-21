@@ -17,7 +17,7 @@ Group {
 
   // Boolean toggle (shown for bool fields)
   TextButton #ToggleBtn {
-    Style: $S.@AquaButtonStyle;
+    Style: $S.@CyanButtonStyle;
     Text: "OFF";
     Anchor: (Width: 60, Height: 24);
     Visible: false;

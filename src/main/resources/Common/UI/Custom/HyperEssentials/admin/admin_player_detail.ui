@@ -5,60 +5,66 @@ Group {
   LayoutMode: Top;
   Padding: (Left: 4, Right: 4);
 
-  // Player header
+  // Player header with gold accent
   Group {
-    Anchor: (Height: 32, Bottom: 8);
+    Anchor: (Height: 38, Bottom: 10);
     Background: (Color: #1a2a3a);
-    Padding: (Left: 12, Top: 6, Bottom: 6);
-    LayoutMode: Top;
+    Padding: (Left: 15, Right: 15, Top: 8, Bottom: 8);
+    LayoutMode: Left;
+
+    // Gold indicator bar
+    Group {
+      Anchor: (Width: 3, Height: 22);
+      Background: (Color: #FFAA00);
+    }
+
+    Group { Anchor: (Width: 10); }
 
     Label #DetailName {
       Text: "";
       Style: (FontSize: 14, TextColor: #FFAA00, RenderBold: true, VerticalAlignment: Center);
-      Anchor: (Height: 18);
+      FlexWeight: 1;
     }
   }
 
   // Stats section
   Group #DetailStats {
     LayoutMode: Top;
-    Padding: (Left: 4, Right: 4, Bottom: 8);
+    Padding: (Left: 8, Right: 8, Bottom: 10);
   }
 
-  // Divider
+  // Gold divider
   Group {
-    Anchor: (Height: 1, Bottom: 8);
-    Background: (Color: #2a3a4a);
+    Anchor: (Height: 1, Bottom: 10);
+    Background: (Color: #FFAA00);
   }
 
   // Action buttons row
   Group #DetailActions {
     LayoutMode: Left;
-    Anchor: (Height: 30);
-    Padding: (Left: 4, Right: 4);
+    Anchor: (Height: 32);
+    Padding: (Left: 8, Right: 8);
 
     TextButton #KickBtn {
       Text: "Kick";
       Style: $S.@GoldButtonStyle;
-      Anchor: (Width: 70, Height: 26);
+      Anchor: (Width: 80, Height: 28);
     }
 
-    // Spacer
     Group { Anchor: (Width: 8); }
 
     TextButton #MuteBtn {
       Text: "Mute";
       Style: $S.@RedButtonStyle;
-      Anchor: (Width: 70, Height: 26);
+      Anchor: (Width: 80, Height: 28);
     }
 
-    // Spacer
     Group { Anchor: (Width: 8); }
 
     TextButton #BanBtn {
       Text: "Ban";
-      Style: $S.@FlatRedButtonStyle;
-      Anchor: (Width: 70, Height: 26);
+      Style: $S.@RedButtonStyle;
+      Anchor: (Width: 80, Height: 28);
     }
   }
 }

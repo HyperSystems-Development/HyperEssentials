@@ -3,6 +3,15 @@
 # Note: Keys are auto-prefixed with "hyperessentials_gui." by Hytale's I18nModule
 
 # === Navigation ===
+nav.player_menu = Player
+
+# === Player Settings ===
+player_settings.title = Player Settings
+player_settings.language_section = Language
+player_settings.auto_detect = Auto-detect
+player_settings.auto_detect_desc = Use your client language automatically
+player_settings.language_label = Language:
+player_settings.language_changed = Language changed to {0}
 nav.title = HyperEssentials
 
 # === Dashboard ===

@@ -57,6 +57,6 @@ Group {
   TextButton #TeleportBtn {
     Text: "TELEPORT";
     Anchor: (Width: 90, Height: 28);
-    Style: $S.@AquaButtonStyle;
+    Style: $S.@CyanButtonStyle;
   }
 }

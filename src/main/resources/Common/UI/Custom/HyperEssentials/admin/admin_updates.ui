@@ -1,0 +1,118 @@
+$C = "../../Common.ui";
+$S = "../shared/styles.ui";
+$Nav = "../shared/nav_bar.ui";
+
+$C.@PageOverlay {
+  $Nav.@HyperEssentialsNavBar #NavBar {}
+
+  $C.@DecoratedContainer {
+    Anchor: (Width: 520, Height: 400);
+
+    #Title {
+      $C.@Title {
+        @Text = "Updates";
+      }
+    }
+
+    #Content {
+      LayoutMode: Top;
+      Padding: (Left: 20, Right: 20, Top: 15, Bottom: 15);
+
+      // Version info
+      Group {
+        LayoutMode: Left;
+        Anchor: (Height: 24, Bottom: 6);
+
+        Label {
+          Text: "Version:";
+          Style: (FontSize: 12, TextColor: #7c8b99, VerticalAlignment: Center);
+          Anchor: (Width: 120);
+        }
+
+        Label #VersionLabel {
+          Text: "";
+          Style: (FontSize: 12, TextColor: #FFFFFF, RenderBold: true, VerticalAlignment: Center);
+          FlexWeight: 1;
+        }
+      }
+
+      // Build date
+      Group {
+        LayoutMode: Left;
+        Anchor: (Height: 24, Bottom: 6);
+
+        Label {
+          Text: "Build Date:";
+          Style: (FontSize: 12, TextColor: #7c8b99, VerticalAlignment: Center);
+          Anchor: (Width: 120);
+        }
+
+        Label #BuildDateLabel {
+          Text: "";
+          Style: (FontSize: 12, TextColor: #CCCCCC, VerticalAlignment: Center);
+          FlexWeight: 1;
+        }
+      }
+
+      // Server version
+      Group {
+        LayoutMode: Left;
+        Anchor: (Height: 24, Bottom: 6);
+
+        Label {
+          Text: "Server:";
+          Style: (FontSize: 12, TextColor: #7c8b99, VerticalAlignment: Center);
+          Anchor: (Width: 120);
+        }
+
+        Label #ServerVersionLabel {
+          Text: "";
+          Style: (FontSize: 12, TextColor: #CCCCCC, VerticalAlignment: Center);
+          FlexWeight: 1;
+        }
+      }
+
+      // Divider
+      Group {
+        Anchor: (Height: 1, Top: 8, Bottom: 12);
+        Background: (Color: #334455);
+      }
+
+      // Update status
+      Group {
+        LayoutMode: Left;
+        Anchor: (Height: 24, Bottom: 6);
+
+        Label {
+          Text: "Status:";
+          Style: (FontSize: 12, TextColor: #7c8b99, VerticalAlignment: Center);
+          Anchor: (Width: 120);
+        }
+
+        Label #UpdateStatusLabel {
+          Text: "Up to date";
+          Style: (FontSize: 12, TextColor: #55FF55, RenderBold: true, VerticalAlignment: Center);
+          FlexWeight: 1;
+        }
+      }
+
+      Group { FlexWeight: 1; }
+
+      // Check for updates button
+      Group {
+        LayoutMode: Left;
+        Anchor: (Height: 36);
+
+        Group { FlexWeight: 1; }
+
+        TextButton #CheckUpdatesBtn {
+          Style: $S.@CyanButtonStyle;
+          Text: "Check for Updates";
+          Anchor: (Width: 170, Height: 32);
+        }
+      }
+    }
+  }
+}
+
+$C.@BackButton {}

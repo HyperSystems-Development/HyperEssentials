@@ -6,7 +6,7 @@ $C.@PageOverlay {
   $Nav.@HyperEssentialsNavBar #NavBar {}
 
   $C.@DecoratedContainer {
-    Anchor: (Width: 580, Height: 440);
+    Anchor: (Width: 660, Height: 480);
 
     #Title {
       $C.@Title {
@@ -18,7 +18,7 @@ $C.@PageOverlay {
       LayoutMode: Top;
       Padding: (Left: 15, Right: 15, Top: 10, Bottom: 10);
 
-      // Header row: count + search + create button
+      // Row 1: Count + create button
       Group #HeaderRow {
         Anchor: (Height: 28, Bottom: 6);
         LayoutMode: Left;
@@ -26,22 +26,39 @@ $C.@PageOverlay {
         Label #WarpCount {
           Text: "0 warps";
           Style: (FontSize: 13, TextColor: #7c8b99, VerticalAlignment: Center);
-          Anchor: (Width: 90);
+          Anchor: (Width: 200);
         }
 
         Group { FlexWeight: 1; }
-
-        $C.@TextField #SearchInput {
-          Anchor: (Width: 150, Height: 26);
-          Style: (FontSize: 12, TextColor: #ffffff);
-        }
-
-        Group { Anchor: (Width: 6); }
 
         TextButton #CreateBtn {
           Text: "Create at My Location";
           Style: $S.@GoldButtonStyle;
           Anchor: (Width: 160, Height: 26);
+        }
+      }
+
+      // Row 2: Search + sort controls
+      Group #ControlsRow {
+        Anchor: (Height: 28, Bottom: 6);
+        LayoutMode: Left;
+
+        $C.@TextField #SearchInput {
+          Anchor: (Width: 180, Height: 26);
+          Style: (FontSize: 12, TextColor: #ffffff);
+        }
+
+        Group { FlexWeight: 1; }
+
+        Label {
+          Text: "Sort:";
+          Style: (FontSize: 11, TextColor: #7c8b99, VerticalAlignment: Center);
+          Anchor: (Width: 34);
+        }
+
+        DropdownBox #SortDropdown {
+          Style: $C.@DefaultDropdownBoxStyle;
+          Anchor: (Width: 130, Height: 26);
         }
       }
 
@@ -60,6 +77,38 @@ $C.@PageOverlay {
         Group #WarpList {
           LayoutMode: Top;
         }
+      }
+
+      // Pagination footer
+      Group #PaginationRow {
+        LayoutMode: Left;
+        Anchor: (Height: 28, Top: 6);
+
+        Group { FlexWeight: 1; }
+
+        TextButton #PrevBtn {
+          Style: $S.@ButtonStyle;
+          Text: "Prev";
+          Anchor: (Width: 60, Height: 24);
+        }
+
+        Group { Anchor: (Width: 8); }
+
+        Label #PageInfo {
+          Text: "";
+          Style: (FontSize: 11, TextColor: #7c8b99, HorizontalAlignment: Center, VerticalAlignment: Center);
+          Anchor: (Width: 80);
+        }
+
+        Group { Anchor: (Width: 8); }
+
+        TextButton #NextBtn {
+          Style: $S.@ButtonStyle;
+          Text: "Next";
+          Anchor: (Width: 60, Height: 24);
+        }
+
+        Group { FlexWeight: 1; }
       }
     }
   }

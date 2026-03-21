@@ -5,13 +5,14 @@
 $C = "../../Common.ui";
 
 // =============================================================================
-// COLOR REFERENCE (used as inline hex in .ui files, NOT as @variables)
+// COLOR REFERENCE
 // =============================================================================
 // Brand: Gold #FFAA00, GoldLight #FFD700, GoldDark #CC8800
-// Status: Green #44cc44, Red #ff5555, Aqua #55FFFF
-// Text: White #FFFFFF, Gray #7c8b99, Muted #888888, Primary #e0e8f0
-// Backgrounds: Dark #0a1119, Panel #141c26, Card #1a2a3a, Nav #16212f
-// Divider: #2a3a4a
+// Secondary: Teal #00AAAA
+// Status: Success #55FF55, Danger #FF5555, Info #55FFFF, Warning #FFAA00
+// Text: Primary #cccccc, Heading #ffffff, Muted #888888, Caption #666666, Label #7c8b99
+// Backgrounds: Dark #0d1520, Panel #141c26, Card #1a2a3a, Nav #0a1119
+// Dividers: Gold #FFAA00, Subtle #334455
 
 // =============================================================================
 // LABEL STYLES
@@ -35,7 +36,7 @@ $C = "../../Common.ui";
 
 @GreenLabelStyle = LabelStyle(
   FontSize: 13,
-  TextColor: #44cc44,
+  TextColor: #55FF55,
   RenderBold: true,
   HorizontalAlignment: Center,
   VerticalAlignment: Center
@@ -43,15 +44,23 @@ $C = "../../Common.ui";
 
 @RedLabelStyle = LabelStyle(
   FontSize: 13,
-  TextColor: #ff5555,
+  TextColor: #FF5555,
   RenderBold: true,
   HorizontalAlignment: Center,
   VerticalAlignment: Center
 );
 
-@AquaLabelStyle = LabelStyle(
+@CyanLabelStyle = LabelStyle(
   FontSize: 13,
   TextColor: #55FFFF,
+  RenderBold: true,
+  HorizontalAlignment: Center,
+  VerticalAlignment: Center
+);
+
+@TealLabelStyle = LabelStyle(
+  FontSize: 13,
+  TextColor: #00AAAA,
   RenderBold: true,
   HorizontalAlignment: Center,
   VerticalAlignment: Center
@@ -113,11 +122,20 @@ $C = "../../Common.ui";
   Sounds: $C.@ButtonSounds,
 );
 
-// Aqua text button style (info actions)
-@AquaButtonStyle = TextButtonStyle(
-  Default: (Background: $C.@DefaultSquareButtonDefaultBackground, LabelStyle: @AquaLabelStyle),
-  Hovered: (Background: $C.@DefaultSquareButtonHoveredBackground, LabelStyle: @AquaLabelStyle),
-  Pressed: (Background: $C.@DefaultSquareButtonPressedBackground, LabelStyle: @AquaLabelStyle),
+// Cyan text button style (info actions)
+@CyanButtonStyle = TextButtonStyle(
+  Default: (Background: $C.@DefaultSquareButtonDefaultBackground, LabelStyle: @CyanLabelStyle),
+  Hovered: (Background: $C.@DefaultSquareButtonHoveredBackground, LabelStyle: @CyanLabelStyle),
+  Pressed: (Background: $C.@DefaultSquareButtonPressedBackground, LabelStyle: @CyanLabelStyle),
+  Disabled: (Background: $C.@DefaultSquareButtonDisabledBackground, LabelStyle: @DisabledLabelStyle),
+  Sounds: $C.@ButtonSounds,
+);
+
+// Teal text button style (secondary accent)
+@TealButtonStyle = TextButtonStyle(
+  Default: (Background: $C.@DefaultSquareButtonDefaultBackground, LabelStyle: @TealLabelStyle),
+  Hovered: (Background: $C.@DefaultSquareButtonHoveredBackground, LabelStyle: @TealLabelStyle),
+  Pressed: (Background: $C.@DefaultSquareButtonPressedBackground, LabelStyle: @TealLabelStyle),
   Disabled: (Background: $C.@DefaultSquareButtonDisabledBackground, LabelStyle: @DisabledLabelStyle),
   Sounds: $C.@ButtonSounds,
 );
@@ -168,5 +186,14 @@ $C = "../../Common.ui";
   Hovered: (Background: (Color: #AA7700), LabelStyle: @FlatWhiteLabelStyle),
   Pressed: (Background: (Color: #885500), LabelStyle: @FlatWhiteLabelStyle),
   Disabled: (Background: (Color: #554400), LabelStyle: @FlatWhiteLabelStyle),
+  Sounds: $C.@ButtonSounds,
+);
+
+// Flat dark red button (severe destructive actions)
+@FlatDarkRedButtonStyle = TextButtonStyle(
+  Default: (Background: (Color: #8b3a3a), LabelStyle: @FlatWhiteLabelStyle),
+  Hovered: (Background: (Color: #9b4a4a), LabelStyle: @FlatWhiteLabelStyle),
+  Pressed: (Background: (Color: #7b2a2a), LabelStyle: @FlatWhiteLabelStyle),
+  Disabled: (Background: (Color: #443333), LabelStyle: @FlatWhiteLabelStyle),
   Sounds: $C.@ButtonSounds,
 );

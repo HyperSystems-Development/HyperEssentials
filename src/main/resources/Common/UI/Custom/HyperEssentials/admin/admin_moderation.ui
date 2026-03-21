@@ -6,7 +6,7 @@ $C.@PageOverlay {
   $Nav.@HyperEssentialsNavBar #NavBar {}
 
   $C.@DecoratedContainer {
-    Anchor: (Width: 580, Height: 440);
+    Anchor: (Width: 620, Height: 480);
 
     #Title {
       $C.@Title {
@@ -16,53 +16,69 @@ $C.@PageOverlay {
 
     #Content {
       LayoutMode: Top;
-      Padding: (Left: 15, Right: 15, Top: 10, Bottom: 10);
+      Padding: (Left: 20, Right: 20, Top: 12, Bottom: 12);
 
-      // Filter buttons
-      Group {
+      // Row 1: Count + Player Search button
+      Group #HeaderRow {
         Anchor: (Height: 28, Bottom: 6);
         LayoutMode: Left;
-
-        TextButton #FilterActive {
-          Text: "Active";
-          Style: $S.@GoldButtonStyle;
-          Anchor: (Width: 70, Height: 26);
-        }
-
-        Group { Anchor: (Width: 6); }
-
-        TextButton #FilterAll {
-          Text: "All";
-          Style: $S.@ButtonStyle;
-          Anchor: (Width: 50, Height: 26);
-        }
-
-        Group { FlexWeight: 1; }
 
         Label #PunishmentCount {
           Text: "0 punishments";
-          Style: (FontSize: 12, TextColor: #7c8b99, VerticalAlignment: Center);
-          Anchor: (Width: 150);
+          Style: (FontSize: 13, TextColor: #7c8b99, VerticalAlignment: Center);
+          Anchor: (Width: 200);
         }
-      }
-
-      // Player Search button
-      Group {
-        Anchor: (Height: 28, Bottom: 6);
-        LayoutMode: Left;
 
         Group { FlexWeight: 1; }
 
         TextButton #PlayerSearchBtn {
           Text: "Player Search";
-          Style: $S.@ButtonStyle;
-          Anchor: (Width: 110, Height: 26);
+          Style: $S.@CyanButtonStyle;
+          Anchor: (Width: 120, Height: 26);
         }
       }
 
-      // Divider
+      // Row 2: Search + sort + type + status filters
+      Group #ControlsRow {
+        Anchor: (Height: 28, Bottom: 6);
+        LayoutMode: Left;
+
+        $C.@TextField #SearchInput {
+          Anchor: (Width: 180, Height: 26);
+          Style: (FontSize: 12, TextColor: #ffffff);
+        }
+
+        Group { FlexWeight: 1; }
+
+        Label { Text: "Sort:"; Style: (FontSize: 11, TextColor: #7c8b99, VerticalAlignment: Center); Anchor: (Width: 32); }
+
+        DropdownBox #SortDropdown {
+          Style: $C.@DefaultDropdownBoxStyle;
+          Anchor: (Width: 90, Height: 26);
+        }
+
+        Group { Anchor: (Width: 8); }
+
+        Label { Text: "Type:"; Style: (FontSize: 11, TextColor: #7c8b99, VerticalAlignment: Center); Anchor: (Width: 34); }
+
+        DropdownBox #TypeDropdown {
+          Style: $C.@DefaultDropdownBoxStyle;
+          Anchor: (Width: 80, Height: 26);
+        }
+
+        Group { Anchor: (Width: 8); }
+
+        Label { Text: "Status:"; Style: (FontSize: 11, TextColor: #7c8b99, VerticalAlignment: Center); Anchor: (Width: 42); }
+
+        DropdownBox #ActiveDropdown {
+          Style: $C.@DefaultDropdownBoxStyle;
+          Anchor: (Width: 90, Height: 26);
+        }
+      }
+
+      // Gold divider
       Group {
-        Anchor: (Height: 1, Bottom: 8);
+        Anchor: (Height: 1, Bottom: 6);
         Background: (Color: #FFAA00);
       }
 
@@ -75,6 +91,38 @@ $C.@PageOverlay {
         Group #PunishmentList {
           LayoutMode: Top;
         }
+      }
+
+      // Pagination footer
+      Group #PaginationRow {
+        Anchor: (Height: 28, Top: 6);
+        LayoutMode: Left;
+
+        Group { FlexWeight: 1; }
+
+        TextButton #PrevBtn {
+          Text: "Prev";
+          Style: $S.@ButtonStyle;
+          Anchor: (Width: 60, Height: 24);
+        }
+
+        Group { Anchor: (Width: 8); }
+
+        Label #PageInfo {
+          Text: "Page 1 / 1";
+          Style: (FontSize: 11, TextColor: #7c8b99, HorizontalAlignment: Center, VerticalAlignment: Center);
+          Anchor: (Width: 80);
+        }
+
+        Group { Anchor: (Width: 8); }
+
+        TextButton #NextBtn {
+          Text: "Next";
+          Style: $S.@ButtonStyle;
+          Anchor: (Width: 60, Height: 24);
+        }
+
+        Group { FlexWeight: 1; }
       }
     }
   }

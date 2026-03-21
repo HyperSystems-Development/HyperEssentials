@@ -1,0 +1,36 @@
+$S = "../shared/styles.ui";
+
+Group {
+  Anchor: (Height: 32, Bottom: 6);
+  LayoutMode: Left;
+
+  TextButton #WarnBtn {
+    Style: $S.@GoldButtonStyle;
+    Text: "Warn";
+    Anchor: (Width: 65, Height: 26);
+  }
+
+  Group { Anchor: (Width: 8); }
+
+  TextButton #IpBanBtn {
+    Style: $S.@RedButtonStyle;
+    Text: "IP Ban";
+    Anchor: (Width: 70, Height: 26);
+  }
+
+  Group { Anchor: (Width: 8); }
+
+  TextButton #UnbanBtn {
+    Style: $S.@GreenButtonStyle;
+    Text: "Unban";
+    Anchor: (Width: 65, Height: 26);
+  }
+
+  Group { Anchor: (Width: 8); }
+
+  TextButton #UnmuteBtn {
+    Style: $S.@GreenButtonStyle;
+    Text: "Unmute";
+    Anchor: (Width: 70, Height: 26);
+  }
+}

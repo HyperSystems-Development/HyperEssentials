@@ -125,7 +125,7 @@ $C.@PageOverlay {
 
         TextButton #WarpsBtn {
           Text: "WARPS";
-          Style: $S.@AquaButtonStyle;
+          Style: $S.@CyanButtonStyle;
           Anchor: (Width: 90, Height: 28);
         }
 

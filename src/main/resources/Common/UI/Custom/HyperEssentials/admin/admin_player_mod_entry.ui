@@ -1,44 +1,44 @@
 $S = "../shared/styles.ui";
 
 Group {
-  Anchor: (Height: 40, Bottom: 3);
-  Background: (Color: #141c26);
+  Anchor: (Height: 44, Bottom: 3);
+  Background: (Color: #1a2a3a);
   LayoutMode: Left;
 
   // Online indicator bar
   Group #OnlineBar {
-    Anchor: (Width: 3, Height: 40);
+    Anchor: (Width: 3, Height: 44);
     Background: (Color: #888888);
   }
 
   // Player info
   Group {
     FlexWeight: 1;
-    Padding: (Left: 10, Top: 5, Bottom: 5);
+    Padding: (Left: 12, Right: 12, Top: 6, Bottom: 6);
     LayoutMode: Top;
 
     Label #EntryName {
       Text: "";
-      Style: (FontSize: 12, TextColor: #FFFFFF, VerticalAlignment: Center);
-      Anchor: (Height: 16);
+      Style: (FontSize: 13, TextColor: #FFFFFF, RenderBold: true, VerticalAlignment: Center);
+      Anchor: (Height: 18);
     }
 
     Label #EntryInfo {
       Text: "";
-      Style: (FontSize: 9, TextColor: #7c8b99, VerticalAlignment: Center);
+      Style: (FontSize: 10, TextColor: #666666, VerticalAlignment: Center);
       Anchor: (Height: 14);
     }
   }
 
   // Select button
   Group {
-    Anchor: (Width: 70);
-    Padding: (Right: 8, Top: 8, Bottom: 8);
+    Anchor: (Width: 80);
+    Padding: (Right: 10, Top: 10, Bottom: 10);
 
     TextButton #SelectBtn {
       Text: "View";
       Style: $S.@GoldButtonStyle;
-      Anchor: (Width: 60, Height: 24);
+      Anchor: (Width: 65, Height: 26);
     }
   }
 }

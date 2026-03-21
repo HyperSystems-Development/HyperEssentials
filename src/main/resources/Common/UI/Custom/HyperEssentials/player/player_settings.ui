@@ -1,0 +1,80 @@
+$C = "../../Common.ui";
+$S = "../shared/styles.ui";
+$Nav = "../shared/nav_bar.ui";
+
+$C.@PageOverlay {
+  $Nav.@HyperEssentialsNavBar #NavBar {}
+
+  $C.@DecoratedContainer {
+    Anchor: (Width: 460, Height: 320);
+
+    #Title {
+      $C.@Title {
+        @Text = "Player Settings";
+      }
+    }
+
+    #Content {
+      LayoutMode: Top;
+      Padding: (Left: 20, Right: 20, Top: 12, Bottom: 12);
+
+      // Page title
+      Label #PageTitle {
+        Text: "Player Settings";
+        Style: (FontSize: 14, TextColor: #FFAA00, RenderBold: true);
+        Anchor: (Height: 24, Bottom: 10);
+      }
+
+      // Gold divider
+      Group {
+        Anchor: (Height: 1, Bottom: 12);
+        Background: (Color: #FFAA00);
+      }
+
+      // Language section title
+      Label #LanguageSectionTitle {
+        Text: "Language";
+        Style: (FontSize: 12, TextColor: #FFFFFF, RenderBold: true);
+        Anchor: (Height: 20, Bottom: 8);
+      }
+
+      // Auto-detect checkbox
+      Group {
+        Anchor: (Height: 28, Bottom: 4);
+        LayoutMode: Left;
+
+        $C.@CheckBoxWithLabel #AutoDetectCB {
+          @Text = "Auto-detect";
+          @Checked = true;
+          Anchor: (Height: 28);
+        }
+      }
+
+      // Auto-detect description
+      Label #AutoDetectDesc {
+        Text: "Use your client language automatically";
+        Style: (FontSize: 9, TextColor: #556677);
+        Anchor: (Height: 14, Bottom: 10);
+      }
+
+      // Language dropdown row
+      Group {
+        Anchor: (Height: 28, Bottom: 8);
+        LayoutMode: Left;
+
+        Label #LanguageLabel {
+          Text: "Language:";
+          Style: (FontSize: 11, TextColor: #7c8b99, VerticalAlignment: Center);
+          Anchor: (Width: 70);
+        }
+
+        DropdownBox #LanguageDropdown {
+          Style: $C.@DefaultDropdownBoxStyle;
+          Anchor: (Width: 200, Height: 26);
+        }
+      }
+    }
+  }
+}
+
+$C.@BackButton {}

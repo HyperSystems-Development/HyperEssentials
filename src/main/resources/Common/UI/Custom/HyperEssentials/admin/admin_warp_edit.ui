@@ -3,184 +3,183 @@ $S = "../shared/styles.ui";
 
 Group {
   LayoutMode: Top;
-  Padding: (Left: 4, Right: 4);
+  Padding: (Left: 8, Right: 8);
 
-  // Back button row
+  // Header row with back button and title
   Group {
-    Anchor: (Height: 28, Bottom: 6);
+    Anchor: (Height: 32, Bottom: 8);
     LayoutMode: Left;
 
     TextButton #EditBackBtn {
       Text: "Back";
       Style: $S.@ButtonStyle;
-      Anchor: (Width: 70, Height: 24);
+      Anchor: (Width: 75, Height: 28);
     }
 
-    Group { Anchor: (Width: 10); }
+    Group { Anchor: (Width: 12); }
 
     Label #EditTitle {
       Text: "Edit Warp";
       Style: (FontSize: 14, TextColor: #FFAA00, RenderBold: true, VerticalAlignment: Center);
-      Anchor: (Height: 24);
+      FlexWeight: 1;
     }
   }
 
-  // Divider
+  // Gold divider
   Group {
-    Anchor: (Height: 1, Bottom: 10);
-    Background: (Color: #2a3a4a);
+    Anchor: (Height: 1, Bottom: 12);
+    Background: (Color: #FFAA00);
   }
 
-  // Name (read-only)
+  // Name (read-only label for edit, editable input for create)
   Group {
-    Anchor: (Height: 22, Bottom: 4);
+    Anchor: (Height: 28, Bottom: 3);
     LayoutMode: Left;
 
     Label {
       Text: "Name:";
-      Style: (FontSize: 12, TextColor: #7c8b99, VerticalAlignment: Center);
+      Style: (FontSize: 10, TextColor: #666666, VerticalAlignment: Center);
       Anchor: (Width: 100);
     }
 
     Label #EditName {
       Text: "";
-      Style: (FontSize: 12, TextColor: #FFFFFF, VerticalAlignment: Center);
+      Style: (FontSize: 11, TextColor: #CCCCCC, VerticalAlignment: Center);
       FlexWeight: 1;
+    }
+
+    $C.@TextField #EditNameInput {
+      FlexWeight: 1;
+      Anchor: (Height: 26);
+      Style: (FontSize: 11, TextColor: #CCCCCC);
+      Visible: false;
     }
   }
 
   // Display Name
   Group {
-    Anchor: (Height: 28, Bottom: 4);
+    Anchor: (Height: 28, Bottom: 3);
     LayoutMode: Left;
 
     Label #EditDisplayNameLabel {
       Text: "Display Name:";
-      Style: (FontSize: 12, TextColor: #7c8b99, VerticalAlignment: Center);
+      Style: (FontSize: 10, TextColor: #666666, VerticalAlignment: Center);
       Anchor: (Width: 100);
     }
 
     $C.@TextField #EditDisplayName {
-      Anchor: (Height: 26);
-      Style: (FontSize: 12, TextColor: #ffffff);
       FlexWeight: 1;
+      Anchor: (Height: 26);
+      Style: (FontSize: 11, TextColor: #CCCCCC);
     }
   }
 
   // Category
   Group {
-    Anchor: (Height: 28, Bottom: 4);
+    Anchor: (Height: 28, Bottom: 3);
     LayoutMode: Left;
 
     Label #EditCategoryLabel {
       Text: "Category:";
-      Style: (FontSize: 12, TextColor: #7c8b99, VerticalAlignment: Center);
+      Style: (FontSize: 10, TextColor: #666666, VerticalAlignment: Center);
       Anchor: (Width: 100);
     }
 
     $C.@TextField #EditCategory {
-      Anchor: (Height: 26);
-      Style: (FontSize: 12, TextColor: #ffffff);
       FlexWeight: 1;
+      Anchor: (Height: 26);
+      Style: (FontSize: 11, TextColor: #CCCCCC);
     }
   }
 
   // Description
   Group {
-    Anchor: (Height: 28, Bottom: 4);
+    Anchor: (Height: 28, Bottom: 3);
     LayoutMode: Left;
 
     Label #EditDescriptionLabel {
       Text: "Description:";
-      Style: (FontSize: 12, TextColor: #7c8b99, VerticalAlignment: Center);
+      Style: (FontSize: 10, TextColor: #666666, VerticalAlignment: Center);
       Anchor: (Width: 100);
     }
 
     $C.@TextField #EditDescription {
-      Anchor: (Height: 26);
-      Style: (FontSize: 12, TextColor: #ffffff);
       FlexWeight: 1;
+      Anchor: (Height: 26);
+      Style: (FontSize: 11, TextColor: #CCCCCC);
     }
   }
 
-  // Permission
+  // World (read-only)
   Group {
-    Anchor: (Height: 28, Bottom: 4);
-    LayoutMode: Left;
-
-    Label #EditPermissionLabel {
-      Text: "Permission:";
-      Style: (FontSize: 12, TextColor: #7c8b99, VerticalAlignment: Center);
-      Anchor: (Width: 100);
-    }
-
-    $C.@TextField #EditPermission {
-      Anchor: (Height: 26);
-      Style: (FontSize: 12, TextColor: #ffffff);
-      FlexWeight: 1;
-    }
-  }
-
-  // World + Coords (read-only)
-  Group {
-    Anchor: (Height: 22, Bottom: 4);
+    Anchor: (Height: 22, Bottom: 3);
     LayoutMode: Left;
 
     Label {
       Text: "World:";
-      Style: (FontSize: 12, TextColor: #7c8b99, VerticalAlignment: Center);
+      Style: (FontSize: 10, TextColor: #666666, VerticalAlignment: Center);
       Anchor: (Width: 100);
     }
 
     Label #EditWorld {
       Text: "";
-      Style: (FontSize: 12, TextColor: #FFFFFF, VerticalAlignment: Center);
+      Style: (FontSize: 11, TextColor: #CCCCCC, VerticalAlignment: Center);
       FlexWeight: 1;
     }
   }
 
+  // Coords (read-only)
   Group {
-    Anchor: (Height: 22, Bottom: 10);
+    Anchor: (Height: 22, Bottom: 12);
     LayoutMode: Left;
 
     Label {
       Text: "Coords:";
-      Style: (FontSize: 12, TextColor: #7c8b99, VerticalAlignment: Center);
+      Style: (FontSize: 10, TextColor: #666666, VerticalAlignment: Center);
       Anchor: (Width: 100);
     }
 
     Label #EditCoords {
       Text: "";
-      Style: (FontSize: 12, TextColor: #FFFFFF, VerticalAlignment: Center);
+      Style: (FontSize: 11, TextColor: #CCCCCC, VerticalAlignment: Center);
       FlexWeight: 1;
     }
   }
 
   // Divider
   Group {
-    Anchor: (Height: 1, Bottom: 10);
-    Background: (Color: #2a3a4a);
+    Anchor: (Height: 1, Bottom: 12);
+    Background: (Color: #334455);
   }
 
-  // Save / Cancel buttons
+  // Action bar: Cancel / Save / Permissions
   Group {
     LayoutMode: Left;
-    Anchor: (Height: 30);
+    Anchor: (Height: 32);
 
     Group { FlexWeight: 1; }
 
     TextButton #EditCancelBtn {
       Text: "Cancel";
       Style: $S.@ButtonStyle;
-      Anchor: (Width: 90, Height: 28);
+      Anchor: (Width: 100, Height: 28);
     }
 
     Group { Anchor: (Width: 10); }
 
     TextButton #EditSaveBtn {
       Text: "Save";
-      Style: $S.@FlatGreenButtonStyle;
-      Anchor: (Width: 90, Height: 28);
+      Style: $S.@CyanButtonStyle;
+      Anchor: (Width: 100, Height: 28);
+    }
+
+    Group { Anchor: (Width: 10); }
+
+    TextButton #EditPermBtn {
+      Text: "Permissions";
+      Style: $S.@ButtonStyle;
+      Anchor: (Width: 120, Height: 28);
+      Visible: false;
     }
 
     Group { FlexWeight: 1; }

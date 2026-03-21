@@ -2,34 +2,34 @@ $S = "../shared/styles.ui";
 
 Group {
   Anchor: (Height: 44, Bottom: 3);
-  Background: (Color: #141c26);
+  Background: (Color: #1a2a3a);
   LayoutMode: Left;
 
   // Color indicator bar
   Group #IndicatorBar {
     Anchor: (Width: 3, Height: 44);
-    Background: (Color: #44cc44);
+    Background: (Color: #55FF55);
   }
 
   // Info section
   Group {
     FlexWeight: 1;
-    Padding: (Left: 10, Top: 5, Bottom: 5);
+    Padding: (Left: 12, Right: 12, Top: 6, Bottom: 6);
     LayoutMode: Top;
 
     Group {
-      Anchor: (Height: 16);
+      Anchor: (Height: 18);
       LayoutMode: Left;
 
       Label #KitName {
         Text: "";
-        Style: (FontSize: 12, TextColor: #FFFFFF, VerticalAlignment: Center);
+        Style: (FontSize: 13, TextColor: #FFFFFF, RenderBold: true, VerticalAlignment: Center);
         Anchor: (Width: 150);
       }
 
       Label #KitItems {
         Text: "";
-        Style: (FontSize: 10, TextColor: #7c8b99, VerticalAlignment: Center);
+        Style: (FontSize: 10, TextColor: #666666, VerticalAlignment: Center);
         Anchor: (Width: 80);
       }
     }
@@ -40,7 +40,7 @@ Group {
 
       Label #KitCooldown {
         Text: "";
-        Style: (FontSize: 10, TextColor: #7c8b99, VerticalAlignment: Center);
+        Style: (FontSize: 10, TextColor: #666666, VerticalAlignment: Center);
         Anchor: (Width: 120);
       }
 
@@ -54,22 +54,22 @@ Group {
 
   // Action buttons
   Group {
-    Anchor: (Width: 210);
-    Padding: (Right: 8, Top: 10, Bottom: 10);
+    Anchor: (Width: 220);
+    Padding: (Right: 10, Top: 10, Bottom: 10);
     LayoutMode: Left;
 
     TextButton #PreviewBtn {
       Text: "Preview";
       Style: $S.@ButtonStyle;
-      Anchor: (Width: 60, Height: 24);
+      Anchor: (Width: 65, Height: 26);
     }
 
     Group { Anchor: (Width: 4); }
 
     TextButton #EditBtn {
       Text: "Edit";
-      Style: $S.@AquaButtonStyle;
-      Anchor: (Width: 50, Height: 24);
+      Style: $S.@CyanButtonStyle;
+      Anchor: (Width: 55, Height: 26);
     }
 
     Group { Anchor: (Width: 4); }
@@ -77,7 +77,7 @@ Group {
     TextButton #DeleteBtn {
       Text: "Delete";
       Style: $S.@RedButtonStyle;
-      Anchor: (Width: 65, Height: 24);
+      Anchor: (Width: 70, Height: 26);
     }
   }
 }

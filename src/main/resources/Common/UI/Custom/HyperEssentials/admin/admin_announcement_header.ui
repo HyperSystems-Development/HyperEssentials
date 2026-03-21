@@ -1,0 +1,27 @@
+$S = "../shared/styles.ui";
+
+Group {
+  Anchor: (Height: 30, Bottom: 6);
+  LayoutMode: Left;
+
+  TextButton #CreateBtn {
+    Style: $S.@CyanButtonStyle;
+    Text: "+ New";
+    Anchor: (Width: 80, Height: 26);
+  }
+
+  Group { Anchor: (Width: 8); }
+
+  TextButton #EventsBtn {
+    Style: $S.@ButtonStyle;
+    Text: "Events";
+    Anchor: (Width: 80, Height: 26);
+  }
+
+  Group { FlexWeight: 1; }
+
+  Label #CountLabel {
+    Text: "";
+    Style: (FontSize: 10, TextColor: #7c8b99, VerticalAlignment: Center);
+  }
+}

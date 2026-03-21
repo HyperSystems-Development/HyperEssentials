@@ -1,14 +1,20 @@
 $S = "../shared/styles.ui";
 
 Group {
-  Anchor: (Height: 40, Bottom: 3);
-  Background: (Color: #141c26);
+  Anchor: (Height: 44, Bottom: 3);
+  Background: (Color: #1a2a3a);
   LayoutMode: Left;
+
+  // Indicator bar
+  Group #IndicatorBar {
+    Anchor: (Width: 3, Top: 4, Bottom: 4);
+    Background: (Color: #FFAA00);
+  }
 
   // Number indicator
   Group {
     Anchor: (Width: 28);
-    Padding: (Left: 6);
+    Padding: (Left: 4);
 
     Label #EntryNumber {
       Text: "#1";
@@ -49,27 +55,30 @@ Group {
 
   // Action buttons
   Group {
-    Anchor: (Width: 155);
-    Padding: (Right: 4, Top: 6, Bottom: 6);
+    Anchor: (Width: 170);
+    Padding: (Right: 4, Top: 8, Bottom: 8);
     LayoutMode: Left;
 
     TextButton #ToggleBtn {
+      Style: $S.@ButtonStyle;
       Text: "Toggle";
-      Anchor: (Width: 44, Height: 24);
+      Anchor: (Width: 48, Height: 24);
     }
 
     Group { Anchor: (Width: 3); }
 
     TextButton #EditBtn {
+      Style: $S.@CyanButtonStyle;
       Text: "Edit";
-      Anchor: (Width: 36, Height: 24);
+      Anchor: (Width: 38, Height: 24);
     }
 
     Group { Anchor: (Width: 3); }
 
     TextButton #PreviewBtn {
+      Style: $S.@ButtonStyle;
       Text: "Test";
-      Anchor: (Width: 34, Height: 24);
+      Anchor: (Width: 38, Height: 24);
     }
 
     Group { Anchor: (Width: 3); }

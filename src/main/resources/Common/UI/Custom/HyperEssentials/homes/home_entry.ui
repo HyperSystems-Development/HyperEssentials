@@ -136,7 +136,7 @@ Group {
       TextButton #ShareBtn {
         Text: "SHARE";
         Anchor: (Height: 28, Width: 65);
-        Style: $S.@AquaButtonStyle;
+        Style: $S.@CyanButtonStyle;
         Visible: false;
       }
 

@@ -6,7 +6,7 @@ $C.@PageOverlay {
   $Nav.@HyperEssentialsNavBar #NavBar {}
 
   $C.@DecoratedContainer {
-    Anchor: (Width: 580, Height: 440);
+    Anchor: (Width: 580, Height: 460);
 
     #Title {
       $C.@Title {
@@ -16,16 +16,16 @@ $C.@PageOverlay {
 
     #Content {
       LayoutMode: Top;
-      Padding: (Left: 15, Right: 15, Top: 10, Bottom: 10);
+      Padding: (Left: 20, Right: 20, Top: 15, Bottom: 15);
 
       // Server info header
       Group {
-        Anchor: (Height: 22, Bottom: 4);
+        Anchor: (Height: 25, Bottom: 6);
         LayoutMode: Left;
 
         Label #ServerTitle {
           Text: "Server Overview";
-          Style: (FontSize: 14, TextColor: #FFFFFF, VerticalAlignment: Center);
+          Style: (FontSize: 14, TextColor: #FFAA00, RenderBold: true, VerticalAlignment: Center);
           Anchor: (Width: 200);
         }
 
@@ -33,110 +33,137 @@ $C.@PageOverlay {
 
         Label #VersionLabel {
           Text: "";
-          Style: (FontSize: 11, TextColor: #7c8b99, VerticalAlignment: Center);
+          Style: (FontSize: 11, TextColor: #666666, VerticalAlignment: Center, HorizontalAlignment: End);
           Anchor: (Width: 200);
         }
       }
 
-      // Divider
+      // Gold divider
       Group {
-        Anchor: (Height: 1, Bottom: 10);
+        Anchor: (Height: 1, Bottom: 12);
         Background: (Color: #FFAA00);
       }
 
       // Stats cards row
       Group {
-        Anchor: (Height: 52, Bottom: 10);
+        Anchor: (Height: 70, Bottom: 12);
         LayoutMode: Left;
 
         // Online players card
         Group {
           FlexWeight: 1;
           Background: (Color: #1a2a3a);
-          Padding: (Full: 8);
+          Padding: (Left: 12, Right: 12, Top: 10, Bottom: 10);
           LayoutMode: Top;
+          Anchor: (Right: 5);
 
           Label {
             Text: "Online";
-            Style: (FontSize: 10, TextColor: #7c8b99);
-            Anchor: (Height: 14);
+            Style: (FontSize: 10, TextColor: #666666, HorizontalAlignment: Center, VerticalAlignment: Center);
+            Anchor: (Height: 16);
           }
           Label #OnlineCount {
             Text: "0";
-            Style: (FontSize: 18, TextColor: #55FF55);
-            Anchor: (Height: 22);
+            Style: (FontSize: 28, TextColor: #55FF55, RenderBold: true, HorizontalAlignment: Center, VerticalAlignment: Center);
+            FlexWeight: 1;
           }
         }
-
-        Group { Anchor: (Width: 6); }
 
         // Warps card
         Group {
           FlexWeight: 1;
           Background: (Color: #1a2a3a);
-          Padding: (Full: 8);
+          Padding: (Left: 12, Right: 12, Top: 10, Bottom: 10);
           LayoutMode: Top;
+          Anchor: (Left: 5, Right: 5);
 
           Label {
             Text: "Warps";
-            Style: (FontSize: 10, TextColor: #7c8b99);
-            Anchor: (Height: 14);
+            Style: (FontSize: 10, TextColor: #666666, HorizontalAlignment: Center, VerticalAlignment: Center);
+            Anchor: (Height: 16);
           }
           Label #WarpCount {
             Text: "0";
-            Style: (FontSize: 18, TextColor: #55FFFF);
-            Anchor: (Height: 22);
+            Style: (FontSize: 28, TextColor: #55FFFF, RenderBold: true, HorizontalAlignment: Center, VerticalAlignment: Center);
+            FlexWeight: 1;
           }
         }
-
-        Group { Anchor: (Width: 6); }
 
         // Spawns card
         Group {
           FlexWeight: 1;
           Background: (Color: #1a2a3a);
-          Padding: (Full: 8);
+          Padding: (Left: 12, Right: 12, Top: 10, Bottom: 10);
           LayoutMode: Top;
+          Anchor: (Left: 5, Right: 5);
 
           Label {
             Text: "Spawns";
-            Style: (FontSize: 10, TextColor: #7c8b99);
-            Anchor: (Height: 14);
+            Style: (FontSize: 10, TextColor: #666666, HorizontalAlignment: Center, VerticalAlignment: Center);
+            Anchor: (Height: 16);
           }
           Label #SpawnCount {
             Text: "0";
-            Style: (FontSize: 18, TextColor: #FFAA00);
-            Anchor: (Height: 22);
+            Style: (FontSize: 28, TextColor: #FFAA00, RenderBold: true, HorizontalAlignment: Center, VerticalAlignment: Center);
+            FlexWeight: 1;
           }
         }
-
-        Group { Anchor: (Width: 6); }
 
         // Kits card
         Group {
           FlexWeight: 1;
           Background: (Color: #1a2a3a);
-          Padding: (Full: 8);
+          Padding: (Left: 12, Right: 12, Top: 10, Bottom: 10);
           LayoutMode: Top;
+          Anchor: (Left: 5);
 
           Label {
             Text: "Kits";
-            Style: (FontSize: 10, TextColor: #7c8b99);
-            Anchor: (Height: 14);
+            Style: (FontSize: 10, TextColor: #666666, HorizontalAlignment: Center, VerticalAlignment: Center);
+            Anchor: (Height: 16);
           }
           Label #KitCount {
             Text: "0";
-            Style: (FontSize: 18, TextColor: #44cc44);
-            Anchor: (Height: 22);
+            Style: (FontSize: 28, TextColor: #55FF55, RenderBold: true, HorizontalAlignment: Center, VerticalAlignment: Center);
+            FlexWeight: 1;
           }
         }
       }
 
+      // Admin bypass toggle
+      Group {
+        Anchor: (Height: 28, Bottom: 10);
+        LayoutMode: Left;
+
+        Label {
+          Text: "Admin Bypass:";
+          Style: (FontSize: 11, TextColor: #7c8b99, VerticalAlignment: Center);
+          Anchor: (Width: 100);
+        }
+
+        TextButton #BypassToggle {
+          Text: "OFF";
+          Style: $S.@ButtonStyle;
+          Anchor: (Width: 80, Height: 26);
+        }
+      }
+
       // Module status header
-      Label {
-        Text: "Module Status";
-        Style: (FontSize: 13, TextColor: #FFFFFF);
-        Anchor: (Height: 20, Bottom: 6);
+      Group {
+        Anchor: (Height: 22, Bottom: 6);
+        LayoutMode: Left;
+
+        Label {
+          Text: "Module Status";
+          Style: (FontSize: 13, TextColor: #FFFFFF, RenderBold: true, VerticalAlignment: Center);
+          FlexWeight: 1;
+        }
+      }
+
+      // Subtle divider
+      Group {
+        Anchor: (Height: 1, Bottom: 8);
+        Background: (Color: #334455);
       }
 
       // Module grid

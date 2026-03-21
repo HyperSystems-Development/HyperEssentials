@@ -1,28 +1,29 @@
 $S = "../shared/styles.ui";
 
 Group {
-  Anchor: (Height: 30, Bottom: 3);
-  Background: (Color: #141c26);
-  Padding: (Left: 10, Right: 10);
+  Anchor: (Height: 36, Bottom: 3);
+  Background: (Color: #1a2a3a);
   LayoutMode: Left;
 
-  // Status indicator dot
+  // Status indicator bar
   Group #StatusDot {
-    Anchor: (Width: 8, Height: 8);
+    Anchor: (Width: 3, Height: 36);
     Background: (Color: #888888);
   }
 
-  Group { Anchor: (Width: 8); }
+  Group { Anchor: (Width: 12); }
 
   Label #ModuleName {
     Text: "";
-    Style: (FontSize: 12, TextColor: #e0e8f0, VerticalAlignment: Center);
+    Style: (FontSize: 12, TextColor: #CCCCCC, VerticalAlignment: Center);
     FlexWeight: 1;
   }
 
   Label #ModuleStatus {
     Text: "Disabled";
-    Style: (FontSize: 11, TextColor: #888888, VerticalAlignment: Center);
-    Anchor: (Width: 80);
+    Style: (FontSize: 11, TextColor: #888888, RenderBold: true, VerticalAlignment: Center);
+    Anchor: (Width: 90);
   }
+
+  Group { Anchor: (Width: 8); }
 }

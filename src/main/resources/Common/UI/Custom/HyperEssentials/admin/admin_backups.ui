@@ -84,31 +84,33 @@ $C.@PageOverlay {
 
       Group #PaginationRow {
         LayoutMode: Left;
-        Anchor: (Height: 35, Top: 6);
+        Anchor: (Height: 28, Top: 6);
+
+        Group { FlexWeight: 1; }
 
         TextButton #PrevBtn {
           Style: $S.@ButtonStyle;
-          Text: "< Prev";
-          Anchor: (Width: 80, Height: 26);
-          Visible: false;
+          Text: "Prev";
+          Anchor: (Width: 60, Height: 24);
         }
 
-        Label { FlexWeight: 1; }
+        Group { Anchor: (Width: 8); }
 
-        Label #PageLabel {
+        Label #PageInfo {
           Text: "";
-          Style: (FontSize: 14, TextColor: #888888, HorizontalAlignment: Center, VerticalAlignment: Center);
-          Anchor: (Width: 60);
+          Style: (FontSize: 11, TextColor: #7c8b99, HorizontalAlignment: Center, VerticalAlignment: Center);
+          Anchor: (Width: 80);
         }
 
-        Label { FlexWeight: 1; }
+        Group { Anchor: (Width: 8); }
 
         TextButton #NextBtn {
           Style: $S.@ButtonStyle;
-          Text: "Next >";
-          Anchor: (Width: 80, Height: 26);
-          Visible: false;
+          Text: "Next";
+          Anchor: (Width: 60, Height: 24);
         }
+
+        Group { FlexWeight: 1; }
       }
     }
   }

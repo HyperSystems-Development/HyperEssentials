@@ -1,0 +1,33 @@
+$S = "../shared/styles.ui";
+
+Group {
+  Anchor: (Height: 32, Bottom: 2);
+  Background: (Color: #141c26);
+  LayoutMode: Left;
+
+  Group { Anchor: (Width: 8); }
+
+  Group #StatusIndicator {
+    Anchor: (Width: 8, Height: 8, Top: 12);
+    Background: (Color: #7c8b99);
+  }
+
+  Group { Anchor: (Width: 8); }
+
+  Label #RoleName {
+    Text: "";
+    Style: (FontSize: 12, TextColor: #FFFFFF, VerticalAlignment: Center);
+    FlexWeight: 1;
+  }
+
+  Group {
+    Anchor: (Width: 80);
+    Padding: (Right: 6, Top: 4, Bottom: 4);
+
+    TextButton #PermToggle {
+      Text: "";
+      Style: $S.@ButtonStyle;
+      Anchor: (Width: 74, Height: 24);
+    }
+  }
+}

@@ -58,7 +58,7 @@ $C.@PageOverlay {
         TextButton #SearchBtn {
           Text: "SEARCH";
           Anchor: (Width: 70, Height: 26, Left: 6);
-          Style: $S.@AquaButtonStyle;
+          Style: $S.@CyanButtonStyle;
         }
       }
 
@@ -106,7 +106,7 @@ $C.@PageOverlay {
         TextButton #BackBtn {
           Text: "BACK";
           Anchor: (Width: 80, Height: 30);
-          Style: $S.@AquaButtonStyle;
+          Style: $S.@CyanButtonStyle;
         }
       }
     }
