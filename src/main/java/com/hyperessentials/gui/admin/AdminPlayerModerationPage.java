@@ -248,16 +248,8 @@ public class AdminPlayerModerationPage extends InteractiveCustomUIPage<AdminPage
     List<Punishment> history = modManager != null
         ? modManager.getHistory(selectedUuid) : List.of();
 
-    // Add extra action buttons after the detail card
-    cmd.appendInline("#IndexCards",
-        "Group { Anchor: (Height: 32, Bottom: 6); LayoutMode: Left; "
-        + "TextButton #WarnBtn { Text: \"Warn\"; Anchor: (Width: 65, Height: 26); } "
-        + "Group { Anchor: (Width: 8); } "
-        + "TextButton #IpBanBtn { Text: \"IP Ban\"; Anchor: (Width: 70, Height: 26); } "
-        + "Group { Anchor: (Width: 8); } "
-        + "TextButton #UnbanBtn { Text: \"Unban\"; Anchor: (Width: 65, Height: 26); } "
-        + "Group { Anchor: (Width: 8); } "
-        + "TextButton #UnmuteBtn { Text: \"Unmute\"; Anchor: (Width: 70, Height: 26); } }");
+    // Add extra action buttons after the detail card (styled via template)
+    cmd.append("#IndexCards", UIPaths.ADMIN_PLAYER_MOD_ACTIONS);
 
     events.addEventBinding(
         CustomUIEventBindingType.Activating, "#IndexCards[1] #WarnBtn",

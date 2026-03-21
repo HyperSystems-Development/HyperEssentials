@@ -11,6 +11,7 @@ import com.hyperessentials.module.Module;
 import com.hyperessentials.module.ModuleRegistry;
 import com.hyperessentials.util.AdminKeys;
 import com.hyperessentials.util.HEMessages;
+import com.hyperessentials.integration.PermissionManager;
 import com.hyperessentials.module.kits.KitsModule;
 import com.hyperessentials.module.spawns.SpawnsModule;
 import com.hyperessentials.module.warps.WarpsModule;
@@ -18,8 +19,10 @@ import com.hyperessentials.platform.HyperEssentialsPlugin;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.protocol.packets.interface_.CustomPageLifetime;
+import com.hypixel.hytale.protocol.packets.interface_.CustomUIEventBindingType;
 import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.entity.entities.player.pages.InteractiveCustomUIPage;
+import com.hypixel.hytale.server.core.ui.builder.EventData;
 import com.hypixel.hytale.server.core.ui.builder.UICommandBuilder;
 import com.hypixel.hytale.server.core.ui.builder.UIEventBuilder;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
@@ -54,10 +57,10 @@ public class AdminDashboardPage extends InteractiveCustomUIPage<AdminPageData> {
                     @NotNull UIEventBuilder events, @NotNull Store<EntityStore> store) {
     cmd.append(UIPaths.ADMIN_DASHBOARD);
     NavBarHelper.setupAdminBar(playerRef, "dashboard", guiManager.getAdminRegistry(), cmd, events);
-    populateDashboard(cmd);
+    populateDashboard(cmd, events);
   }
 
-  private void populateDashboard(@NotNull UICommandBuilder cmd) {
+  private void populateDashboard(@NotNull UICommandBuilder cmd, @NotNull UIEventBuilder events) {
     // Version info
     cmd.set("#VersionLabel.Text", "v" + BuildInfo.VERSION);
 
@@ -84,6 +87,14 @@ public class AdminDashboardPage extends InteractiveCustomUIPage<AdminPageData> {
     if (kits != null && kits.isEnabled() && kits.getKitManager() != null) {
       cmd.set("#KitCount.Text", String.valueOf(kits.getKitManager().getAllKits().size()));
     }
+
+    // Admin bypass toggle
+    boolean bypassOn = PermissionManager.get().isAdminBypassEnabled(playerRef.getUuid());
+    cmd.set("#BypassToggle.Text", bypassOn ? "ON" : "OFF");
+    events.addEventBinding(
+        CustomUIEventBindingType.Activating, "#BypassToggle",
+        EventData.of("Button", "ToggleBypass"), false
+    );
 
     // Module status grid
     cmd.clear("#ModuleList");
@@ -116,6 +127,19 @@ public class AdminDashboardPage extends InteractiveCustomUIPage<AdminPageData> {
       return;
     }
 
+    if ("ToggleBypass".equals(data.button)) {
+      PermissionManager.get().toggleAdminBypass(playerRef.getUuid());
+      rebuildDashboard();
+      return;
+    }
+
     sendUpdate();
+  }
+
+  private void rebuildDashboard() {
+    UICommandBuilder cmd = new UICommandBuilder();
+    UIEventBuilder events = new UIEventBuilder();
+    populateDashboard(cmd, events);
+    sendUpdate(cmd, events, false);
   }
 }

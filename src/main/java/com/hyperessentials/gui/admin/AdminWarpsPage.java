@@ -19,6 +19,8 @@ import com.hypixel.hytale.protocol.packets.interface_.CustomPageLifetime;
 import com.hypixel.hytale.protocol.packets.interface_.CustomUIEventBindingType;
 import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.entity.entities.player.pages.InteractiveCustomUIPage;
+import com.hypixel.hytale.server.core.ui.DropdownEntryInfo;
+import com.hypixel.hytale.server.core.ui.LocalizableString;
 import com.hypixel.hytale.server.core.ui.builder.EventData;
 import com.hypixel.hytale.server.core.ui.builder.UICommandBuilder;
 import com.hypixel.hytale.server.core.ui.builder.UIEventBuilder;
@@ -60,6 +62,17 @@ public class AdminWarpsPage extends InteractiveCustomUIPage<AdminPageData> {
   @Nullable
   private String searchFilter;
 
+  /** Current page index (zero-based) for pagination. */
+  private int currentPage = 0;
+
+  /** Number of warp entries displayed per page. */
+  private static final int ITEMS_PER_PAGE = 8;
+
+  /** Current sort mode for the warp list. */
+  private SortMode sortMode = SortMode.NAME;
+
+  private enum SortMode { NAME, CATEGORY, WORLD, NEWEST }
+
   public AdminWarpsPage(
       @NotNull Player player,
       @NotNull PlayerRef playerRef,
@@ -100,9 +113,35 @@ public class AdminWarpsPage extends InteractiveCustomUIPage<AdminPageData> {
   private void buildWarpList(@NotNull UICommandBuilder cmd, @NotNull UIEventBuilder events) {
     Collection<Warp> allWarps = warpManager.getAllWarps();
 
-    // Set search placeholder
+    // Ensure header, controls, and pagination are visible in list mode
+    cmd.set("#HeaderRow.Visible", true);
+    cmd.set("#ControlsRow.Visible", true);
+    cmd.set("#PaginationRow.Visible", true);
+
+    // Set search placeholder and restore current search value
     cmd.set("#SearchInput.PlaceholderText",
         HEMessages.get(playerRef, AdminKeys.Warps.SEARCH_PLACEHOLDER));
+    if (searchFilter != null) {
+      cmd.set("#SearchInput.Value", searchFilter);
+    }
+
+    // Search field — fires on every value change
+    events.addEventBinding(CustomUIEventBindingType.ValueChanged, "#SearchInput",
+        EventData.of("Button", "SearchChanged")
+            .append("@SearchInput", "#SearchInput.Value"), false);
+
+    // Sort dropdown
+    cmd.set("#SortDropdown.Entries", List.of(
+        new DropdownEntryInfo(LocalizableString.fromString("Name"), "NAME"),
+        new DropdownEntryInfo(LocalizableString.fromString("Category"), "CATEGORY"),
+        new DropdownEntryInfo(LocalizableString.fromString("World"), "WORLD"),
+        new DropdownEntryInfo(LocalizableString.fromString("Newest"), "NEWEST")
+    ));
+    cmd.set("#SortDropdown.Value", sortMode.name());
+    events.addEventBinding(CustomUIEventBindingType.ValueChanged, "#SortDropdown",
+        EventData.of("Button", "SortChanged")
+            .append("@SortMode", "#SortDropdown.Value")
+            .append("@SearchInput", "#SearchInput.Value"), false);
 
     // Create button — opens the create modal, captures search text
     events.addEventBinding(
@@ -112,18 +151,35 @@ public class AdminWarpsPage extends InteractiveCustomUIPage<AdminPageData> {
         false
     );
 
-    // Build warp list sorted by category then name
+    // Build warp list with current sort mode
     List<Warp> sorted = new ArrayList<>(allWarps);
-    sorted.sort(Comparator.comparing(Warp::category).thenComparing(Warp::name));
+    Comparator<Warp> comparator = switch (sortMode) {
+      case NAME -> Comparator.comparing(Warp::name);
+      case CATEGORY -> Comparator.comparing(Warp::category).thenComparing(Warp::name);
+      case WORLD -> Comparator.comparing(Warp::world).thenComparing(Warp::name);
+      case NEWEST -> Comparator.comparingLong(Warp::createdAt).reversed();
+    };
+    sorted.sort(comparator);
 
     // Apply search filter
     if (searchFilter != null && !searchFilter.isBlank()) {
       String filter = searchFilter.toLowerCase();
       sorted.removeIf(w -> !w.name().toLowerCase().contains(filter)
-          && !w.displayName().toLowerCase().contains(filter));
+          && !w.displayName().toLowerCase().contains(filter)
+          && !w.category().toLowerCase().contains(filter));
     }
 
+    // Count display (after filtering)
     cmd.set("#WarpCount.Text", sorted.size() + " warp" + (sorted.size() != 1 ? "s" : ""));
+
+    // Pagination calculation
+    int totalItems = sorted.size();
+    int totalPages = Math.max(1, (int) Math.ceil((double) totalItems / ITEMS_PER_PAGE));
+    if (currentPage >= totalPages) currentPage = totalPages - 1;
+    if (currentPage < 0) currentPage = 0;
+
+    int startIdx = currentPage * ITEMS_PER_PAGE;
+    int endIdx = Math.min(startIdx + ITEMS_PER_PAGE, totalItems);
 
     cmd.clear("#WarpList");
     cmd.appendInline("#WarpList", "Group #IndexCards { LayoutMode: Top; }");
@@ -132,37 +188,51 @@ public class AdminWarpsPage extends InteractiveCustomUIPage<AdminPageData> {
       cmd.append("#IndexCards", UIPaths.EMPTY_STATE);
       cmd.set("#IndexCards[0] #EmptyTitle.Text", HEMessages.get(playerRef, AdminKeys.Warps.EMPTY_TITLE));
       cmd.set("#IndexCards[0] #EmptyMessage.Text", HEMessages.get(playerRef, AdminKeys.Warps.EMPTY_MESSAGE));
-      return;
+    } else {
+      List<Warp> pageWarps = sorted.subList(startIdx, endIdx);
+
+      int i = 0;
+      for (Warp warp : pageWarps) {
+        cmd.append("#IndexCards", UIPaths.ADMIN_WARP_ENTRY);
+        String idx = "#IndexCards[" + i + "]";
+
+        cmd.set(idx + " #WarpName.Text", warp.displayName());
+        cmd.set(idx + " #WarpCategory.Text", warp.category());
+        cmd.set(idx + " #WarpWorld.Text", UIHelper.formatWorldName(warp.world()));
+        cmd.set(idx + " #WarpCoords.Text", UIHelper.formatCoords(warp.x(), warp.y(), warp.z()));
+
+        events.addEventBinding(
+            CustomUIEventBindingType.Activating,
+            idx + " #EditBtn",
+            EventData.of("Button", "Edit").append("Target", warp.name())
+                .append("@SearchInput", "#SearchInput.Value"),
+            false
+        );
+
+        events.addEventBinding(
+            CustomUIEventBindingType.Activating,
+            idx + " #DeleteBtn",
+            EventData.of("Button", "Delete").append("Target", warp.name())
+                .append("@SearchInput", "#SearchInput.Value"),
+            false
+        );
+
+        i++;
+      }
     }
 
-    int i = 0;
-    for (Warp warp : sorted) {
-      cmd.append("#IndexCards", UIPaths.ADMIN_WARP_ENTRY);
-      String idx = "#IndexCards[" + i + "]";
+    // Pagination controls
+    cmd.set("#PageInfo.Text", "Page " + (currentPage + 1) + " / " + totalPages);
 
-      cmd.set(idx + " #WarpName.Text", warp.displayName());
-      cmd.set(idx + " #WarpCategory.Text", warp.category());
-      cmd.set(idx + " #WarpWorld.Text", UIHelper.formatWorldName(warp.world()));
-      cmd.set(idx + " #WarpCoords.Text", UIHelper.formatCoords(warp.x(), warp.y(), warp.z()));
+    cmd.set("#PrevBtn.Disabled", currentPage <= 0);
+    events.addEventBinding(CustomUIEventBindingType.Activating, "#PrevBtn",
+        EventData.of("Button", "PrevPage")
+            .append("@SearchInput", "#SearchInput.Value"), false);
 
-      events.addEventBinding(
-          CustomUIEventBindingType.Activating,
-          idx + " #EditBtn",
-          EventData.of("Button", "Edit").append("Target", warp.name())
-              .append("@SearchInput", "#SearchInput.Value"),
-          false
-      );
-
-      events.addEventBinding(
-          CustomUIEventBindingType.Activating,
-          idx + " #DeleteBtn",
-          EventData.of("Button", "Delete").append("Target", warp.name())
-              .append("@SearchInput", "#SearchInput.Value"),
-          false
-      );
-
-      i++;
-    }
+    cmd.set("#NextBtn.Disabled", currentPage >= totalPages - 1);
+    events.addEventBinding(CustomUIEventBindingType.Activating, "#NextBtn",
+        EventData.of("Button", "NextPage")
+            .append("@SearchInput", "#SearchInput.Value"), false);
   }
 
   // =====================================================================
@@ -172,45 +242,69 @@ public class AdminWarpsPage extends InteractiveCustomUIPage<AdminPageData> {
   private void buildCreateModal(@NotNull UICommandBuilder cmd, @NotNull UIEventBuilder events) {
     cmd.set("#WarpCount.Text", HEMessages.get(playerRef, AdminKeys.Warps.CREATE_TITLE));
 
-    // Hide the header row elements and replace with modal content
+    // Hide search/sort/create controls and pagination in create modal
+    cmd.set("#HeaderRow.Visible", false);
+    cmd.set("#ControlsRow.Visible", false);
+    cmd.set("#PaginationRow.Visible", false);
+
+    // Replace with edit template in create mode
     cmd.clear("#WarpList");
     cmd.appendInline("#WarpList", "Group #IndexCards { LayoutMode: Top; }");
+    cmd.append("#IndexCards", UIPaths.ADMIN_WARP_EDIT);
+    String edit = "#IndexCards[0]";
 
-    // Build a simple create form inline
-    String modalUi =
-        "Group { Anchor: (Height: 200); LayoutMode: Top; Padding: (Left: 40, Right: 40, Top: 30); "
-        // Title
-        + "Label { Text: \"" + HEMessages.get(playerRef, AdminKeys.Warps.CREATE_TITLE)
-        + "\"; Style: (FontSize: 16, TextColor: #FFFFFF, HorizontalAlignment: Center); Anchor: (Height: 28, Bottom: 20); } "
-        // Name label
-        + "Label { Text: \"" + HEMessages.get(playerRef, AdminKeys.Warps.NAME_PLACEHOLDER)
-        + "\"; Style: (FontSize: 12, TextColor: #7c8b99); Anchor: (Height: 18, Bottom: 4); } "
-        // Name input
-        + "Group { Anchor: (Height: 30, Bottom: 20); Background: (Color: #0d1520); Padding: (Left: 6, Right: 6); "
-        + "TextField #ModalNameInput { Anchor: (Height: 26); Style: (FontSize: 12, TextColor: #ffffff); } } "
-        // Button row
-        + "Group { Anchor: (Height: 32); LayoutMode: Left; "
-        + "Group { FlexWeight: 1; } "
-        + "TextButton #ModalCancelBtn { Text: \"Cancel\"; Anchor: (Width: 90, Height: 28); } "
-        + "Group { Anchor: (Width: 8); } "
-        + "TextButton #ModalCreateBtn { Text: \"Create\"; Anchor: (Width: 90, Height: 28); } "
-        + "Group { FlexWeight: 1; } } }";
+    // Title
+    cmd.set(edit + " #EditTitle.Text", HEMessages.get(playerRef, AdminKeys.Warps.CREATE_TITLE));
 
-    cmd.appendInline("#IndexCards", modalUi);
+    // Swap name label for editable input
+    cmd.set(edit + " #EditName.Visible", false);
+    cmd.set(edit + " #EditNameInput.Visible", true);
+    cmd.set(edit + " #EditNameInput.PlaceholderText",
+        HEMessages.get(playerRef, AdminKeys.Warps.NAME_PLACEHOLDER));
 
-    // Wire create button — reads the name input value
+    // Populate labels
+    cmd.set(edit + " #EditDisplayNameLabel.Text", HEMessages.get(playerRef, AdminKeys.Warps.EDIT_DISPLAY_NAME));
+    cmd.set(edit + " #EditCategoryLabel.Text", HEMessages.get(playerRef, AdminKeys.Warps.EDIT_CATEGORY));
+    cmd.set(edit + " #EditDescriptionLabel.Text", HEMessages.get(playerRef, AdminKeys.Warps.EDIT_DESCRIPTION));
+
+    // Show current location for world/coords
+    String worldName = "";
+    var worldUuid = playerRef.getWorldUuid();
+    if (worldUuid != null) {
+      var world = com.hypixel.hytale.server.core.universe.Universe.get().getWorld(worldUuid);
+      if (world != null) worldName = world.getName();
+    }
+    cmd.set(edit + " #EditWorld.Text", UIHelper.formatWorldName(worldName));
+
+    var pos = playerRef.getTransform().getPosition();
+    cmd.set(edit + " #EditCoords.Text", UIHelper.formatCoords(pos.getX(), pos.getY(), pos.getZ()));
+
+    // Button labels for create mode
+    cmd.set(edit + " #EditSaveBtn.Text", "Create");
+    cmd.set(edit + " #EditCancelBtn.Text", "Cancel");
+
+    // Wire create button — reads all fields
     events.addEventBinding(
         CustomUIEventBindingType.Activating,
-        "#IndexCards[0] #ModalCreateBtn",
+        edit + " #EditSaveBtn",
         EventData.of("Button", "Create")
-            .append("@InputName", "#IndexCards[0] #ModalNameInput.Value"),
+            .append("@InputName", edit + " #EditNameInput.Value")
+            .append("@InputDisplayName", edit + " #EditDisplayName.Value")
+            .append("@InputCategory", edit + " #EditCategory.Value")
+            .append("@InputDescription", edit + " #EditDescription.Value"),
         false
     );
 
-    // Wire cancel button
+    // Wire back/cancel buttons
     events.addEventBinding(
         CustomUIEventBindingType.Activating,
-        "#IndexCards[0] #ModalCancelBtn",
+        edit + " #EditBackBtn",
+        EventData.of("Button", "CancelCreate"),
+        false
+    );
+    events.addEventBinding(
+        CustomUIEventBindingType.Activating,
+        edit + " #EditCancelBtn",
         EventData.of("Button", "CancelCreate"),
         false
     );
@@ -232,7 +326,12 @@ public class AdminWarpsPage extends InteractiveCustomUIPage<AdminPageData> {
 
     cmd.set("#WarpCount.Text", HEMessages.get(playerRef, AdminKeys.Warps.EDIT_TITLE));
 
-    // Hide the create row elements by clearing and replacing the list area
+    // Hide search/sort/create controls and pagination in edit mode
+    cmd.set("#HeaderRow.Visible", false);
+    cmd.set("#ControlsRow.Visible", false);
+    cmd.set("#PaginationRow.Visible", false);
+
+    // Clear and replace the list area
     cmd.clear("#WarpList");
     cmd.appendInline("#WarpList", "Group #IndexCards { LayoutMode: Top; }");
 
@@ -250,16 +349,12 @@ public class AdminWarpsPage extends InteractiveCustomUIPage<AdminPageData> {
     cmd.set(edit + " #EditDisplayNameLabel.Text", HEMessages.get(playerRef, AdminKeys.Warps.EDIT_DISPLAY_NAME));
     cmd.set(edit + " #EditCategoryLabel.Text", HEMessages.get(playerRef, AdminKeys.Warps.EDIT_CATEGORY));
     cmd.set(edit + " #EditDescriptionLabel.Text", HEMessages.get(playerRef, AdminKeys.Warps.EDIT_DESCRIPTION));
-    cmd.set(edit + " #EditPermissionLabel.Text", HEMessages.get(playerRef, AdminKeys.Warps.EDIT_PERMISSION));
 
     // Populate editable field values
     cmd.set(edit + " #EditDisplayName.Value", warp.displayName());
     cmd.set(edit + " #EditCategory.Value", warp.category());
     if (warp.description() != null) {
       cmd.set(edit + " #EditDescription.Value", warp.description());
-    }
-    if (warp.permission() != null) {
-      cmd.set(edit + " #EditPermission.Value", warp.permission());
     }
 
     // Wire edit events — read field values on save
@@ -270,8 +365,7 @@ public class AdminWarpsPage extends InteractiveCustomUIPage<AdminPageData> {
             .append("Target", warp.name())
             .append("@InputName", edit + " #EditDisplayName.Value")
             .append("@InputCategory", edit + " #EditCategory.Value")
-            .append("@InputDescription", edit + " #EditDescription.Value")
-            .append("@InputPermission", edit + " #EditPermission.Value"),
+            .append("@InputDescription", edit + " #EditDescription.Value"),
         false
     );
 
@@ -289,23 +383,15 @@ public class AdminWarpsPage extends InteractiveCustomUIPage<AdminPageData> {
         false
     );
 
-    // Show "Permissions" button only when HyperPerms is available
+    // Show "Permissions" button inline when HyperPerms is available
     HyperPermsProviderAdapter adapter = PermissionManager.get().getHyperPermsAdapter();
     if (adapter != null) {
-      // Determine the permission node for this warp
       String permNode = warp.permission() != null ? warp.permission() : "hyperessentials.warp." + warp.name();
 
-      // Add Permissions button after save/cancel row — inline within the edit template area
-      cmd.appendInline("#IndexCards",
-          "Group { Anchor: (Height: 34, Top: 6); LayoutMode: Left; "
-          + "Group { FlexWeight: 1; } "
-          + "TextButton #PermBtn { Text: \"Permissions\"; "
-          + "Anchor: (Width: 120, Height: 28); } "
-          + "Group { FlexWeight: 1; } }");
-
+      cmd.set(edit + " #EditPermBtn.Visible", true);
       events.addEventBinding(
           CustomUIEventBindingType.Activating,
-          "#IndexCards[1] #PermBtn",
+          edit + " #EditPermBtn",
           EventData.of("Button", "ManagePerms").append("Target", permNode),
           false
       );
@@ -327,6 +413,11 @@ public class AdminWarpsPage extends InteractiveCustomUIPage<AdminPageData> {
     }
 
     cmd.set("#WarpCount.Text", HEMessages.get(playerRef, AdminKeys.Perms.TITLE));
+
+    // Hide search/sort/create controls and pagination in permission mode
+    cmd.set("#HeaderRow.Visible", false);
+    cmd.set("#ControlsRow.Visible", false);
+    cmd.set("#PaginationRow.Visible", false);
 
     // Replace list area with permission template
     cmd.clear("#WarpList");
@@ -368,19 +459,12 @@ public class AdminWarpsPage extends InteractiveCustomUIPage<AdminPageData> {
           : HEMessages.get(playerRef, AdminKeys.Perms.ADD);
       String btnAction = hasPerm ? "RemovePerm" : "AddPerm";
 
-      // Build inline row: group name + add/remove button
-      String statusColor = hasPerm ? "#44cc44" : "#7c8b99";
-      String rowUi = "Group { Anchor: (Height: 32, Bottom: 2); Background: (Color: #141c26); LayoutMode: Left; "
-          + "Group { Anchor: (Width: 8); } "
-          + "Group { Anchor: (Width: 8, Height: 8, Top: 12); Background: (Color: " + statusColor + "); } "
-          + "Group { Anchor: (Width: 8); } "
-          + "Label #RoleName { Text: \"" + groupName + "\"; "
-          + "Style: (FontSize: 12, TextColor: #FFFFFF, VerticalAlignment: Center); FlexWeight: 1; } "
-          + "Group { Anchor: (Width: 80); Padding: (Right: 6, Top: 4, Bottom: 4); "
-          + "TextButton #PermToggle { Text: \"" + btnText + "\"; Anchor: (Width: 74, Height: 24); } } }";
-
-      cmd.appendInline(perm + " #PermRoleList", rowUi);
+      cmd.append(perm + " #PermRoleList", UIPaths.ADMIN_PERM_ROLE_ENTRY);
       String rowIdx = perm + " #PermRoleList[" + i + "]";
+
+      cmd.set(rowIdx + " #RoleName.Text", groupName);
+      cmd.set(rowIdx + " #PermToggle.Text", btnText);
+      cmd.set(rowIdx + " #StatusIndicator.Background.Color", hasPerm ? "#44cc44" : "#7c8b99");
 
       events.addEventBinding(
           CustomUIEventBindingType.Activating,
@@ -432,6 +516,27 @@ public class AdminWarpsPage extends InteractiveCustomUIPage<AdminPageData> {
       case "CancelPerms" -> handleCancelPerms();
       case "AddPerm" -> handleAddPerm(data.target);
       case "RemovePerm" -> handleRemovePerm(data.target);
+      case "SearchChanged" -> {
+        searchFilter = (data.inputSearch != null && !data.inputSearch.isBlank())
+            ? data.inputSearch.trim() : null;
+        currentPage = 0;
+        rebuildContent();
+      }
+      case "SortChanged" -> {
+        if (data.sortMode != null) {
+          try { sortMode = SortMode.valueOf(data.sortMode); } catch (IllegalArgumentException ignored) {}
+        }
+        currentPage = 0;
+        rebuildContent();
+      }
+      case "PrevPage" -> {
+        currentPage = Math.max(0, currentPage - 1);
+        rebuildContent();
+      }
+      case "NextPage" -> {
+        currentPage = currentPage + 1;
+        rebuildContent();
+      }
       default -> sendUpdate();
     }
   }
@@ -451,7 +556,7 @@ public class AdminWarpsPage extends InteractiveCustomUIPage<AdminPageData> {
       }
     }
 
-    // Use the name from the modal input, or fall back to auto-generated
+    // Use the name from the input, or fall back to auto-generated
     String name = (data.inputName != null && !data.inputName.isBlank())
         ? data.inputName.trim().toLowerCase().replaceAll("\\s+", "_")
         : "warp_" + System.currentTimeMillis() % 100000;
@@ -460,6 +565,19 @@ public class AdminWarpsPage extends InteractiveCustomUIPage<AdminPageData> {
         pos.getX(), pos.getY(), pos.getZ(),
         rot.getY(), rot.getX(),
         playerRef.getUuid().toString());
+
+    // Apply optional fields from the create form
+    if (data.inputDisplayName != null && !data.inputDisplayName.isBlank()) {
+      warp = warp.withDisplayName(data.inputDisplayName.trim());
+    }
+    if (data.inputCategory != null && !data.inputCategory.isBlank()) {
+      warp = warp.withCategory(data.inputCategory.trim());
+    }
+    if (data.inputDescription != null) {
+      String desc = data.inputDescription.trim();
+      warp = warp.withDescription(desc.isEmpty() ? null : desc);
+    }
+
     warpManager.setWarp(warp);
 
     showingCreateModal = false;
@@ -510,14 +628,10 @@ public class AdminWarpsPage extends InteractiveCustomUIPage<AdminPageData> {
       warp = warp.withCategory(data.inputCategory.trim());
     }
 
-    // Description and permission can be cleared (empty string = null)
+    // Description can be cleared (empty string = null)
     if (data.inputDescription != null) {
       String desc = data.inputDescription.trim();
       warp = warp.withDescription(desc.isEmpty() ? null : desc);
-    }
-    if (data.inputPermission != null) {
-      String perm = data.inputPermission.trim();
-      warp = warp.withPermission(perm.isEmpty() ? null : perm);
     }
 
     warpManager.setWarp(warp);

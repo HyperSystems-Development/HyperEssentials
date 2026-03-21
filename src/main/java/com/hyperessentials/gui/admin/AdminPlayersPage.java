@@ -25,6 +25,8 @@ import com.hypixel.hytale.protocol.packets.interface_.CustomPageLifetime;
 import com.hypixel.hytale.protocol.packets.interface_.CustomUIEventBindingType;
 import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.entity.entities.player.pages.InteractiveCustomUIPage;
+import com.hypixel.hytale.server.core.ui.DropdownEntryInfo;
+import com.hypixel.hytale.server.core.ui.LocalizableString;
 import com.hypixel.hytale.server.core.ui.builder.EventData;
 import com.hypixel.hytale.server.core.ui.builder.UICommandBuilder;
 import com.hypixel.hytale.server.core.ui.builder.UIEventBuilder;
@@ -33,6 +35,7 @@ import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -44,15 +47,46 @@ import java.util.UUID;
 /**
  * Admin players page — list online players with status info.
  * Supports a detail view mode for individual player inspection and quick actions.
+ * Includes search, sort, filter, and pagination controls.
  */
 public class AdminPlayersPage extends InteractiveCustomUIPage<AdminPageData> {
 
   private static final DateTimeFormatter DATE_FORMAT =
       DateTimeFormatter.ofPattern("MMM d, yyyy HH:mm").withZone(ZoneId.systemDefault());
 
+  private static final int ITEMS_PER_PAGE = 8;
+
+  /** Sort modes for the player list. */
+  private enum SortMode {
+    NAME, JOIN_DATE, PLAYTIME;
+
+    static SortMode fromString(@Nullable String s) {
+      if (s == null) return NAME;
+      return switch (s.toLowerCase()) {
+        case "join_date" -> JOIN_DATE;
+        case "playtime" -> PLAYTIME;
+        default -> NAME;
+      };
+    }
+
+    String toValue() {
+      return switch (this) {
+        case NAME -> "name";
+        case JOIN_DATE -> "join_date";
+        case PLAYTIME -> "playtime";
+      };
+    }
+  }
+
   private final PlayerRef playerRef;
   private final Player player;
   private final GuiManager guiManager;
+
+  // Search, sort, filter, pagination state
+  private int currentPage = 0;
+  private String searchQuery = "";
+  private SortMode sortMode = SortMode.NAME;
+  private boolean filterOnline = false;
 
   /** UUID of the player being viewed in detail mode, null for list mode. */
   @Nullable
@@ -95,38 +129,130 @@ public class AdminPlayersPage extends InteractiveCustomUIPage<AdminPageData> {
 
     cmd.set("#PlayerCount.Text", tracked.size() + " player" + (tracked.size() != 1 ? "s" : "") + " online");
 
-    // Sort players by username
-    List<PlayerRef> sorted = new ArrayList<>(tracked.values());
-    sorted.sort(Comparator.comparing(PlayerRef::getUsername, String.CASE_INSENSITIVE_ORDER));
+    // Show controls and pagination in list mode
+    cmd.set("#ControlsRow.Visible", true);
+    cmd.set("#PaginationRow.Visible", true);
 
+    // --- Search controls ---
+    cmd.set("#SearchInput.PlaceholderText", "Search players...");
+    events.addEventBinding(
+        CustomUIEventBindingType.ValueChanged, "#SearchInput",
+        EventData.of("Button", "SearchChanged")
+            .append("@SearchInput", "#SearchInput.Value"),
+        false
+    );
+
+    // --- Sort dropdown ---
+    cmd.set("#SortDropdown.Entries", List.of(
+        new DropdownEntryInfo(LocalizableString.fromString("Name"), "name"),
+        new DropdownEntryInfo(LocalizableString.fromString("Joined"), "join_date"),
+        new DropdownEntryInfo(LocalizableString.fromString("Playtime"), "playtime")
+    ));
+    cmd.set("#SortDropdown.Value", sortMode.toValue());
+    events.addEventBinding(CustomUIEventBindingType.ValueChanged, "#SortDropdown",
+        EventData.of("Button", "SortChanged")
+            .append("@SortMode", "#SortDropdown.Value")
+            .append("@SearchInput", "#SearchInput.Value"),
+        false);
+
+    // --- Filter dropdown ---
+    cmd.set("#FilterDropdown.Entries", List.of(
+        new DropdownEntryInfo(LocalizableString.fromString("All"), "all"),
+        new DropdownEntryInfo(LocalizableString.fromString("Online"), "online")
+    ));
+    cmd.set("#FilterDropdown.Value", filterOnline ? "online" : "all");
+    events.addEventBinding(CustomUIEventBindingType.ValueChanged, "#FilterDropdown",
+        EventData.of("Button", "FilterChanged")
+            .append("@FilterValue", "#FilterDropdown.Value")
+            .append("@SearchInput", "#SearchInput.Value"),
+        false);
+
+    // --- Build filtered/sorted player list ---
+    List<PlayerEntry> entries = new ArrayList<>();
+    for (PlayerRef p : tracked.values()) {
+      PlayerData data = loadPlayerData(p.getUuid());
+      entries.add(new PlayerEntry(p.getUuid(), p.getUsername(), true, data));
+    }
+
+    // Apply search filter
+    if (!searchQuery.isEmpty()) {
+      String query = searchQuery.toLowerCase();
+      entries.removeIf(e -> !e.username.toLowerCase().contains(query));
+    }
+
+    // Apply online filter (filterOnline=true means only online; all entries are online from tracked)
+    // filterOnline=false shows all (which is currently just online players from tracked map)
+
+    // Sort
+    switch (sortMode) {
+      case NAME -> entries.sort(Comparator.comparing(e -> e.username, String.CASE_INSENSITIVE_ORDER));
+      case JOIN_DATE -> entries.sort(Comparator.comparing(
+          (PlayerEntry e) -> e.data != null ? e.data.getFirstJoin() : Instant.EPOCH).reversed());
+      case PLAYTIME -> entries.sort(Comparator.comparingLong(
+          (PlayerEntry e) -> e.data != null ? e.data.getTotalPlaytimeMs() : 0L).reversed());
+    }
+
+    // Pagination
+    int totalItems = entries.size();
+    int totalPages = Math.max(1, (int) Math.ceil((double) totalItems / ITEMS_PER_PAGE));
+    if (currentPage >= totalPages) currentPage = totalPages - 1;
+    if (currentPage < 0) currentPage = 0;
+
+    int start = currentPage * ITEMS_PER_PAGE;
+    int end = Math.min(start + ITEMS_PER_PAGE, totalItems);
+    List<PlayerEntry> pageEntries = entries.subList(start, end);
+
+    // --- Render player list ---
     cmd.clear("#PlayerList");
     cmd.appendInline("#PlayerList", "Group #IndexCards { LayoutMode: Top; }");
 
-    if (sorted.isEmpty()) {
+    if (pageEntries.isEmpty()) {
       cmd.append("#IndexCards", UIPaths.EMPTY_STATE);
       cmd.set("#IndexCards[0] #EmptyTitle.Text", HEMessages.get(playerRef, AdminKeys.Players.EMPTY_TITLE));
-      cmd.set("#IndexCards[0] #EmptyMessage.Text", HEMessages.get(playerRef, AdminKeys.Players.EMPTY_MESSAGE));
+      cmd.set("#IndexCards[0] #EmptyMessage.Text",
+          searchQuery.isEmpty()
+              ? HEMessages.get(playerRef, AdminKeys.Players.EMPTY_MESSAGE)
+              : "No players match your search.");
       return;
     }
 
     int i = 0;
-    for (PlayerRef p : sorted) {
+    for (PlayerEntry entry : pageEntries) {
       cmd.append("#IndexCards", UIPaths.ADMIN_PLAYER_ENTRY);
       String idx = "#IndexCards[" + i + "]";
 
-      cmd.set(idx + " #PlayerName.Text", p.getUsername());
-      cmd.set(idx + " #PlayerInfo.Text", HEMessages.get(playerRef, AdminKeys.Players.PLAYER_INFO, p.getUuid().toString()));
+      cmd.set(idx + " #PlayerName.Text", entry.username);
+      cmd.set(idx + " #PlayerInfo.Text", HEMessages.get(playerRef, AdminKeys.Players.PLAYER_INFO, entry.uuid.toString()));
 
-      // Wire View button
+      // Wire View button — preserve search state
       events.addEventBinding(
           CustomUIEventBindingType.Activating, idx + " #ViewBtn",
-          EventData.of("Button", "View").append("Target", p.getUuid().toString()),
+          EventData.of("Button", "View").append("Target", entry.uuid.toString())
+              .append("@SearchInput", "#SearchInput.Value"),
           false
       );
 
       i++;
     }
+
+    // --- Pagination controls ---
+    cmd.set("#PageInfo.Text", "Page " + (currentPage + 1) + " / " + totalPages);
+
+    cmd.set("#PrevBtn.Disabled", currentPage <= 0);
+    events.addEventBinding(CustomUIEventBindingType.Activating, "#PrevBtn",
+        EventData.of("Button", "PrevPage").append("Page", String.valueOf(currentPage - 1))
+            .append("@SearchInput", "#SearchInput.Value"),
+        false);
+
+    cmd.set("#NextBtn.Disabled", currentPage >= totalPages - 1);
+    events.addEventBinding(CustomUIEventBindingType.Activating, "#NextBtn",
+        EventData.of("Button", "NextPage").append("Page", String.valueOf(currentPage + 1))
+            .append("@SearchInput", "#SearchInput.Value"),
+        false);
   }
+
+  /** Lightweight record for sorting/filtering player list entries. */
+  private record PlayerEntry(UUID uuid, String username, boolean online, @Nullable PlayerData data) {}
 
   // =====================================================================
   // Detail Mode
@@ -141,6 +267,10 @@ public class AdminPlayersPage extends InteractiveCustomUIPage<AdminPageData> {
       buildPlayerList(cmd, events);
       return;
     }
+
+    // Hide controls and pagination in detail mode
+    cmd.set("#ControlsRow.Visible", false);
+    cmd.set("#PaginationRow.Visible", false);
 
     // Look up the target player
     PlayerRef targetRef = plugin.getTrackedPlayer(viewingPlayer);
@@ -157,9 +287,7 @@ public class AdminPlayersPage extends InteractiveCustomUIPage<AdminPageData> {
     cmd.appendInline("#PlayerList", "Group #IndexCards { LayoutMode: Top; }");
 
     // Back button row
-    cmd.appendInline("#IndexCards",
-        "Group { Anchor: (Height: 28, Bottom: 6); LayoutMode: Left; "
-        + "TextButton #BackBtn { Text: \"Back\"; Anchor: (Width: 70, Height: 24); } }");
+    cmd.append("#IndexCards", UIPaths.ADMIN_PLAYER_DETAIL_HEADER);
 
     events.addEventBinding(
         CustomUIEventBindingType.Activating, "#IndexCards[0] #BackBtn",
@@ -271,6 +399,11 @@ public class AdminPlayersPage extends InteractiveCustomUIPage<AdminPageData> {
       return;
     }
 
+    // Capture search input from any event that includes it
+    if (data.inputSearch != null) {
+      searchQuery = data.inputSearch.isBlank() ? "" : data.inputSearch.trim();
+    }
+
     if (data.button == null) {
       sendUpdate();
       return;
@@ -282,6 +415,24 @@ public class AdminPlayersPage extends InteractiveCustomUIPage<AdminPageData> {
       case "Kick" -> handleKick(data.target);
       case "Mute" -> handleMute(data.target);
       case "Ban" -> handleBan(data.target);
+      case "SearchChanged" -> {
+        currentPage = 0;
+        rebuildContent();
+      }
+      case "SortChanged" -> {
+        sortMode = SortMode.fromString(data.sortMode);
+        currentPage = 0;
+        rebuildContent();
+      }
+      case "FilterChanged" -> {
+        filterOnline = "online".equals(data.filterValue);
+        currentPage = 0;
+        rebuildContent();
+      }
+      case "PrevPage", "NextPage" -> {
+        currentPage = data.page;
+        rebuildContent();
+      }
       default -> sendUpdate();
     }
   }

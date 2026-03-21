@@ -138,19 +138,15 @@ public class AdminBackupsPage extends InteractiveCustomUIPage<AdminPageData> {
     }
 
     // Pagination controls
-    cmd.set("#PageLabel.Text", totalPages > 1 ? (currentPage + 1) + " / " + totalPages : "");
+    cmd.set("#PageInfo.Text", "Page " + (currentPage + 1) + " / " + totalPages);
 
-    cmd.set("#PrevBtn.Visible", currentPage > 0);
-    if (currentPage > 0) {
-      events.addEventBinding(CustomUIEventBindingType.Activating, "#PrevBtn",
-          EventData.of("Button", "PrevPage").append("Page", String.valueOf(currentPage - 1)), false);
-    }
+    cmd.set("#PrevBtn.Disabled", currentPage <= 0);
+    events.addEventBinding(CustomUIEventBindingType.Activating, "#PrevBtn",
+        EventData.of("Button", "PrevPage").append("Page", String.valueOf(currentPage - 1)), false);
 
-    cmd.set("#NextBtn.Visible", currentPage < totalPages - 1);
-    if (currentPage < totalPages - 1) {
-      events.addEventBinding(CustomUIEventBindingType.Activating, "#NextBtn",
-          EventData.of("Button", "NextPage").append("Page", String.valueOf(currentPage + 1)), false);
-    }
+    cmd.set("#NextBtn.Disabled", currentPage >= totalPages - 1);
+    events.addEventBinding(CustomUIEventBindingType.Activating, "#NextBtn",
+        EventData.of("Button", "NextPage").append("Page", String.valueOf(currentPage + 1)), false);
   }
 
   private void buildBackupEntry(@NotNull UICommandBuilder cmd, @NotNull UIEventBuilder events,
@@ -164,6 +160,10 @@ public class AdminBackupsPage extends InteractiveCustomUIPage<AdminPageData> {
     cmd.set(idx + " #BackupNameLabel.Text", formatBackupName(name));
     cmd.set(idx + " #BackupSizeLabel.Text", backup.getFormattedSize());
     cmd.set(idx + " #BackupTypeTag.Text", backup.type().getDisplayName());
+
+    // Indicator bar color: green for manual, gold for automatic
+    String indicatorColor = backup.type().name().equals("MANUAL") ? "#55FF55" : "#FFAA00";
+    cmd.set(idx + " #IndicatorBar.Background.Color", indicatorColor);
 
     // Expand/collapse
     cmd.set(idx + " #ExpandBtn.Text", expanded ? "v" : ">");

@@ -1,5 +1,7 @@
 package com.hyperessentials.gui.admin;
 
+import com.hyperessentials.command.util.CommandUtil;
+import com.hyperessentials.data.Location;
 import com.hyperessentials.data.Spawn;
 import com.hyperessentials.gui.GuiManager;
 import com.hyperessentials.gui.GuiType;
@@ -9,25 +11,32 @@ import com.hyperessentials.gui.UIPaths;
 import com.hyperessentials.gui.data.AdminPageData;
 import com.hyperessentials.module.spawns.SpawnManager;
 import com.hyperessentials.util.AdminKeys;
+import com.hyperessentials.util.ErrorHandler;
 import com.hyperessentials.util.HEMessages;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
+import com.hypixel.hytale.math.vector.Vector3d;
+import com.hypixel.hytale.math.vector.Vector3f;
 import com.hypixel.hytale.protocol.packets.interface_.CustomPageLifetime;
 import com.hypixel.hytale.protocol.packets.interface_.CustomUIEventBindingType;
 import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.entity.entities.player.pages.InteractiveCustomUIPage;
+import com.hypixel.hytale.server.core.modules.entity.teleport.Teleport;
 import com.hypixel.hytale.server.core.ui.builder.EventData;
 import com.hypixel.hytale.server.core.ui.builder.UICommandBuilder;
 import com.hypixel.hytale.server.core.ui.builder.UIEventBuilder;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
+import com.hypixel.hytale.server.core.universe.Universe;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * Admin spawns page — list all world spawns with create/delete.
@@ -35,10 +44,14 @@ import java.util.Map;
  */
 public class AdminSpawnsPage extends InteractiveCustomUIPage<AdminPageData> {
 
+  private static final int ITEMS_PER_PAGE = 8;
+
   private final PlayerRef playerRef;
   private final Player player;
   private final SpawnManager spawnManager;
   private final GuiManager guiManager;
+
+  private int currentPage = 0;
 
   public AdminSpawnsPage(
       @NotNull Player player,
@@ -111,15 +124,24 @@ public class AdminSpawnsPage extends InteractiveCustomUIPage<AdminPageData> {
     cmd.clear("#SpawnList");
     cmd.appendInline("#SpawnList", "Group #IndexCards { LayoutMode: Top; }");
 
+    // Pagination
+    int totalItems = entries.size();
+    int totalPages = Math.max(1, (int) Math.ceil((double) totalItems / ITEMS_PER_PAGE));
+    if (currentPage >= totalPages) currentPage = totalPages - 1;
+    if (currentPage < 0) currentPage = 0;
+
+    int startIdx = currentPage * ITEMS_PER_PAGE;
+    int endIdx = Math.min(startIdx + ITEMS_PER_PAGE, totalItems);
+
     if (entries.isEmpty()) {
       cmd.append("#IndexCards", UIPaths.EMPTY_STATE);
       cmd.set("#IndexCards[0] #EmptyTitle.Text", HEMessages.get(playerRef, AdminKeys.Spawns.EMPTY_TITLE));
       cmd.set("#IndexCards[0] #EmptyMessage.Text", HEMessages.get(playerRef, AdminKeys.Spawns.EMPTY_MESSAGE));
-      return;
-    }
+    } else {
+      List<SpawnEntry> pageEntries = entries.subList(startIdx, endIdx);
 
     int i = 0;
-    for (SpawnEntry entry : entries) {
+    for (SpawnEntry entry : pageEntries) {
       Spawn spawn = entry.spawn();
       boolean isCustom = entry.isCustom();
 
@@ -155,6 +177,14 @@ public class AdminSpawnsPage extends InteractiveCustomUIPage<AdminPageData> {
         cmd.set(idx + " #IndicatorBar.Background.Color", "#555555");
       }
 
+      // TP button — teleport admin to spawn location (works for both custom and default)
+      events.addEventBinding(
+          CustomUIEventBindingType.Activating,
+          idx + " #TpBtn",
+          EventData.of("Button", "Tp").append("Target", spawn.worldUuid()),
+          false
+      );
+
       if (isCustom) {
         // "Set Global" button (hidden if already global)
         if (!spawn.isGlobal()) {
@@ -165,8 +195,8 @@ public class AdminSpawnsPage extends InteractiveCustomUIPage<AdminPageData> {
               false
           );
         } else {
-          // Hide "Set Global" for the current global spawn
-          cmd.set(idx + " #SetGlobalBtn.Text", "");
+          // Show disabled "Global" button for the current global spawn
+          cmd.set(idx + " #SetGlobalBtn.Text", "Global");
           cmd.set(idx + " #SetGlobalBtn.Disabled", true);
         }
 
@@ -187,13 +217,22 @@ public class AdminSpawnsPage extends InteractiveCustomUIPage<AdminPageData> {
             false
         );
 
-        // Hide "Set Global" for unconfigured worlds
-        cmd.set(idx + " #SetGlobalBtn.Text", "");
+        // Show disabled "Set Global" for unconfigured worlds
         cmd.set(idx + " #SetGlobalBtn.Disabled", true);
       }
 
       i++;
     }
+    } // end else (non-empty)
+
+    // Pagination controls
+    cmd.set("#PageInfo.Text", "Page " + (currentPage + 1) + " / " + totalPages);
+    cmd.set("#PrevBtn.Disabled", currentPage <= 0);
+    events.addEventBinding(CustomUIEventBindingType.Activating, "#PrevBtn",
+        EventData.of("Button", "PrevPage"), false);
+    cmd.set("#NextBtn.Disabled", currentPage >= totalPages - 1);
+    events.addEventBinding(CustomUIEventBindingType.Activating, "#NextBtn",
+        EventData.of("Button", "NextPage"), false);
   }
 
   @Override
@@ -219,6 +258,9 @@ public class AdminSpawnsPage extends InteractiveCustomUIPage<AdminPageData> {
       case "Delete" -> handleDelete(data.target);
       case "SetGlobal" -> handleSetGlobal(data.target);
       case "SetCustom" -> handleSetCustom(data.target);
+      case "Tp" -> handleTeleport(data.target);
+      case "PrevPage" -> { currentPage = Math.max(0, currentPage - 1); rebuildList(); }
+      case "NextPage" -> { currentPage++; rebuildList(); }
       default -> sendUpdate();
     }
   }
@@ -281,6 +323,48 @@ public class AdminSpawnsPage extends InteractiveCustomUIPage<AdminPageData> {
     spawnManager.setSpawn(customSpawn);
 
     rebuildList();
+  }
+
+  private void handleTeleport(@Nullable String worldUuid) {
+    if (worldUuid == null) return;
+
+    Spawn spawn = spawnManager.getSpawnForWorld(worldUuid);
+    if (spawn == null) {
+      // Try world default spawn for unconfigured worlds
+      Map<String, World> loadedWorlds = spawnManager.getLoadedWorlds();
+      World world = loadedWorlds.get(worldUuid);
+      if (world != null) {
+        spawn = spawnManager.createDefaultSpawnForWorld(world);
+      }
+      if (spawn == null) return;
+    }
+
+    final Spawn targetSpawn = spawn;
+    try {
+      World targetWorld = Universe.get().getWorld(UUID.fromString(targetSpawn.worldUuid()));
+      if (targetWorld == null) {
+        playerRef.sendMessage(CommandUtil.error("World not found: " + targetSpawn.worldName()));
+        return;
+      }
+
+      Location dest = Location.fromSpawn(targetSpawn);
+      targetWorld.execute(() -> {
+        Ref<EntityStore> ref = playerRef.getReference();
+        if (ref == null || !ref.isValid()) return;
+
+        Store<EntityStore> store = ref.getStore();
+        Vector3d position = new Vector3d(dest.x(), dest.y(), dest.z());
+        Vector3f rotation = new Vector3f(dest.pitch(), dest.yaw(), 0);
+        Teleport teleport = Teleport.createForPlayer(targetWorld, position, rotation);
+        store.addComponent(ref, Teleport.getComponentType(), teleport);
+
+        playerRef.sendMessage(
+            CommandUtil.success("Teleported to spawn: " + UIHelper.formatWorldName(targetSpawn.worldName()))
+        );
+      });
+    } catch (Exception e) {
+      ErrorHandler.report("[AdminSpawns] Teleport failed", e);
+    }
   }
 
   private void rebuildList() {

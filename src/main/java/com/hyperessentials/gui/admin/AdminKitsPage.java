@@ -18,6 +18,8 @@ import com.hypixel.hytale.protocol.packets.interface_.CustomPageLifetime;
 import com.hypixel.hytale.protocol.packets.interface_.CustomUIEventBindingType;
 import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.entity.entities.player.pages.InteractiveCustomUIPage;
+import com.hypixel.hytale.server.core.ui.DropdownEntryInfo;
+import com.hypixel.hytale.server.core.ui.LocalizableString;
 import com.hypixel.hytale.server.core.ui.builder.EventData;
 import com.hypixel.hytale.server.core.ui.builder.UICommandBuilder;
 import com.hypixel.hytale.server.core.ui.builder.UIEventBuilder;
@@ -30,12 +32,20 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Admin kits page — list all kits with create from inventory/delete/preview/edit.
  * Supports list, preview, edit, permission management, and create modal modes.
  */
 public class AdminKitsPage extends InteractiveCustomUIPage<AdminPageData> {
+
+  private static final int ITEMS_PER_PAGE = 8;
+
+  /** Sort modes for the kit list. */
+  private enum SortMode {
+    NAME, ITEMS, COOLDOWN
+  }
 
   private final PlayerRef playerRef;
   private final Player player;
@@ -62,9 +72,22 @@ public class AdminKitsPage extends InteractiveCustomUIPage<AdminPageData> {
   /** Whether the create modal is showing. */
   private boolean showingCreateModal;
 
+  /** Items captured from inventory for create preview (not yet saved). */
+  @Nullable
+  private List<KitItem> pendingCreateItems;
+
+  /** Tracks the one-time toggle state during creation. */
+  private boolean createOneTimeState;
+
   /** Current search filter text. */
   @Nullable
   private String searchFilter;
+
+  /** Current page index for pagination. */
+  private int currentPage = 0;
+
+  /** Current sort mode for the kit list. */
+  private SortMode sortMode = SortMode.NAME;
 
   public AdminKitsPage(
       @NotNull Player player,
@@ -112,21 +135,44 @@ public class AdminKitsPage extends InteractiveCustomUIPage<AdminPageData> {
   private void buildKitList(@NotNull UICommandBuilder cmd, @NotNull UIEventBuilder events) {
     Collection<Kit> allKits = kitManager.getAllKits();
 
+    // Ensure header, search/sort, and pagination are visible in list mode
+    cmd.set("#HeaderRow.Visible", true);
+    cmd.set("#ControlsRow.Visible", true);
+    cmd.set("#PaginationRow.Visible", true);
+
     // Set search placeholder
     cmd.set("#SearchInput.PlaceholderText",
         HEMessages.get(playerRef, AdminKeys.Kits.SEARCH_PLACEHOLDER));
 
-    // Create button — opens the create modal, captures search text
+    // Create button — opens the create modal, captures search text and sort
     events.addEventBinding(
         CustomUIEventBindingType.Activating, "#CreateBtn",
         EventData.of("Button", "ShowCreateModal")
-            .append("@SearchInput", "#SearchInput.Value"),
+            .append("@SearchInput", "#SearchInput.Value")
+            .append("@SortMode", "#SortDropdown.Value"),
         false
     );
 
-    // Sort kits by name
+    // Sort dropdown entries
+    cmd.set("#SortDropdown.Entries", List.of(
+        new DropdownEntryInfo(LocalizableString.fromString("Name"), "NAME"),
+        new DropdownEntryInfo(LocalizableString.fromString("Items"), "ITEMS"),
+        new DropdownEntryInfo(LocalizableString.fromString("Cooldown"), "COOLDOWN")
+    ));
+    cmd.set("#SortDropdown.Value", sortMode.name());
+    events.addEventBinding(CustomUIEventBindingType.ValueChanged, "#SortDropdown",
+        EventData.of("Button", "SortChanged")
+            .append("@SortMode", "#SortDropdown.Value")
+            .append("@SearchInput", "#SearchInput.Value"), false);
+
+    // Search event — trigger on activating to capture text
+    events.addEventBinding(CustomUIEventBindingType.ValueChanged, "#SearchInput",
+        EventData.of("Button", "SearchChanged")
+            .append("@SearchInput", "#SearchInput.Value")
+            .append("@SortMode", "#SortDropdown.Value"), false);
+
+    // Build filtered and sorted list
     List<Kit> sorted = new ArrayList<>(allKits);
-    sorted.sort(Comparator.comparing(Kit::name));
 
     // Apply search filter
     if (searchFilter != null && !searchFilter.isBlank()) {
@@ -135,65 +181,98 @@ public class AdminKitsPage extends InteractiveCustomUIPage<AdminPageData> {
           && !k.displayName().toLowerCase().contains(filter));
     }
 
+    // Apply sort
+    switch (sortMode) {
+      case ITEMS -> sorted.sort(Comparator.comparingInt((Kit k) -> k.items().size()).reversed());
+      case COOLDOWN -> sorted.sort(Comparator.comparingInt(Kit::cooldownSeconds).reversed());
+      default -> sorted.sort(Comparator.comparing(Kit::name));
+    }
+
     cmd.set("#KitCount.Text", sorted.size() + " kit" + (sorted.size() != 1 ? "s" : ""));
+
+    // Pagination
+    int totalPages = Math.max(1, (int) Math.ceil((double) sorted.size() / ITEMS_PER_PAGE));
+    if (currentPage >= totalPages) currentPage = totalPages - 1;
+    if (currentPage < 0) currentPage = 0;
+
+    int start = currentPage * ITEMS_PER_PAGE;
+    int end = Math.min(start + ITEMS_PER_PAGE, sorted.size());
+    List<Kit> pageKits = sorted.subList(start, end);
 
     cmd.clear("#KitList");
     cmd.appendInline("#KitList", "Group #IndexCards { LayoutMode: Top; }");
 
-    if (sorted.isEmpty()) {
+    if (pageKits.isEmpty()) {
       cmd.append("#IndexCards", UIPaths.EMPTY_STATE);
       cmd.set("#IndexCards[0] #EmptyTitle.Text", HEMessages.get(playerRef, AdminKeys.Kits.EMPTY_TITLE));
       cmd.set("#IndexCards[0] #EmptyMessage.Text", HEMessages.get(playerRef, AdminKeys.Kits.EMPTY_MESSAGE));
-      return;
+    } else {
+      int i = 0;
+      for (Kit kit : pageKits) {
+        cmd.append("#IndexCards", UIPaths.ADMIN_KIT_ENTRY);
+        String idx = "#IndexCards[" + i + "]";
+
+        cmd.set(idx + " #KitName.Text", kit.displayName());
+        cmd.set(idx + " #KitItems.Text", kit.items().size() + " items");
+
+        // Cooldown info
+        if (kit.cooldownSeconds() > 0) {
+          cmd.set(idx + " #KitCooldown.Text", formatCooldown(kit.cooldownSeconds()));
+        }
+
+        // One-time badge
+        if (kit.oneTime()) {
+          cmd.set(idx + " #KitOneTime.Text", HEMessages.get(playerRef, AdminKeys.Kits.ONE_TIME));
+        }
+
+        // Preview button
+        events.addEventBinding(
+            CustomUIEventBindingType.Activating,
+            idx + " #PreviewBtn",
+            EventData.of("Button", "Preview").append("Target", kit.name())
+                .append("@SearchInput", "#SearchInput.Value")
+                .append("@SortMode", "#SortDropdown.Value"),
+            false
+        );
+
+        // Edit button
+        events.addEventBinding(
+            CustomUIEventBindingType.Activating,
+            idx + " #EditBtn",
+            EventData.of("Button", "Edit").append("Target", kit.name())
+                .append("@SearchInput", "#SearchInput.Value")
+                .append("@SortMode", "#SortDropdown.Value"),
+            false
+        );
+
+        // Delete button
+        events.addEventBinding(
+            CustomUIEventBindingType.Activating,
+            idx + " #DeleteBtn",
+            EventData.of("Button", "Delete").append("Target", kit.name())
+                .append("@SearchInput", "#SearchInput.Value")
+                .append("@SortMode", "#SortDropdown.Value"),
+            false
+        );
+
+        i++;
+      }
     }
 
-    int i = 0;
-    for (Kit kit : sorted) {
-      cmd.append("#IndexCards", UIPaths.ADMIN_KIT_ENTRY);
-      String idx = "#IndexCards[" + i + "]";
+    // Pagination controls
+    cmd.set("#PageInfo.Text", "Page " + (currentPage + 1) + " / " + totalPages);
 
-      cmd.set(idx + " #KitName.Text", kit.displayName());
-      cmd.set(idx + " #KitItems.Text", kit.items().size() + " items");
+    cmd.set("#PrevBtn.Disabled", currentPage <= 0);
+    events.addEventBinding(CustomUIEventBindingType.Activating, "#PrevBtn",
+        EventData.of("Button", "PrevPage").append("Page", String.valueOf(currentPage - 1))
+            .append("@SearchInput", "#SearchInput.Value")
+            .append("@SortMode", "#SortDropdown.Value"), false);
 
-      // Cooldown info
-      if (kit.cooldownSeconds() > 0) {
-        cmd.set(idx + " #KitCooldown.Text", formatCooldown(kit.cooldownSeconds()));
-      }
-
-      // One-time badge
-      if (kit.oneTime()) {
-        cmd.set(idx + " #KitOneTime.Text", HEMessages.get(playerRef, AdminKeys.Kits.ONE_TIME));
-      }
-
-      // Preview button
-      events.addEventBinding(
-          CustomUIEventBindingType.Activating,
-          idx + " #PreviewBtn",
-          EventData.of("Button", "Preview").append("Target", kit.name())
-              .append("@SearchInput", "#SearchInput.Value"),
-          false
-      );
-
-      // Edit button
-      events.addEventBinding(
-          CustomUIEventBindingType.Activating,
-          idx + " #EditBtn",
-          EventData.of("Button", "Edit").append("Target", kit.name())
-              .append("@SearchInput", "#SearchInput.Value"),
-          false
-      );
-
-      // Delete button
-      events.addEventBinding(
-          CustomUIEventBindingType.Activating,
-          idx + " #DeleteBtn",
-          EventData.of("Button", "Delete").append("Target", kit.name())
-              .append("@SearchInput", "#SearchInput.Value"),
-          false
-      );
-
-      i++;
-    }
+    cmd.set("#NextBtn.Disabled", currentPage >= totalPages - 1);
+    events.addEventBinding(CustomUIEventBindingType.Activating, "#NextBtn",
+        EventData.of("Button", "NextPage").append("Page", String.valueOf(currentPage + 1))
+            .append("@SearchInput", "#SearchInput.Value")
+            .append("@SortMode", "#SortDropdown.Value"), false);
   }
 
   // =====================================================================
@@ -203,45 +282,88 @@ public class AdminKitsPage extends InteractiveCustomUIPage<AdminPageData> {
   private void buildCreateModal(@NotNull UICommandBuilder cmd, @NotNull UIEventBuilder events) {
     cmd.set("#KitCount.Text", HEMessages.get(playerRef, AdminKeys.Kits.CREATE_TITLE));
 
-    // Replace list area with modal content
+    // Hide search/sort/create controls and pagination in create modal
+    cmd.set("#HeaderRow.Visible", false);
+    cmd.set("#ControlsRow.Visible", false);
+    cmd.set("#PaginationRow.Visible", false);
+
+    // Replace list area with two-column create template
     cmd.clear("#KitList");
     cmd.appendInline("#KitList", "Group #IndexCards { LayoutMode: Top; }");
+    cmd.append("#IndexCards", UIPaths.ADMIN_KIT_CREATE);
+    String create = "#IndexCards[0]";
 
-    // Build a simple create form inline
-    String modalUi =
-        "Group { Anchor: (Height: 200); LayoutMode: Top; Padding: (Left: 40, Right: 40, Top: 30); "
-        // Title
-        + "Label { Text: \"" + HEMessages.get(playerRef, AdminKeys.Kits.CREATE_TITLE)
-        + "\"; Style: (FontSize: 16, TextColor: #FFFFFF, HorizontalAlignment: Center); Anchor: (Height: 28, Bottom: 20); } "
-        // Name label
-        + "Label { Text: \"" + HEMessages.get(playerRef, AdminKeys.Kits.NAME_PLACEHOLDER)
-        + "\"; Style: (FontSize: 12, TextColor: #7c8b99); Anchor: (Height: 18, Bottom: 4); } "
-        // Name input
-        + "Group { Anchor: (Height: 30, Bottom: 20); Background: (Color: #0d1520); Padding: (Left: 6, Right: 6); "
-        + "TextField #ModalNameInput { Anchor: (Height: 26); Style: (FontSize: 12, TextColor: #ffffff); } } "
-        // Button row
-        + "Group { Anchor: (Height: 32); LayoutMode: Left; "
-        + "Group { FlexWeight: 1; } "
-        + "TextButton #ModalCancelBtn { Text: \"Cancel\"; Anchor: (Width: 90, Height: 28); } "
-        + "Group { Anchor: (Width: 8); } "
-        + "TextButton #ModalCreateBtn { Text: \"Create\"; Anchor: (Width: 90, Height: 28); } "
-        + "Group { FlexWeight: 1; } } }";
+    // Title
+    cmd.set(create + " #CreateTitle.Text", HEMessages.get(playerRef, AdminKeys.Kits.CREATE_TITLE));
+    cmd.set(create + " #CreateNameInput.PlaceholderText",
+        HEMessages.get(playerRef, AdminKeys.Kits.NAME_PLACEHOLDER));
 
-    cmd.appendInline("#IndexCards", modalUi);
+    // Default cooldown/one-time from config
+    int defaultCooldown = com.hyperessentials.config.ConfigManager.get().kits().getDefaultCooldownSeconds();
+    cmd.set(create + " #CreateCooldown.Value", String.valueOf(defaultCooldown));
+    cmd.set(create + " #CreateOneTimeToggle.Text",
+        HEMessages.get(playerRef, createOneTimeState ? AdminKeys.Common.YES : AdminKeys.Common.NO));
 
-    // Wire create button — reads the name input value
+    // Item preview (right column)
+    List<KitItem> items = pendingCreateItems != null ? pendingCreateItems : List.of();
+    cmd.set(create + " #CreateItemCount.Text",
+        items.size() + " item" + (items.size() != 1 ? "s" : "") + " from inventory");
+
+    if (items.isEmpty()) {
+      cmd.appendInline(create + " #CreateItems",
+          "Group { Anchor: (Height: 40); LayoutMode: Top; "
+          + "Label { Text: \"Inventory is empty.\"; "
+          + "Style: (FontSize: 12, TextColor: #7c8b99, HorizontalAlignment: Center, VerticalAlignment: Center); "
+          + "Anchor: (Height: 30); } }");
+    } else {
+      for (int i = 0; i < items.size(); i++) {
+        KitItem item = items.get(i);
+        cmd.append(create + " #CreateItems", UIPaths.ADMIN_KIT_PREVIEW_ITEM);
+        String rowIdx = create + " #CreateItems[" + i + "]";
+
+        cmd.set(rowIdx + " #ItemImg.ItemId", item.itemId());
+        cmd.set(rowIdx + " #ItemName.Text", formatItemName(item.itemId()));
+        cmd.set(rowIdx + " #ItemInfo.Text", "x" + item.quantity() + " [" + item.section() + "]");
+
+        events.addEventBinding(
+            CustomUIEventBindingType.Activating,
+            rowIdx + " #RemoveBtn",
+            EventData.of("Button", "RemoveCreateItem")
+                .append("Value", String.valueOf(i)),
+            false
+        );
+      }
+    }
+
+    // Wire one-time toggle
     events.addEventBinding(
         CustomUIEventBindingType.Activating,
-        "#IndexCards[0] #ModalCreateBtn",
-        EventData.of("Button", "Create")
-            .append("@InputName", "#IndexCards[0] #ModalNameInput.Value"),
+        create + " #CreateOneTimeToggle",
+        EventData.of("Button", "ToggleCreateOneTime"),
         false
     );
 
-    // Wire cancel button
+    // Wire create button — reads all form fields
     events.addEventBinding(
         CustomUIEventBindingType.Activating,
-        "#IndexCards[0] #ModalCancelBtn",
+        create + " #CreateSaveBtn",
+        EventData.of("Button", "Create")
+            .append("@InputName", create + " #CreateNameInput.Value")
+            .append("@InputDisplayName", create + " #CreateDisplayName.Value")
+            .append("@InputCooldown", create + " #CreateCooldown.Value"),
+        false
+    );
+
+    // Wire back/cancel buttons
+    events.addEventBinding(
+        CustomUIEventBindingType.Activating,
+        create + " #CreateBackBtn",
+        EventData.of("Button", "CancelCreate"),
+        false
+    );
+    events.addEventBinding(
+        CustomUIEventBindingType.Activating,
+        create + " #CreateCancelBtn",
         EventData.of("Button", "CancelCreate"),
         false
     );
@@ -262,6 +384,11 @@ public class AdminKitsPage extends InteractiveCustomUIPage<AdminPageData> {
     }
 
     cmd.set("#KitCount.Text", HEMessages.get(playerRef, AdminKeys.Kits.PREVIEW_TITLE));
+
+    // Hide search/sort/create controls and pagination in preview mode
+    cmd.set("#HeaderRow.Visible", false);
+    cmd.set("#ControlsRow.Visible", false);
+    cmd.set("#PaginationRow.Visible", false);
 
     // Replace list area with preview template
     cmd.clear("#KitList");
@@ -298,20 +425,12 @@ public class AdminKitsPage extends InteractiveCustomUIPage<AdminPageData> {
         KitItem item = items.get(i);
         String itemName = formatItemName(item.itemId());
 
-        // Build each item row inline: ItemIcon + name + quantity + section + remove button
-        String rowUi = "Group { Anchor: (Height: 34, Bottom: 2); Background: (Color: #141c26); LayoutMode: Left; "
-            + "Group { Anchor: (Width: 32, Height: 34); "
-            + "ItemIcon #ItemImg { Anchor: (Width: 28, Height: 28, Left: 2, Top: 3); ItemId: \"" + item.itemId() + "\"; } } "
-            + "Group { FlexWeight: 1; Padding: (Left: 6, Top: 4, Bottom: 4); LayoutMode: Top; "
-            + "Label #ItemName { Text: \"" + escapeUiString(itemName) + "\"; "
-            + "Style: (FontSize: 11, TextColor: #FFFFFF, VerticalAlignment: Center); Anchor: (Height: 14); } "
-            + "Label #ItemInfo { Text: \"x" + item.quantity() + " [" + item.section() + "]\"; "
-            + "Style: (FontSize: 9, TextColor: #7c8b99, VerticalAlignment: Center); Anchor: (Height: 12); } } "
-            + "Group { Anchor: (Width: 65); Padding: (Right: 6, Top: 5, Bottom: 5); "
-            + "TextButton #RemoveBtn { Text: \"Remove\"; Anchor: (Width: 58, Height: 22); } } }";
-
-        cmd.appendInline(preview + " #PreviewItems", rowUi);
+        cmd.append(preview + " #PreviewItems", UIPaths.ADMIN_KIT_PREVIEW_ITEM);
         String rowIdx = preview + " #PreviewItems[" + i + "]";
+
+        cmd.set(rowIdx + " #ItemImg.ItemId", item.itemId());
+        cmd.set(rowIdx + " #ItemName.Text", itemName);
+        cmd.set(rowIdx + " #ItemInfo.Text", "x" + item.quantity() + " [" + item.section() + "]");
 
         // Wire remove button
         events.addEventBinding(
@@ -350,6 +469,11 @@ public class AdminKitsPage extends InteractiveCustomUIPage<AdminPageData> {
 
     cmd.set("#KitCount.Text", HEMessages.get(playerRef, AdminKeys.Kits.EDIT_TITLE));
 
+    // Hide search/sort/create controls and pagination in edit mode
+    cmd.set("#HeaderRow.Visible", false);
+    cmd.set("#ControlsRow.Visible", false);
+    cmd.set("#PaginationRow.Visible", false);
+
     // Replace list area with edit template
     cmd.clear("#KitList");
     cmd.appendInline("#KitList", "Group #IndexCards { LayoutMode: Top; }");
@@ -364,7 +488,6 @@ public class AdminKitsPage extends InteractiveCustomUIPage<AdminPageData> {
     cmd.set(edit + " #EditTitle.Text", HEMessages.get(playerRef, AdminKeys.Kits.EDIT_TITLE));
     cmd.set(edit + " #EditDisplayNameLabel.Text", HEMessages.get(playerRef, AdminKeys.Kits.EDIT_DISPLAY_NAME));
     cmd.set(edit + " #EditCooldownLabel.Text", HEMessages.get(playerRef, AdminKeys.Kits.EDIT_COOLDOWN));
-    cmd.set(edit + " #EditPermissionLabel.Text", HEMessages.get(playerRef, AdminKeys.Kits.EDIT_PERMISSION));
 
     // Populate editable field values
     cmd.set(edit + " #EditDisplayName.Value", kit.displayName());
@@ -373,10 +496,6 @@ public class AdminKitsPage extends InteractiveCustomUIPage<AdminPageData> {
     // One-time toggle button text
     editOneTimeState = kit.oneTime();
     cmd.set(edit + " #EditOneTimeToggle.Text", HEMessages.get(playerRef, editOneTimeState ? AdminKeys.Common.YES : AdminKeys.Common.NO));
-
-    if (kit.permission() != null) {
-      cmd.set(edit + " #EditPermission.Value", kit.permission());
-    }
 
     // Wire one-time toggle button
     events.addEventBinding(
@@ -393,8 +512,7 @@ public class AdminKitsPage extends InteractiveCustomUIPage<AdminPageData> {
         EventData.of("Button", "SaveEdit")
             .append("Target", kit.name())
             .append("@InputName", edit + " #EditDisplayName.Value")
-            .append("@InputCooldown", edit + " #EditCooldown.Value")
-            .append("@InputPermission", edit + " #EditPermission.Value"),
+            .append("@InputCooldown", edit + " #EditCooldown.Value"),
         false
     );
 
@@ -413,23 +531,15 @@ public class AdminKitsPage extends InteractiveCustomUIPage<AdminPageData> {
         false
     );
 
-    // Show "Permissions" button only when HyperPerms is available
+    // Show "Permissions" button inline when HyperPerms is available
     HyperPermsProviderAdapter adapter = PermissionManager.get().getHyperPermsAdapter();
     if (adapter != null) {
-      // Determine the permission node for this kit
       String permNode = kit.permission() != null ? kit.permission() : "hyperessentials.kit." + kit.name();
 
-      // Add Permissions button after save/cancel row
-      cmd.appendInline("#IndexCards",
-          "Group { Anchor: (Height: 34, Top: 6); LayoutMode: Left; "
-          + "Group { FlexWeight: 1; } "
-          + "TextButton #PermBtn { Text: \"Permissions\"; "
-          + "Anchor: (Width: 120, Height: 28); } "
-          + "Group { FlexWeight: 1; } }");
-
+      cmd.set(edit + " #EditPermBtn.Visible", true);
       events.addEventBinding(
           CustomUIEventBindingType.Activating,
-          "#IndexCards[1] #PermBtn",
+          edit + " #EditPermBtn",
           EventData.of("Button", "ManagePerms").append("Target", permNode),
           false
       );
@@ -451,6 +561,11 @@ public class AdminKitsPage extends InteractiveCustomUIPage<AdminPageData> {
     }
 
     cmd.set("#KitCount.Text", HEMessages.get(playerRef, AdminKeys.Perms.TITLE));
+
+    // Hide search/sort/create controls and pagination in permission mode
+    cmd.set("#HeaderRow.Visible", false);
+    cmd.set("#ControlsRow.Visible", false);
+    cmd.set("#PaginationRow.Visible", false);
 
     // Replace list area with permission template
     cmd.clear("#KitList");
@@ -492,19 +607,12 @@ public class AdminKitsPage extends InteractiveCustomUIPage<AdminPageData> {
           : HEMessages.get(playerRef, AdminKeys.Perms.ADD);
       String btnAction = hasPerm ? "RemovePerm" : "AddPerm";
 
-      // Build inline row: status indicator + group name + add/remove button
-      String statusColor = hasPerm ? "#44cc44" : "#7c8b99";
-      String rowUi = "Group { Anchor: (Height: 32, Bottom: 2); Background: (Color: #141c26); LayoutMode: Left; "
-          + "Group { Anchor: (Width: 8); } "
-          + "Group { Anchor: (Width: 8, Height: 8, Top: 12); Background: (Color: " + statusColor + "); } "
-          + "Group { Anchor: (Width: 8); } "
-          + "Label #RoleName { Text: \"" + groupName + "\"; "
-          + "Style: (FontSize: 12, TextColor: #FFFFFF, VerticalAlignment: Center); FlexWeight: 1; } "
-          + "Group { Anchor: (Width: 80); Padding: (Right: 6, Top: 4, Bottom: 4); "
-          + "TextButton #PermToggle { Text: \"" + btnText + "\"; Anchor: (Width: 74, Height: 24); } } }";
-
-      cmd.appendInline(perm + " #PermRoleList", rowUi);
+      cmd.append(perm + " #PermRoleList", UIPaths.ADMIN_PERM_ROLE_ENTRY);
       String rowIdx = perm + " #PermRoleList[" + i + "]";
+
+      cmd.set(rowIdx + " #RoleName.Text", groupName);
+      cmd.set(rowIdx + " #PermToggle.Text", btnText);
+      cmd.set(rowIdx + " #StatusIndicator.Background.Color", hasPerm ? "#44cc44" : "#7c8b99");
 
       events.addEventBinding(
           CustomUIEventBindingType.Activating,
@@ -533,12 +641,6 @@ public class AdminKitsPage extends InteractiveCustomUIPage<AdminPageData> {
     return itemId.replace('_', ' ');
   }
 
-  /** Escapes characters that would break .ui inline strings. */
-  private String escapeUiString(@NotNull String text) {
-    // Remove quotes and dollar signs that would break the .ui parser
-    return text.replace("\"", "").replace("$", "");
-  }
-
   @Override
   public void handleDataEvent(@NotNull Ref<EntityStore> ref, @NotNull Store<EntityStore> store,
                               @NotNull AdminPageData data) {
@@ -557,15 +659,31 @@ public class AdminKitsPage extends InteractiveCustomUIPage<AdminPageData> {
       searchFilter = data.inputSearch.isBlank() ? null : data.inputSearch.trim();
     }
 
+    // Capture sort mode from any event that includes it
+    if (data.sortMode != null && !data.sortMode.isBlank()) {
+      try {
+        sortMode = SortMode.valueOf(data.sortMode.trim());
+      } catch (IllegalArgumentException ignored) {
+        // Keep existing sort mode if parse fails
+      }
+    }
+
     if (data.button == null) {
       sendUpdate();
       return;
     }
 
     switch (data.button) {
-      case "ShowCreateModal" -> { showingCreateModal = true; rebuildContent(); }
+      case "ShowCreateModal" -> {
+        pendingCreateItems = new ArrayList<>(kitManager.captureInventoryItems(pageStore, pageRef));
+        createOneTimeState = com.hyperessentials.config.ConfigManager.get().kits().isOneTimeDefault();
+        showingCreateModal = true;
+        rebuildContent();
+      }
       case "Create" -> handleCreate(data);
       case "CancelCreate" -> handleCancelCreate();
+      case "ToggleCreateOneTime" -> { createOneTimeState = !createOneTimeState; rebuildContent(); }
+      case "RemoveCreateItem" -> handleRemoveCreateItem(data.value);
       case "Delete" -> handleDelete(data.target);
       case "Preview" -> handlePreview(data.target);
       case "CancelPreview" -> handleCancelPreview();
@@ -578,23 +696,55 @@ public class AdminKitsPage extends InteractiveCustomUIPage<AdminPageData> {
       case "CancelPerms" -> handleCancelPerms();
       case "AddPerm" -> handleAddPerm(data.target);
       case "RemovePerm" -> handleRemovePerm(data.target);
+      case "SearchChanged" -> { currentPage = 0; rebuildContent(); }
+      case "SortChanged" -> { currentPage = 0; rebuildContent(); }
+      case "PrevPage", "NextPage" -> { currentPage = data.page; rebuildContent(); }
       default -> sendUpdate();
     }
   }
 
   private void handleCreate(@NotNull AdminPageData data) {
-    // Use the name from the modal input, or fall back to auto-generated
+    // Use the name from the form input, or fall back to auto-generated
     String name = (data.inputName != null && !data.inputName.isBlank())
         ? data.inputName.trim().toLowerCase().replaceAll("\\s+", "_")
         : "kit_" + System.currentTimeMillis() % 100000;
 
-    kitManager.captureFromInventory(playerRef, pageStore, pageRef, name);
+    // Build display name
+    String displayName = (data.inputDisplayName != null && !data.inputDisplayName.isBlank())
+        ? data.inputDisplayName.trim() : name;
+
+    // Parse cooldown
+    int cooldown = com.hyperessentials.config.ConfigManager.get().kits().getDefaultCooldownSeconds();
+    if (data.inputCooldown != null && !data.inputCooldown.isBlank()) {
+      try { cooldown = Integer.parseInt(data.inputCooldown.trim()); } catch (NumberFormatException ignored) {}
+    }
+
+    // Use pending items (may have had items removed by user)
+    List<KitItem> items = pendingCreateItems != null ? pendingCreateItems : List.of();
+
+    Kit kit = new Kit(UUID.randomUUID(), name, displayName, items,
+        cooldown, createOneTimeState, null);
+    kitManager.updateKit(kit);
+
     showingCreateModal = false;
+    pendingCreateItems = null;
     rebuildContent();
   }
 
   private void handleCancelCreate() {
     showingCreateModal = false;
+    pendingCreateItems = null;
+    rebuildContent();
+  }
+
+  private void handleRemoveCreateItem(@Nullable String indexStr) {
+    if (indexStr == null || pendingCreateItems == null) return;
+    try {
+      int index = Integer.parseInt(indexStr);
+      if (index >= 0 && index < pendingCreateItems.size()) {
+        pendingCreateItems.remove(index);
+      }
+    } catch (NumberFormatException ignored) {}
     rebuildContent();
   }
 
@@ -686,12 +836,6 @@ public class AdminKitsPage extends InteractiveCustomUIPage<AdminPageData> {
 
     // Apply one-time toggle state
     kit = kit.withOneTime(editOneTimeState);
-
-    // Permission can be cleared (empty string = null)
-    if (data.inputPermission != null) {
-      String perm = data.inputPermission.trim();
-      kit = kit.withPermission(perm.isEmpty() ? null : perm);
-    }
 
     kitManager.updateKit(kit);
 
