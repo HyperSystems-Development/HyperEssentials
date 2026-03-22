@@ -1,5 +1,7 @@
 package com.hyperessentials.importer;
 
+import com.hyperessentials.backup.BackupManager;
+import com.hyperessentials.storage.StorageProvider;
 import com.hyperessentials.util.CommandKeys;
 import com.hyperessentials.util.ErrorHandler;
 import com.hyperessentials.util.HEMessageUtil;
@@ -19,8 +21,13 @@ import org.jetbrains.annotations.Nullable;
  * <p>Parses source name, optional path, and flags ({@code --dry-run}, {@code --overwrite}),
  * then delegates to the appropriate {@link EssentialsImporter} implementation.
  *
- * <p>Currently a scaffold with no concrete importers registered.
- * New importers are added by extending the {@code switch} in {@link #handleImport}.
+ * <p>Supported sources:
+ * <ul>
+ *   <li>{@code elite} — EliteEssentials (v1.1.21)</li>
+ *   <li>{@code essentials} / {@code nhulston} — Essentials by nhulston (v1.8.0)</li>
+ *   <li>{@code essplus} — EssentialsPlus by fof1092 (v1.16.1)</li>
+ *   <li>{@code hesx} — hyessentialsx by thelegacyvoyage (v1.4.1)</li>
+ * </ul>
  */
 public class AdminImportHandler {
 
@@ -30,12 +37,21 @@ public class AdminImportHandler {
   private static final String COLOR_GRAY = HEMessageUtil.COLOR_GRAY;
   private static final String COLOR_GOLD = HEMessageUtil.COLOR_GOLD;
 
+  private final StorageProvider storageProvider;
+  private final BackupManager backupManager;
+
+  public AdminImportHandler(@NotNull StorageProvider storageProvider,
+                            @Nullable BackupManager backupManager) {
+    this.storageProvider = storageProvider;
+    this.backupManager = backupManager;
+  }
+
   /**
    * Entry point for import commands.
    *
    * @param ctx the command context
    * @param player the player executing the command (null for console)
-   * @param args arguments after "import" (e.g., ["hyhomes", "--dry-run"])
+   * @param args arguments after "import" (e.g., ["elite", "--dry-run"])
    */
   public void handleImport(@NotNull CommandContext ctx, @Nullable PlayerRef player, @NotNull String[] args) {
     if (args.length == 0) {
@@ -47,9 +63,14 @@ public class AdminImportHandler {
     String[] subArgs = args.length > 1 ? Arrays.copyOfRange(args, 1, args.length) : new String[0];
 
     switch (subCmd) {
-      // Future importers will be added here:
-      // case "hyperhomes" -> runImporter(ctx, player, new HyperHomesImporter(...), subArgs);
-      // case "essentialsx" -> runImporter(ctx, player, new EssentialsXImporter(...), subArgs);
+      case "elite", "eliteessentials" ->
+          runImporter(ctx, player, new EliteEssentialsImporter(storageProvider, backupManager), subArgs);
+      case "essentials", "nhulston" ->
+          runImporter(ctx, player, new NhulstonEssentialsImporter(storageProvider, backupManager), subArgs);
+      case "essplus", "essentialsplus" ->
+          runImporter(ctx, player, new EssentialsPlusImporter(storageProvider, backupManager), subArgs);
+      case "hesx", "hyessentialsx" ->
+          runImporter(ctx, player, new HyEssentialsXImporter(storageProvider, backupManager), subArgs);
       case "help", "?" -> showImportHelp(ctx, player);
       default -> {
         ctx.sendMessage(HEMessageUtil.error(player, CommandKeys.Import.UNKNOWN_SOURCE, subCmd));
@@ -179,7 +200,10 @@ public class AdminImportHandler {
     ctx.sendMessage(HEMessageUtil.info(player, CommandKeys.Import.HELP_USAGE, COLOR_YELLOW));
     ctx.sendMessage(HEMessageUtil.info("", COLOR_GRAY));
     ctx.sendMessage(HEMessageUtil.info(player, CommandKeys.Import.HELP_SOURCES_HEADER, COLOR_YELLOW));
-    ctx.sendMessage(HEMessageUtil.info(player, CommandKeys.Import.HELP_NO_SOURCES, COLOR_GRAY));
+    ctx.sendMessage(HEMessageUtil.info("  elite          EliteEssentials (v1.1.21)", COLOR_GRAY));
+    ctx.sendMessage(HEMessageUtil.info("  essentials     Essentials by nhulston (v1.8.0)", COLOR_GRAY));
+    ctx.sendMessage(HEMessageUtil.info("  essplus        EssentialsPlus by fof1092 (v1.16.1)", COLOR_GRAY));
+    ctx.sendMessage(HEMessageUtil.info("  hesx           hyessentialsx by thelegacyvoyage (v1.4.1)", COLOR_GRAY));
     ctx.sendMessage(HEMessageUtil.info("", COLOR_GRAY));
     ctx.sendMessage(HEMessageUtil.info(player, CommandKeys.Import.HELP_FLAGS_HEADER, COLOR_YELLOW));
     ctx.sendMessage(HEMessageUtil.info("  --dry-run / -n  " + "Simulate without changes", COLOR_GRAY));

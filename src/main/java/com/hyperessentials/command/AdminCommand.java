@@ -1,6 +1,7 @@
 package com.hyperessentials.command;
 
 import com.hyperessentials.BuildInfo;
+import com.hyperessentials.HyperEssentials;
 import com.hyperessentials.Permissions;
 import com.hyperessentials.api.HyperEssentialsAPI;
 import com.hyperessentials.command.util.CommandUtil;
@@ -106,7 +107,13 @@ public class AdminCommand extends AbstractPlayerCommand {
     // parts[0]="he", parts[1]="import", parts[2+]=args for handler
     String[] importArgs = parts.length > 2 ? Arrays.copyOfRange(parts, 2, parts.length) : new String[0];
 
-    new AdminImportHandler().handleImport(ctx, playerRef, importArgs);
+    HyperEssentials core = HyperEssentialsAPI.getInstance();
+    if (core == null) {
+      ctx.sendMessage(CommandUtil.error("HyperEssentials is not initialized."));
+      return;
+    }
+    new AdminImportHandler(core.getStorageProvider(), core.getBackupManager())
+        .handleImport(ctx, playerRef, importArgs);
   }
 
   private void showVersion(@NotNull CommandContext ctx) {

@@ -124,7 +124,8 @@ public class UtilityModule extends AbstractModule {
           plugin.getCommandRegistry().registerCommand(new SleepPercentageCommand());
 
         // Import command (always registered, permission-gated)
-        plugin.getCommandRegistry().registerCommand(new ImportCommand(new AdminImportHandler()));
+        plugin.getCommandRegistry().registerCommand(new ImportCommand(
+            new AdminImportHandler(core.getStorageProvider(), core.getBackupManager())));
 
         Logger.info("[Utility] Registered utility commands");
       } catch (Exception e) {
