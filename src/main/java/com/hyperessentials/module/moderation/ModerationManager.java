@@ -488,7 +488,7 @@ public class ModerationManager {
     PlayerRef player = findOnlinePlayer(playerUuid);
     if (player != null) {
       try {
-        player.getPacketHandler().disconnect(reason);
+        player.getPacketHandler().disconnect(Message.raw(reason));
       } catch (Exception e) {
         ErrorHandler.report("[Moderation] Failed to kick player", e);
       }

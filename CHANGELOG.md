@@ -178,6 +178,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `TempMuteCommand.java` — merged into `MuteCommand`
 
 ### Fixed
+- **Server API 2026.03.26 compatibility** — updated `disconnect()` calls from `disconnect(String)` to `disconnect(Message.raw(String))` in ModerationManager and ModerationListener (API removed String overload)
 - Infinite stamina enforcement now dispatches to world thread via `world.execute()` (fixes `PlayerRef.getComponent() called async` error spam)
 - AFK status now properly clears on player movement (added position polling and mouse motion listener)
 - `/heal` only maximizes health stat instead of all stats (avoids unnecessary regen visual effects)

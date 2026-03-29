@@ -11,6 +11,7 @@ import com.hyperessentials.module.moderation.data.Punishment;
 import com.hyperessentials.util.DurationParser;
 import com.hyperessentials.util.ErrorHandler;
 import com.hyperessentials.util.Logger;
+import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.server.core.event.events.player.PlayerChatEvent;
 import com.hypixel.hytale.server.core.event.events.player.PlayerConnectEvent;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
@@ -51,7 +52,7 @@ public class ModerationListener {
       }
 
       try {
-        playerRef.getPacketHandler().disconnect(message.toString());
+        playerRef.getPacketHandler().disconnect(Message.raw(message.toString()));
       } catch (Exception e) {
         ErrorHandler.report("[Moderation] Failed to disconnect banned player", e);
       }
@@ -67,7 +68,7 @@ public class ModerationListener {
         String ip = addr.getAddress().getHostAddress();
         if (modManager.isIpBanned(ip)) {
           try {
-            playerRef.getPacketHandler().disconnect("Your IP address has been banned.");
+            playerRef.getPacketHandler().disconnect(Message.raw("Your IP address has been banned."));
           } catch (Exception e) {
             ErrorHandler.report("[Moderation] Failed to disconnect IP-banned player", e);
           }
