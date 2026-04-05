@@ -3,18 +3,32 @@ package com.hyperessentials.integration;
 import com.hyperessentials.util.Logger;
 
 /**
- * Stub for future Ecotale economy integration.
+ * Detects Ecotale economy plugin availability via reflection.
  */
 public final class EcotaleIntegration {
 
-    private static boolean available = false;
+  private static boolean available = false;
+  private static boolean checked = false;
 
-    private EcotaleIntegration() {}
+  private EcotaleIntegration() {}
 
-    public static void init() {
-        // TODO: Detect and initialize Ecotale integration
-        Logger.debug("[Integration] Ecotale integration not yet implemented");
+  /** Attempts to detect Ecotale via reflection. */
+  public static void init() {
+    if (checked) {
+      return;
     }
+    checked = true;
 
-    public static boolean isAvailable() { return available; }
+    try {
+      Class.forName("com.ecotale.Ecotale");
+      available = true;
+      Logger.info("[Integration] Ecotale detected");
+    } catch (ClassNotFoundException e) {
+      available = false;
+      Logger.debug("[Integration] Ecotale not detected");
+    }
+  }
+
+  /** Returns true if Ecotale is available on the server. */
+  public static boolean isAvailable() { return available; }
 }

@@ -1,0 +1,30 @@
+$S = "../shared/styles.ui";
+
+Group {
+  Anchor: (Height: 32, Bottom: 3);
+  Background: (Color: #141c26);
+  Padding: (Left: 10, Right: 10);
+  LayoutMode: Left;
+
+  // Status indicator dot
+  Group #StatusDot {
+    Anchor: (Width: 8, Height: 8);
+    Background: (Color: #888888);
+  }
+
+  Group { Anchor: (Width: 8); }
+
+  // Module name
+  Label #ModuleName {
+    Text: "";
+    Style: (FontSize: 12, TextColor: #e0e8f0, VerticalAlignment: Center);
+    FlexWeight: 1;
+  }
+
+  // Status text
+  Label #ModuleStatus {
+    Text: "Disabled";
+    Style: (FontSize: 11, TextColor: #888888, VerticalAlignment: Center);
+    Anchor: (Width: 80);
+  }
+}

@@ -1,0 +1,13 @@
+$C = "../../Common.ui";
+$S = "../shared/styles.ui";
+
+Group {
+  Anchor: (Height: 26, Bottom: 4, Top: 4);
+  Padding: (Left: 8);
+
+  Label #CategoryName {
+    Text: "Category";
+    Style: (FontSize: 12, TextColor: #FFAA00, RenderBold: true, VerticalAlignment: Center);
+    Anchor: (Height: 22);
+  }
+}

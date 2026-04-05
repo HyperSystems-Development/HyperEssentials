@@ -1,0 +1,50 @@
+$C = "../../Common.ui";
+$S = "../shared/styles.ui";
+
+$C.@PageOverlay {
+  $C.@DecoratedContainer {
+    Anchor: (Width: 480, Height: 380);
+
+    #Title {
+      $C.@Title {
+        @Text = "Back Locations";
+      }
+    }
+
+    #Content {
+      LayoutMode: Top;
+      Padding: (Left: 15, Right: 15, Top: 10, Bottom: 10);
+
+      // Header with count
+      Group {
+        Anchor: (Height: 24, Bottom: 6);
+        LayoutMode: Left;
+
+        Label #BackCount {
+          Text: "0 location(s)";
+          Style: (FontSize: 12, TextColor: #7c8b99, VerticalAlignment: Center);
+          Anchor: (Width: 200);
+        }
+      }
+
+      // Divider
+      Group {
+        Anchor: (Height: 1, Bottom: 8);
+        Background: (Color: #FFAA00);
+      }
+
+      // Scrollable back location list
+      Group #BackListContainer {
+        LayoutMode: TopScrolling;
+        ScrollbarStyle: $C.@DefaultScrollbarStyle;
+        FlexWeight: 1;
+
+        Group #BackList {
+          LayoutMode: Top;
+        }
+      }
+    }
+  }
+}
+
+$C.@BackButton {}

@@ -1,0 +1,106 @@
+$C = "../../Common.ui";
+$S = "../shared/styles.ui";
+
+Group {
+  LayoutMode: Top;
+  Padding: (Left: 8, Right: 8);
+
+  // Action header with gold accent
+  Group {
+    Anchor: (Height: 38, Bottom: 10);
+    Background: (Color: #1a2a3a);
+    Padding: (Left: 15, Right: 15, Top: 8, Bottom: 8);
+    LayoutMode: Left;
+
+    // Gold indicator bar
+    Group {
+      Anchor: (Width: 3, Height: 22);
+      Background: (Color: #FFAA00);
+    }
+
+    Group { Anchor: (Width: 10); }
+
+    Label #ActionTitle {
+      Text: "";
+      Style: (FontSize: 14, TextColor: #FFAA00, RenderBold: true, VerticalAlignment: Center);
+      FlexWeight: 1;
+    }
+  }
+
+  // Duration field
+  Group {
+    Anchor: (Height: 28, Bottom: 6);
+    LayoutMode: Left;
+
+    Label #DurationLabel {
+      Text: "Duration:";
+      Style: (FontSize: 10, TextColor: #666666, VerticalAlignment: Center);
+      Anchor: (Width: 80);
+    }
+
+    Group {
+      FlexWeight: 1;
+      Anchor: (Height: 26);
+      Background: (Color: #0d1520);
+      Padding: (Left: 8, Right: 8);
+
+      $C.@TextField #DurationInput {
+        Anchor: (Height: 22);
+        Style: (FontSize: 11, TextColor: #CCCCCC);
+      }
+    }
+
+    Group { Anchor: (Width: 8); }
+
+    Label #DurationHint {
+      Text: "e.g. 1d, 2h, 30m";
+      Style: (FontSize: 9, TextColor: #555555, VerticalAlignment: Center);
+      Anchor: (Width: 100);
+    }
+  }
+
+  // Reason field
+  Group {
+    Anchor: (Height: 28, Bottom: 12);
+    LayoutMode: Left;
+
+    Label #ReasonLabel {
+      Text: "Reason:";
+      Style: (FontSize: 10, TextColor: #666666, VerticalAlignment: Center);
+      Anchor: (Width: 80);
+    }
+
+    Group {
+      FlexWeight: 1;
+      Anchor: (Height: 26);
+      Background: (Color: #0d1520);
+      Padding: (Left: 8, Right: 8);
+
+      $C.@TextField #ReasonInput {
+        Anchor: (Height: 22);
+        Style: (FontSize: 11, TextColor: #CCCCCC);
+      }
+    }
+  }
+
+  // Confirm / Cancel buttons
+  Group {
+    Anchor: (Height: 32);
+    LayoutMode: Left;
+    Padding: (Left: 80);
+
+    TextButton #ConfirmBtn {
+      Text: "Confirm";
+      Style: $S.@FlatGreenButtonStyle;
+      Anchor: (Width: 100, Height: 28);
+    }
+
+    Group { Anchor: (Width: 10); }
+
+    TextButton #CancelBtn {
+      Text: "Cancel";
+      Style: $S.@ButtonStyle;
+      Anchor: (Width: 80, Height: 28);
+    }
+  }
+}

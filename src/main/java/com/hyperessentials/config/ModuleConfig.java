@@ -10,43 +10,43 @@ import java.nio.file.Path;
  */
 public abstract class ModuleConfig extends ConfigFile {
 
-    protected boolean enabled = true;
+  protected boolean enabled = true;
 
-    protected ModuleConfig(@NotNull Path filePath) {
-        super(filePath);
-    }
+  protected ModuleConfig(@NotNull Path filePath) {
+    super(filePath);
+  }
 
-    @NotNull
-    public abstract String getModuleName();
+  @NotNull
+  public abstract String getModuleName();
 
-    public boolean isEnabled() {
-        return enabled;
-    }
+  public boolean isEnabled() {
+    return enabled;
+  }
 
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
-    }
+  public void setEnabled(boolean enabled) {
+    this.enabled = enabled;
+  }
 
-    protected boolean getDefaultEnabled() {
-        return true;
-    }
+  protected boolean getDefaultEnabled() {
+    return true;
+  }
 
-    @Override
-    protected void loadFromJson(@NotNull JsonObject root) {
-        this.enabled = getBool(root, "enabled", getDefaultEnabled());
-        loadModuleSettings(root);
-    }
+  @Override
+  protected void loadFromJson(@NotNull JsonObject root) {
+    this.enabled = getBool(root, "enabled", getDefaultEnabled());
+    loadModuleSettings(root);
+  }
 
-    @Override
-    @NotNull
-    protected JsonObject toJson() {
-        JsonObject root = new JsonObject();
-        root.addProperty("enabled", enabled);
-        writeModuleSettings(root);
-        return root;
-    }
+  @Override
+  @NotNull
+  protected JsonObject toJson() {
+    JsonObject root = new JsonObject();
+    root.addProperty("enabled", enabled);
+    writeModuleSettings(root);
+    return root;
+  }
 
-    protected abstract void loadModuleSettings(@NotNull JsonObject root);
+  protected abstract void loadModuleSettings(@NotNull JsonObject root);
 
-    protected abstract void writeModuleSettings(@NotNull JsonObject root);
+  protected abstract void writeModuleSettings(@NotNull JsonObject root);
 }

@@ -1,0 +1,55 @@
+$C = "../../Common.ui";
+$S = "../shared/styles.ui";
+$Nav = "../shared/nav_bar.ui";
+
+$C.@PageOverlay {
+  $Nav.@HyperEssentialsNavBar #NavBar {}
+
+  $C.@DecoratedContainer {
+    Anchor: (Width: 550, Height: 420);
+
+    #Title {
+      $C.@Title {
+        @Text = "Homes";
+      }
+    }
+
+    #Content {
+      LayoutMode: Top;
+      Padding: (Left: 15, Right: 15, Top: 10, Bottom: 10);
+
+      // Header with count
+      Group {
+        Anchor: (Height: 28, Bottom: 6);
+        LayoutMode: Left;
+
+        Label #HomeCount {
+          Text: "0 / 0 homes";
+          Style: (FontSize: 13, TextColor: #7c8b99, VerticalAlignment: Center);
+          Anchor: (Width: 200);
+        }
+
+        Group { FlexWeight: 1; }
+      }
+
+      // Divider
+      Group {
+        Anchor: (Height: 1, Bottom: 8);
+        Background: (Color: #FFAA00);
+      }
+
+      // Scrollable home list
+      Group #HomeListContainer {
+        LayoutMode: TopScrolling;
+        ScrollbarStyle: $C.@DefaultScrollbarStyle;
+        FlexWeight: 1;
+
+        Group #HomeList {
+          LayoutMode: Top;
+        }
+      }
+    }
+  }
+}
+
+$C.@BackButton {}

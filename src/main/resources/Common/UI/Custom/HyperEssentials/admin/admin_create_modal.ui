@@ -1,0 +1,54 @@
+$C = "../../Common.ui";
+$S = "../shared/styles.ui";
+
+Group {
+  Anchor: (Height: 200);
+  LayoutMode: Top;
+  Padding: (Left: 40, Right: 40, Top: 30);
+
+  Label #ModalTitle {
+    Text: "";
+    Style: (FontSize: 16, TextColor: #FFFFFF, HorizontalAlignment: Center);
+    Anchor: (Height: 28, Bottom: 20);
+  }
+
+  Label #ModalNameLabel {
+    Text: "";
+    Style: (FontSize: 12, TextColor: #7c8b99);
+    Anchor: (Height: 18, Bottom: 4);
+  }
+
+  Group {
+    Anchor: (Height: 30, Bottom: 20);
+    Background: (Color: #0d1520);
+    Padding: (Left: 6, Right: 6);
+
+    TextField #ModalNameInput {
+      Anchor: (Height: 26);
+      Style: (FontSize: 12, TextColor: #ffffff);
+    }
+  }
+
+  Group {
+    Anchor: (Height: 32);
+    LayoutMode: Left;
+
+    Group { FlexWeight: 1; }
+
+    TextButton #ModalCancelBtn {
+      Text: "Cancel";
+      Style: $S.@ButtonStyle;
+      Anchor: (Width: 90, Height: 28);
+    }
+
+    Group { Anchor: (Width: 8); }
+
+    TextButton #ModalCreateBtn {
+      Text: "Create";
+      Style: $S.@GoldButtonStyle;
+      Anchor: (Width: 90, Height: 28);
+    }
+
+    Group { FlexWeight: 1; }
+  }
+}

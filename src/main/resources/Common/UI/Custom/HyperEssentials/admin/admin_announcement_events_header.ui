@@ -1,0 +1,20 @@
+$S = "../shared/styles.ui";
+
+Group {
+  Anchor: (Height: 30, Bottom: 8);
+  LayoutMode: Left;
+
+  TextButton #EventsBackBtn {
+    Text: "Back";
+    Style: $S.@ButtonStyle;
+    Anchor: (Width: 70, Height: 26);
+  }
+
+  Group { Anchor: (Width: 10); }
+
+  Label #EventsTitle {
+    Text: "Event Announcements";
+    Style: (FontSize: 14, TextColor: #FFAA00, RenderBold: true, VerticalAlignment: Center);
+    Anchor: (Height: 26);
+  }
+}

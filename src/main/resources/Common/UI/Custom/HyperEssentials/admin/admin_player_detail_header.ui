@@ -1,0 +1,12 @@
+$S = "../shared/styles.ui";
+
+Group {
+  Anchor: (Height: 28, Bottom: 6);
+  LayoutMode: Left;
+
+  TextButton #BackBtn {
+    Text: "Back";
+    Style: $S.@ButtonStyle;
+    Anchor: (Width: 70, Height: 24);
+  }
+}

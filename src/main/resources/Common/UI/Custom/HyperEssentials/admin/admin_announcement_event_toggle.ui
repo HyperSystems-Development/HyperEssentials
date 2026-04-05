@@ -1,0 +1,20 @@
+$S = "../shared/styles.ui";
+
+Group {
+  Anchor: (Height: 32, Bottom: 4);
+  Background: (Color: #141c26);
+  LayoutMode: Left;
+  Padding: (Left: 10, Right: 10);
+
+  Label #ToggleLabel {
+    Text: "";
+    Style: (FontSize: 12, TextColor: #e0e8f0, VerticalAlignment: Center);
+    FlexWeight: 1;
+  }
+
+  TextButton #ToggleBtn {
+    Text: "OFF";
+    Style: $S.@ButtonStyle;
+    Anchor: (Width: 60, Height: 24);
+  }
+}

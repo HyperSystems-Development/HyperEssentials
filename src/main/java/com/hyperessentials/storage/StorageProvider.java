@@ -9,19 +9,22 @@ import java.util.concurrent.CompletableFuture;
  */
 public interface StorageProvider {
 
-    CompletableFuture<Void> init();
+  CompletableFuture<Void> init();
 
-    CompletableFuture<Void> shutdown();
+  CompletableFuture<Void> shutdown();
 
-    @NotNull
-    HomeStorage getHomeStorage();
+  @NotNull
+  HomeStorage getHomeStorage();
 
-    @NotNull
-    WarpStorage getWarpStorage();
+  @NotNull
+  WarpStorage getWarpStorage();
 
-    @NotNull
-    SpawnStorage getSpawnStorage();
+  @NotNull
+  SpawnStorage getSpawnStorage();
 
-    @NotNull
-    PlayerDataStorage getPlayerDataStorage();
+  @NotNull
+  PlayerDataStorage getPlayerDataStorage();
+
+  @NotNull
+  KitStorage getKitStorage();
 }

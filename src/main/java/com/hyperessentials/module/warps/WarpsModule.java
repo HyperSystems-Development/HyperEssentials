@@ -3,6 +3,8 @@ package com.hyperessentials.module.warps;
 import com.hyperessentials.config.ConfigManager;
 import com.hyperessentials.config.ModuleConfig;
 import com.hyperessentials.module.AbstractModule;
+import com.hyperessentials.storage.WarpStorage;
+import com.hyperessentials.util.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -11,33 +13,51 @@ import org.jetbrains.annotations.Nullable;
  */
 public class WarpsModule extends AbstractModule {
 
-    @Override
-    @NotNull
-    public String getName() {
-        return "warps";
-    }
+  private WarpManager warpManager;
 
-    @Override
-    @NotNull
-    public String getDisplayName() {
-        return "Warps";
-    }
+  @Override
+  @NotNull
+  public String getName() {
+    return "warps";
+  }
 
-    @Override
-    public void onEnable() {
-        super.onEnable();
-        // TODO: Register commands, listeners, and storage
-    }
+  @Override
+  @NotNull
+  public String getDisplayName() {
+    return "Warps";
+  }
 
-    @Override
-    public void onDisable() {
-        // TODO: Unregister commands, save data, cleanup
-        super.onDisable();
-    }
+  @Override
+  public void onEnable() {
+    super.onEnable();
+    // Note: WarpStorage and WarpManager are initialized here but commands
+    // are registered at the platform layer (HyperEssentialsPlugin)
+  }
 
-    @Override
-    @Nullable
-    public ModuleConfig getModuleConfig() {
-        return ConfigManager.get().warps();
-    }
+  /**
+   * Initializes the warp manager with the given storage.
+   * Called by HyperEssentialsPlugin after module is enabled.
+   */
+  public void initManager(@NotNull WarpStorage storage) {
+    this.warpManager = new WarpManager(storage);
+    warpManager.loadWarps().join();
+    Logger.info("[Warps] WarpManager initialized");
+  }
+
+  @Override
+  public void onDisable() {
+    // Warps are saved individually on each create/update/delete — no bulk save needed
+    super.onDisable();
+  }
+
+  @Nullable
+  public WarpManager getWarpManager() {
+    return warpManager;
+  }
+
+  @Override
+  @Nullable
+  public ModuleConfig getModuleConfig() {
+    return ConfigManager.get().warps();
+  }
 }

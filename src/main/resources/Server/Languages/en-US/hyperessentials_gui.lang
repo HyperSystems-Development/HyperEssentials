@@ -1,0 +1,76 @@
+# HyperEssentials GUI - English Translations
+# Format: key = value
+# Note: Keys are auto-prefixed with "hyperessentials_gui." by Hytale's I18nModule
+
+# === Navigation ===
+nav.player_menu = Player
+
+# === Player Settings ===
+player_settings.title = Player Settings
+player_settings.language_section = Language
+player_settings.auto_detect = Auto-detect
+player_settings.auto_detect_desc = Use your client language automatically
+player_settings.language_label = Language:
+player_settings.language_changed = Language changed to {0}
+nav.title = HyperEssentials
+
+# === Dashboard ===
+dashboard.welcome = Welcome, {0}!
+dashboard.playtime = Playtime: {0}
+dashboard.first_joined = First joined: {0}
+
+# === Homes Page ===
+homes.empty_title = No Homes
+homes.empty_message = Use /sethome to create your first home.
+homes.zone_restricted = Zone Restricted
+homes.cooldown = Cooldown
+homes.cooldown_label = Cooldown: {0}
+homes.home_count = {0} / {1} homes
+homes.shared_by = Shared by {0}
+
+# === Warps Page ===
+warps.empty_title = No Warps
+warps.empty_message = No warps are currently available.
+warps.zone_restricted = Zone Restricted
+
+# === Kits Page ===
+kits.empty_title = No Kits
+kits.empty_message = No kits are currently available to you.
+kits.cooldown_label = Cooldown: {0}
+kits.already_claimed = Already claimed
+kits.claimed_button = CLAIMED
+kits.one_time = One-time kit
+kits.ready = Ready
+kits.zone_restricted = Zone Restricted
+
+# === Kit Preview Page ===
+kit_preview.empty_title = Empty Kit
+kit_preview.empty_message = This kit has no items.
+kit_preview.claimed_button = CLAIMED
+
+# === TPA Page ===
+tpa.toggle_enabled = ENABLED
+tpa.toggle_disabled = DISABLED
+tpa.toggle_label_on = Accepting TPA requests
+tpa.toggle_label_off = TPA requests disabled
+tpa.empty_title = No Requests
+tpa.empty_message = No pending TPA requests.
+tpa.type_tpa = wants to teleport to you
+tpa.type_tpahere = wants you to teleport to them
+tpa.time_remaining = {0}s left
+tpa.request_count = {0} incoming request
+tpa.request_count_plural = {0} incoming requests
+
+# === Stats Page ===
+stats.first_joined = First Joined
+stats.total_playtime = Total Playtime
+stats.current_session = Current Session
+
+# === Back Page ===
+back.empty_title = No Back Locations
+back.empty_message = Teleport or die to create a back location.
+back.cooldown_button = Cooldown
+
+# === Home Share Page ===
+home_share.share_title = Share: {0}
+home_share.shared_count = Shared with {0} player{1}

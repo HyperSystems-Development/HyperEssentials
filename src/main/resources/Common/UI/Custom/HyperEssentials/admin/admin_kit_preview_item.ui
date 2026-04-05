@@ -1,0 +1,44 @@
+$S = "../shared/styles.ui";
+
+Group {
+  Anchor: (Height: 34, Bottom: 2);
+  Background: (Color: #141c26);
+  LayoutMode: Left;
+
+  Group {
+    Anchor: (Width: 32, Height: 34);
+
+    ItemIcon #ItemImg {
+      Anchor: (Width: 28, Height: 28, Left: 2, Top: 3);
+    }
+  }
+
+  Group {
+    FlexWeight: 1;
+    Padding: (Left: 6, Top: 4, Bottom: 4);
+    LayoutMode: Top;
+
+    Label #ItemName {
+      Text: "";
+      Style: (FontSize: 11, TextColor: #FFFFFF, VerticalAlignment: Center);
+      Anchor: (Height: 14);
+    }
+
+    Label #ItemInfo {
+      Text: "";
+      Style: (FontSize: 9, TextColor: #7c8b99, VerticalAlignment: Center);
+      Anchor: (Height: 12);
+    }
+  }
+
+  Group {
+    Anchor: (Width: 65);
+    Padding: (Right: 6, Top: 5, Bottom: 5);
+
+    TextButton #RemoveBtn {
+      Text: "Remove";
+      Style: $S.@RedButtonStyle;
+      Anchor: (Width: 58, Height: 22);
+    }
+  }
+}

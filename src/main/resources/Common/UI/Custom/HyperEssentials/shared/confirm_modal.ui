@@ -1,0 +1,48 @@
+$C = "../../Common.ui";
+$S = "styles.ui";
+
+$C.@PageOverlay {}
+
+Group {
+    Anchor: (Width: 340, Height: 160);
+
+    $C.@DecoratedContainer {
+        LayoutMode: Top;
+        Padding: (Full: 20);
+
+        Label #ConfirmTitle {
+            Text: "Confirm Action";
+            Anchor: (Height: 22);
+            Style: (FontSize: 16, TextColor: #FFFFFF, RenderBold: true, HorizontalAlignment: Center);
+        }
+
+        Label #ConfirmMessage {
+            Text: "Are you sure?";
+            Anchor: (Height: 36, Top: 8);
+            Style: (FontSize: 13, TextColor: #7c8b99, HorizontalAlignment: Center);
+        }
+
+        Group {
+            LayoutMode: Left;
+            Anchor: (Height: 30, Top: 12);
+
+            Group { FlexWeight: 1; }
+
+            TextButton #ConfirmCancel {
+                Text: "CANCEL";
+                Anchor: (Width: 100, Height: 28);
+                Style: $S.@ButtonStyle;
+            }
+
+            Group { Anchor: (Width: 10); }
+
+            TextButton #ConfirmAccept {
+                Text: "CONFIRM";
+                Anchor: (Width: 100, Height: 28);
+                Style: $S.@FlatRedButtonStyle;
+            }
+
+            Group { FlexWeight: 1; }
+        }
+    }
+}

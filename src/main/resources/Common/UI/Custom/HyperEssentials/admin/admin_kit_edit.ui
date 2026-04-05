@@ -1,0 +1,161 @@
+$C = "../../Common.ui";
+$S = "../shared/styles.ui";
+
+Group {
+  LayoutMode: Top;
+  Padding: (Left: 8, Right: 8);
+
+  // Header row with back button and title
+  Group {
+    Anchor: (Height: 32, Bottom: 8);
+    LayoutMode: Left;
+
+    TextButton #EditBackBtn {
+      Text: "Back";
+      Style: $S.@ButtonStyle;
+      Anchor: (Width: 75, Height: 28);
+    }
+
+    Group { Anchor: (Width: 12); }
+
+    Label #EditTitle {
+      Text: "Edit Kit";
+      Style: (FontSize: 14, TextColor: #FFAA00, RenderBold: true, VerticalAlignment: Center);
+      FlexWeight: 1;
+    }
+  }
+
+  // Gold divider
+  Group {
+    Anchor: (Height: 1, Bottom: 12);
+    Background: (Color: #FFAA00);
+  }
+
+  // Name (read-only)
+  Group {
+    Anchor: (Height: 22, Bottom: 3);
+    LayoutMode: Left;
+
+    Label {
+      Text: "Name:";
+      Style: (FontSize: 10, TextColor: #666666, VerticalAlignment: Center);
+      Anchor: (Width: 110);
+    }
+
+    Label #EditName {
+      Text: "";
+      Style: (FontSize: 11, TextColor: #CCCCCC, VerticalAlignment: Center);
+      FlexWeight: 1;
+    }
+  }
+
+  // Display Name
+  Group {
+    Anchor: (Height: 28, Bottom: 3);
+    LayoutMode: Left;
+
+    Label #EditDisplayNameLabel {
+      Text: "Display Name:";
+      Style: (FontSize: 10, TextColor: #666666, VerticalAlignment: Center);
+      Anchor: (Width: 110);
+    }
+
+    $C.@TextField #EditDisplayName {
+      FlexWeight: 1;
+      Anchor: (Height: 26);
+      Style: (FontSize: 11, TextColor: #CCCCCC);
+    }
+  }
+
+  // Cooldown
+  Group {
+    Anchor: (Height: 28, Bottom: 3);
+    LayoutMode: Left;
+
+    Label #EditCooldownLabel {
+      Text: "Cooldown (sec):";
+      Style: (FontSize: 10, TextColor: #666666, VerticalAlignment: Center);
+      Anchor: (Width: 110);
+    }
+
+    $C.@TextField #EditCooldown {
+      Anchor: (Width: 100, Height: 26);
+      Style: (FontSize: 11, TextColor: #CCCCCC);
+    }
+  }
+
+  // One-time toggle
+  Group {
+    Anchor: (Height: 28, Bottom: 3);
+    LayoutMode: Left;
+
+    Label {
+      Text: "One-time:";
+      Style: (FontSize: 10, TextColor: #666666, VerticalAlignment: Center);
+      Anchor: (Width: 110);
+    }
+
+    TextButton #EditOneTimeToggle {
+      Text: "No";
+      Style: $S.@ButtonStyle;
+      Anchor: (Width: 80, Height: 26);
+    }
+  }
+
+  // Items count (read-only)
+  Group {
+    Anchor: (Height: 22, Bottom: 12);
+    LayoutMode: Left;
+
+    Label {
+      Text: "Items:";
+      Style: (FontSize: 10, TextColor: #666666, VerticalAlignment: Center);
+      Anchor: (Width: 110);
+    }
+
+    Label #EditItemCount {
+      Text: "0";
+      Style: (FontSize: 11, TextColor: #CCCCCC, VerticalAlignment: Center);
+      FlexWeight: 1;
+    }
+  }
+
+  // Divider
+  Group {
+    Anchor: (Height: 1, Bottom: 12);
+    Background: (Color: #334455);
+  }
+
+  // Action bar: Cancel / Save / Permissions
+  Group {
+    LayoutMode: Left;
+    Anchor: (Height: 32);
+
+    Group { FlexWeight: 1; }
+
+    TextButton #EditCancelBtn {
+      Text: "Cancel";
+      Style: $S.@ButtonStyle;
+      Anchor: (Width: 100, Height: 28);
+    }
+
+    Group { Anchor: (Width: 10); }
+
+    TextButton #EditSaveBtn {
+      Text: "Save";
+      Style: $S.@CyanButtonStyle;
+      Anchor: (Width: 100, Height: 28);
+    }
+
+    Group { Anchor: (Width: 10); }
+
+    TextButton #EditPermBtn {
+      Text: "Permissions";
+      Style: $S.@ButtonStyle;
+      Anchor: (Width: 120, Height: 28);
+      Visible: false;
+    }
+
+    Group { FlexWeight: 1; }
+  }
+}

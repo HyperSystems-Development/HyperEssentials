@@ -10,86 +10,111 @@ import java.nio.file.Path;
  */
 public class CoreConfig extends ConfigFile {
 
-    private String prefixText = "HyperEssentials";
-    private String prefixColor = "#FFAA00";
-    private String prefixBracketColor = "#AAAAAA";
-    private String primaryColor = "#55FFFF";
-    private String secondaryColor = "#55FF55";
-    private String errorColor = "#FF5555";
+  private String prefixText = "HyperEssentials";
+  private String prefixColor = "#FFAA00";
+  private String prefixBracketColor = "#AAAAAA";
+  private String primaryColor = "#55FFFF";
+  private String secondaryColor = "#55FF55";
+  private String errorColor = "#FF5555";
 
-    private boolean adminRequiresOp = true;
-    private boolean allowWithoutPermissionMod = true;
-    private String storageType = "json";
-    private boolean updateCheck = true;
+  private boolean adminRequiresOp = true;
+  private boolean allowWithoutPermissionMod = true;
+  private String storageType = "json";
+  private boolean updateCheck = true;
 
-    private int configVersion = 1;
+  private String defaultLanguage = "en-US";
+  private boolean usePlayerLanguage = true;
 
-    public CoreConfig(@NotNull Path filePath) {
-        super(filePath);
-    }
+  private int configVersion = 1;
 
-    @Override
-    protected void createDefaults() {
-        // All defaults are set via field initializers
-    }
+  public CoreConfig(@NotNull Path filePath) {
+    super(filePath);
+  }
 
-    @Override
-    protected void loadFromJson(@NotNull JsonObject root) {
-        prefixText = getString(root, "prefixText", prefixText);
-        prefixColor = getString(root, "prefixColor", prefixColor);
-        prefixBracketColor = getString(root, "prefixBracketColor", prefixBracketColor);
-        primaryColor = getString(root, "primaryColor", primaryColor);
-        secondaryColor = getString(root, "secondaryColor", secondaryColor);
-        errorColor = getString(root, "errorColor", errorColor);
-        adminRequiresOp = getBool(root, "adminRequiresOp", adminRequiresOp);
-        allowWithoutPermissionMod = getBool(root, "allowWithoutPermissionMod", allowWithoutPermissionMod);
-        storageType = getString(root, "storageType", storageType);
-        updateCheck = getBool(root, "updateCheck", updateCheck);
-        configVersion = getInt(root, "configVersion", configVersion);
-    }
+  @Override
+  protected void createDefaults() {
+    // All defaults are set via field initializers
+  }
 
-    @Override
-    @NotNull
-    protected JsonObject toJson() {
-        JsonObject root = new JsonObject();
-        root.addProperty("prefixText", prefixText);
-        root.addProperty("prefixColor", prefixColor);
-        root.addProperty("prefixBracketColor", prefixBracketColor);
-        root.addProperty("primaryColor", primaryColor);
-        root.addProperty("secondaryColor", secondaryColor);
-        root.addProperty("errorColor", errorColor);
-        root.addProperty("adminRequiresOp", adminRequiresOp);
-        root.addProperty("allowWithoutPermissionMod", allowWithoutPermissionMod);
-        root.addProperty("storageType", storageType);
-        root.addProperty("updateCheck", updateCheck);
-        root.addProperty("configVersion", configVersion);
-        return root;
-    }
+  @Override
+  protected void loadFromJson(@NotNull JsonObject root) {
+    prefixText = getString(root, "prefixText", prefixText);
+    prefixColor = getString(root, "prefixColor", prefixColor);
+    prefixBracketColor = getString(root, "prefixBracketColor", prefixBracketColor);
+    primaryColor = getString(root, "primaryColor", primaryColor);
+    secondaryColor = getString(root, "secondaryColor", secondaryColor);
+    errorColor = getString(root, "errorColor", errorColor);
+    adminRequiresOp = getBool(root, "adminRequiresOp", adminRequiresOp);
+    allowWithoutPermissionMod = getBool(root, "allowWithoutPermissionMod", allowWithoutPermissionMod);
+    storageType = getString(root, "storageType", storageType);
+    updateCheck = getBool(root, "updateCheck", updateCheck);
+    defaultLanguage = getString(root, "defaultLanguage", defaultLanguage);
+    usePlayerLanguage = getBool(root, "usePlayerLanguage", usePlayerLanguage);
+    configVersion = getInt(root, "configVersion", configVersion);
+  }
 
-    @Override
-    @NotNull
-    public ValidationResult validate() {
-        ValidationResult result = new ValidationResult();
-        validateHexColor(result, "prefixColor", prefixColor);
-        validateHexColor(result, "prefixBracketColor", prefixBracketColor);
-        validateHexColor(result, "primaryColor", primaryColor);
-        validateHexColor(result, "secondaryColor", secondaryColor);
-        validateHexColor(result, "errorColor", errorColor);
-        storageType = validateEnum(result, "storageType", storageType,
-                new String[]{"json"}, "json");
-        return result;
-    }
+  @Override
+  @NotNull
+  protected JsonObject toJson() {
+    JsonObject root = new JsonObject();
+    root.addProperty("prefixText", prefixText);
+    root.addProperty("prefixColor", prefixColor);
+    root.addProperty("prefixBracketColor", prefixBracketColor);
+    root.addProperty("primaryColor", primaryColor);
+    root.addProperty("secondaryColor", secondaryColor);
+    root.addProperty("errorColor", errorColor);
+    root.addProperty("adminRequiresOp", adminRequiresOp);
+    root.addProperty("allowWithoutPermissionMod", allowWithoutPermissionMod);
+    root.addProperty("storageType", storageType);
+    root.addProperty("updateCheck", updateCheck);
+    root.addProperty("defaultLanguage", defaultLanguage);
+    root.addProperty("usePlayerLanguage", usePlayerLanguage);
+    root.addProperty("configVersion", configVersion);
+    return root;
+  }
 
-    // Getters
-    public String getPrefixText() { return prefixText; }
-    public String getPrefixColor() { return prefixColor; }
-    public String getPrefixBracketColor() { return prefixBracketColor; }
-    public String getPrimaryColor() { return primaryColor; }
-    public String getSecondaryColor() { return secondaryColor; }
-    public String getErrorColor() { return errorColor; }
-    public boolean isAdminRequiresOp() { return adminRequiresOp; }
-    public boolean isAllowWithoutPermissionMod() { return allowWithoutPermissionMod; }
-    public String getStorageType() { return storageType; }
-    public boolean isUpdateCheck() { return updateCheck; }
-    public int getConfigVersion() { return configVersion; }
+  @Override
+  @NotNull
+  public ValidationResult validate() {
+    ValidationResult result = new ValidationResult();
+    validateHexColor(result, "prefixColor", prefixColor);
+    validateHexColor(result, "prefixBracketColor", prefixBracketColor);
+    validateHexColor(result, "primaryColor", primaryColor);
+    validateHexColor(result, "secondaryColor", secondaryColor);
+    validateHexColor(result, "errorColor", errorColor);
+    storageType = validateEnum(result, "storageType", storageType,
+        new String[]{"json"}, "json");
+    // Validate language against supported locales
+    String[] supportedLocales = {"en-US", "es-ES", "de-DE", "fr-FR", "pt-BR", "ru-RU", "pl-PL", "it-IT", "nl-NL", "tl-PH"};
+    defaultLanguage = validateEnum(result, "defaultLanguage", defaultLanguage, supportedLocales, "en-US");
+    return result;
+  }
+
+  // Getters
+  public String getPrefixText() { return prefixText; }
+  public String getPrefixColor() { return prefixColor; }
+  public String getPrefixBracketColor() { return prefixBracketColor; }
+  public String getPrimaryColor() { return primaryColor; }
+  public String getSecondaryColor() { return secondaryColor; }
+  public String getErrorColor() { return errorColor; }
+  public boolean isAdminRequiresOp() { return adminRequiresOp; }
+  public boolean isAllowWithoutPermissionMod() { return allowWithoutPermissionMod; }
+  public String getStorageType() { return storageType; }
+  public boolean isUpdateCheck() { return updateCheck; }
+  public String getDefaultLanguage() { return defaultLanguage; }
+  public boolean isUsePlayerLanguage() { return usePlayerLanguage; }
+  public int getConfigVersion() { return configVersion; }
+
+  // Setters (for admin config editor)
+  public void setPrefixText(String value) { this.prefixText = value; }
+  public void setPrefixColor(String value) { this.prefixColor = value; }
+  public void setPrefixBracketColor(String value) { this.prefixBracketColor = value; }
+  public void setPrimaryColor(String value) { this.primaryColor = value; }
+  public void setSecondaryColor(String value) { this.secondaryColor = value; }
+  public void setErrorColor(String value) { this.errorColor = value; }
+  public void setAdminRequiresOp(boolean value) { this.adminRequiresOp = value; }
+  public void setAllowWithoutPermissionMod(boolean value) { this.allowWithoutPermissionMod = value; }
+  public void setUpdateCheck(boolean value) { this.updateCheck = value; }
+  public void setDefaultLanguage(String value) { this.defaultLanguage = value; }
+  public void setUsePlayerLanguage(boolean value) { this.usePlayerLanguage = value; }
 }

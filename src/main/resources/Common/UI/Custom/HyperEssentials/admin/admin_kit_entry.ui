@@ -1,0 +1,83 @@
+$S = "../shared/styles.ui";
+
+Group {
+  Anchor: (Height: 44, Bottom: 3);
+  Background: (Color: #1a2a3a);
+  LayoutMode: Left;
+
+  // Color indicator bar
+  Group #IndicatorBar {
+    Anchor: (Width: 3, Height: 44);
+    Background: (Color: #55FF55);
+  }
+
+  // Info section
+  Group {
+    FlexWeight: 1;
+    Padding: (Left: 12, Right: 12, Top: 6, Bottom: 6);
+    LayoutMode: Top;
+
+    Group {
+      Anchor: (Height: 18);
+      LayoutMode: Left;
+
+      Label #KitName {
+        Text: "";
+        Style: (FontSize: 13, TextColor: #FFFFFF, RenderBold: true, VerticalAlignment: Center);
+        Anchor: (Width: 150);
+      }
+
+      Label #KitItems {
+        Text: "";
+        Style: (FontSize: 10, TextColor: #666666, VerticalAlignment: Center);
+        Anchor: (Width: 80);
+      }
+    }
+
+    Group {
+      Anchor: (Height: 14);
+      LayoutMode: Left;
+
+      Label #KitCooldown {
+        Text: "";
+        Style: (FontSize: 10, TextColor: #666666, VerticalAlignment: Center);
+        Anchor: (Width: 120);
+      }
+
+      Label #KitOneTime {
+        Text: "";
+        Style: (FontSize: 10, TextColor: #FFAA00, VerticalAlignment: Center);
+        Anchor: (Width: 80);
+      }
+    }
+  }
+
+  // Action buttons
+  Group {
+    Anchor: (Width: 220);
+    Padding: (Right: 10, Top: 10, Bottom: 10);
+    LayoutMode: Left;
+
+    TextButton #PreviewBtn {
+      Text: "Preview";
+      Style: $S.@ButtonStyle;
+      Anchor: (Width: 65, Height: 26);
+    }
+
+    Group { Anchor: (Width: 4); }
+
+    TextButton #EditBtn {
+      Text: "Edit";
+      Style: $S.@CyanButtonStyle;
+      Anchor: (Width: 55, Height: 26);
+    }
+
+    Group { Anchor: (Width: 4); }
+
+    TextButton #DeleteBtn {
+      Text: "Delete";
+      Style: $S.@RedButtonStyle;
+      Anchor: (Width: 70, Height: 26);
+    }
+  }
+}

@@ -3,6 +3,8 @@ package com.hyperessentials.module.homes;
 import com.hyperessentials.config.ConfigManager;
 import com.hyperessentials.config.ModuleConfig;
 import com.hyperessentials.module.AbstractModule;
+import com.hyperessentials.storage.HomeStorage;
+import com.hyperessentials.util.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -11,33 +13,50 @@ import org.jetbrains.annotations.Nullable;
  */
 public class HomesModule extends AbstractModule {
 
-    @Override
-    @NotNull
-    public String getName() {
-        return "homes";
-    }
+  private HomeManager homeManager;
 
-    @Override
-    @NotNull
-    public String getDisplayName() {
-        return "Homes";
-    }
+  @Override
+  @NotNull
+  public String getName() {
+    return "homes";
+  }
 
-    @Override
-    public void onEnable() {
-        super.onEnable();
-        // TODO: Register commands, listeners, and storage
-    }
+  @Override
+  @NotNull
+  public String getDisplayName() {
+    return "Homes";
+  }
 
-    @Override
-    public void onDisable() {
-        // TODO: Unregister commands, save data, cleanup
-        super.onDisable();
-    }
+  @Override
+  public void onEnable() {
+    super.onEnable();
+  }
 
-    @Override
-    @Nullable
-    public ModuleConfig getModuleConfig() {
-        return ConfigManager.get().homes();
+  /**
+   * Initializes the home manager with the given storage.
+   * Called by HyperEssentials after module is enabled.
+   */
+  public void initManager(@NotNull HomeStorage storage) {
+    this.homeManager = new HomeManager(storage);
+    Logger.info("[Homes] HomeManager initialized");
+  }
+
+  @Override
+  public void onDisable() {
+    if (homeManager != null) {
+      homeManager.saveAll().join();
     }
+    super.onDisable();
+  }
+
+  @Nullable
+  public HomeManager getHomeManager() {
+    return homeManager;
+  }
+
+  @Override
+  @Nullable
+  public ModuleConfig getModuleConfig() {
+    return ConfigManager.get().homes();
+  }
 }

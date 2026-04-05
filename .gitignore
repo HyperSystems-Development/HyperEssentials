@@ -29,6 +29,9 @@ desktop.ini
 .env
 .env.local
 
+# Sentry auth token
+.sentry-auth-token
+
 # Compiled
 *.class
 *.jar
@@ -43,9 +46,14 @@ libs/
 # Local config overrides
 config.local.json
 
+# Local build setup (multi-project wiring is machine-specific)
+settings.gradle
+gradle.properties
+
 # AI Files
 CLAUDE.md
 .claude/
+.serena/
 .cursorrules
 .cursorignore
 .cursor/

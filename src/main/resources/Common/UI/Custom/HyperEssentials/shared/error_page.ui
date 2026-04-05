@@ -1,33 +1,25 @@
 $C = "../../Common.ui";
 $S = "styles.ui";
 
-$C.@Container #ErrorPage {
+$C.@PageOverlay {}
+
+Group {
     Anchor: (Width: 400, Height: 200);
 
-    $C.@PageOverlay {};
-
-    Group {
+    $C.@DecoratedContainer {
         LayoutMode: Top;
         Padding: (Full: 20);
 
         Label #ErrorTitle {
             Text: "Error";
             Anchor: (Height: 30);
-            Style: (
-                FontSize: 18;
-                TextColor: $S.@ColorRed;
-                HorizontalAlignment: Center;
-            );
-        };
+            Style: (FontSize: 18, TextColor: #ff5555, HorizontalAlignment: Center);
+        }
 
         Label #ErrorMessage {
             Text: "An error occurred.";
             Anchor: (Height: 20);
-            Style: (
-                FontSize: 14;
-                TextColor: $S.@ColorGray;
-                HorizontalAlignment: Center;
-            );
-        };
-    };
-};
+            Style: (FontSize: 14, TextColor: #7c8b99, HorizontalAlignment: Center);
+        }
+    }
+}

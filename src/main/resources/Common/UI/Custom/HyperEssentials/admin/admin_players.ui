@@ -1,0 +1,114 @@
+$C = "../../Common.ui";
+$S = "../shared/styles.ui";
+$Nav = "../shared/nav_bar.ui";
+
+$C.@PageOverlay {
+  $Nav.@HyperEssentialsNavBar #NavBar {}
+
+  $C.@DecoratedContainer {
+    Anchor: (Width: 580, Height: 440);
+
+    #Title {
+      $C.@Title {
+        @Text = "Online Players";
+      }
+    }
+
+    #Content {
+      LayoutMode: Top;
+      Padding: (Left: 15, Right: 15, Top: 10, Bottom: 10);
+
+      // Header with count
+      Group {
+        Anchor: (Height: 22, Bottom: 6);
+
+        Label #PlayerCount {
+          Text: "0 players online";
+          Style: (FontSize: 13, TextColor: #7c8b99);
+        }
+      }
+
+      // Search, sort, filter controls
+      Group #ControlsRow {
+        LayoutMode: Left;
+        Anchor: (Height: 28, Bottom: 6);
+
+        $C.@TextField #SearchInput {
+          Anchor: (Width: 180, Height: 26);
+          Style: (FontSize: 12, TextColor: #ffffff);
+        }
+
+        Group { FlexWeight: 1; }
+
+        Label {
+          Text: "Sort:";
+          Style: (FontSize: 11, TextColor: #7c8b99, VerticalAlignment: Center);
+          Anchor: (Width: 30, Height: 26);
+        }
+
+        DropdownBox #SortDropdown {
+          Style: $C.@DefaultDropdownBoxStyle;
+          Anchor: (Width: 130, Height: 26);
+        }
+
+        Group { Anchor: (Width: 8); }
+
+        DropdownBox #FilterDropdown {
+          Style: $C.@DefaultDropdownBoxStyle;
+          Anchor: (Width: 90, Height: 26);
+        }
+      }
+
+      // Divider
+      Group {
+        Anchor: (Height: 1, Bottom: 8);
+        Background: (Color: #FFAA00);
+      }
+
+      // Scrollable player list
+      Group #PlayerListContainer {
+        LayoutMode: TopScrolling;
+        ScrollbarStyle: $C.@DefaultScrollbarStyle;
+        FlexWeight: 1;
+
+        Group #PlayerList {
+          LayoutMode: Top;
+        }
+      }
+
+      // Pagination
+      Group #PaginationRow {
+        LayoutMode: Left;
+        Anchor: (Height: 28, Top: 6);
+
+        Group { FlexWeight: 1; }
+
+        TextButton #PrevBtn {
+          Style: $S.@ButtonStyle;
+          Text: "Prev";
+          Anchor: (Width: 60, Height: 24);
+        }
+
+        Group { Anchor: (Width: 8); }
+
+        Label #PageInfo {
+          Text: "";
+          Style: (FontSize: 11, TextColor: #7c8b99, HorizontalAlignment: Center, VerticalAlignment: Center);
+          Anchor: (Width: 80);
+        }
+
+        Group { Anchor: (Width: 8); }
+
+        TextButton #NextBtn {
+          Style: $S.@ButtonStyle;
+          Text: "Next";
+          Anchor: (Width: 60, Height: 24);
+        }
+
+        Group { FlexWeight: 1; }
+      }
+    }
+  }
+}
+
+$C.@BackButton {}

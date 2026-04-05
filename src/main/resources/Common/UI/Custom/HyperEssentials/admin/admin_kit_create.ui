@@ -1,0 +1,171 @@
+$C = "../../Common.ui";
+$S = "../shared/styles.ui";
+
+Group {
+  LayoutMode: Left;
+
+  // Left column: Kit properties
+  Group {
+    LayoutMode: Top;
+    FlexWeight: 1;
+    Padding: (Right: 10);
+
+    // Header row with back button and title
+    Group {
+      Anchor: (Height: 32, Bottom: 8);
+      LayoutMode: Left;
+
+      TextButton #CreateBackBtn {
+        Text: "Back";
+        Style: $S.@ButtonStyle;
+        Anchor: (Width: 75, Height: 28);
+      }
+
+      Group { Anchor: (Width: 12); }
+
+      Label #CreateTitle {
+        Text: "Create Kit";
+        Style: (FontSize: 14, TextColor: #FFAA00, RenderBold: true, VerticalAlignment: Center);
+        FlexWeight: 1;
+      }
+    }
+
+    // Gold divider
+    Group {
+      Anchor: (Height: 1, Bottom: 12);
+      Background: (Color: #FFAA00);
+    }
+
+    // Name (editable)
+    Group {
+      Anchor: (Height: 28, Bottom: 3);
+      LayoutMode: Left;
+
+      Label {
+        Text: "Name:";
+        Style: (FontSize: 10, TextColor: #666666, VerticalAlignment: Center);
+        Anchor: (Width: 110);
+      }
+
+      $C.@TextField #CreateNameInput {
+        FlexWeight: 1;
+        Anchor: (Height: 26);
+        Style: (FontSize: 11, TextColor: #CCCCCC);
+      }
+    }
+
+    // Display Name
+    Group {
+      Anchor: (Height: 28, Bottom: 3);
+      LayoutMode: Left;
+
+      Label {
+        Text: "Display Name:";
+        Style: (FontSize: 10, TextColor: #666666, VerticalAlignment: Center);
+        Anchor: (Width: 110);
+      }
+
+      $C.@TextField #CreateDisplayName {
+        FlexWeight: 1;
+        Anchor: (Height: 26);
+        Style: (FontSize: 11, TextColor: #CCCCCC);
+      }
+    }
+
+    // Cooldown
+    Group {
+      Anchor: (Height: 28, Bottom: 3);
+      LayoutMode: Left;
+
+      Label {
+        Text: "Cooldown (sec):";
+        Style: (FontSize: 10, TextColor: #666666, VerticalAlignment: Center);
+        Anchor: (Width: 110);
+      }
+
+      $C.@TextField #CreateCooldown {
+        Anchor: (Width: 100, Height: 26);
+        Style: (FontSize: 11, TextColor: #CCCCCC);
+      }
+    }
+
+    // One-time toggle
+    Group {
+      Anchor: (Height: 28, Bottom: 12);
+      LayoutMode: Left;
+
+      Label {
+        Text: "One-time:";
+        Style: (FontSize: 10, TextColor: #666666, VerticalAlignment: Center);
+        Anchor: (Width: 110);
+      }
+
+      TextButton #CreateOneTimeToggle {
+        Text: "No";
+        Style: $S.@ButtonStyle;
+        Anchor: (Width: 80, Height: 26);
+      }
+    }
+
+    // Divider
+    Group {
+      Anchor: (Height: 1, Bottom: 12);
+      Background: (Color: #334455);
+    }
+
+    // Action bar: Cancel / Create
+    Group {
+      LayoutMode: Left;
+      Anchor: (Height: 32);
+
+      Group { FlexWeight: 1; }
+
+      TextButton #CreateCancelBtn {
+        Text: "Cancel";
+        Style: $S.@ButtonStyle;
+        Anchor: (Width: 100, Height: 28);
+      }
+
+      Group { Anchor: (Width: 10); }
+
+      TextButton #CreateSaveBtn {
+        Text: "Create";
+        Style: $S.@GoldButtonStyle;
+        Anchor: (Width: 100, Height: 28);
+      }
+
+      Group { FlexWeight: 1; }
+    }
+  }
+
+  // Right column: Item preview
+  Group {
+    LayoutMode: Top;
+    FlexWeight: 1;
+    Padding: (Left: 10);
+
+    // Item count header
+    Label #CreateItemCount {
+      Text: "0 items";
+      Style: (FontSize: 11, TextColor: #7c8b99, VerticalAlignment: Center);
+      Anchor: (Height: 22, Bottom: 6);
+    }
+
+    // Gold divider
+    Group {
+      Anchor: (Height: 1, Bottom: 6);
+      Background: (Color: #FFAA00);
+    }
+
+    // Scrollable items list
+    Group #CreateItemsContainer {
+      LayoutMode: TopScrolling;
+      ScrollbarStyle: $C.@DefaultScrollbarStyle;
+      FlexWeight: 1;
+
+      Group #CreateItems {
+        LayoutMode: Top;
+      }
+    }
+  }
+}

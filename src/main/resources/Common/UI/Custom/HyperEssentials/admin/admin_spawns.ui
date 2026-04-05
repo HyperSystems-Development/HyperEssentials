@@ -1,0 +1,93 @@
+$C = "../../Common.ui";
+$S = "../shared/styles.ui";
+$Nav = "../shared/nav_bar.ui";
+
+$C.@PageOverlay {
+  $Nav.@HyperEssentialsNavBar #NavBar {}
+
+  $C.@DecoratedContainer {
+    Anchor: (Width: 580, Height: 440);
+
+    #Title {
+      $C.@Title {
+        @Text = "Manage Spawns";
+      }
+    }
+
+    #Content {
+      LayoutMode: Top;
+      Padding: (Left: 15, Right: 15, Top: 10, Bottom: 10);
+
+      // Header row: count + create button
+      Group {
+        Anchor: (Height: 28, Bottom: 6);
+        LayoutMode: Left;
+
+        Label #SpawnCount {
+          Text: "0 spawns";
+          Style: (FontSize: 13, TextColor: #7c8b99, VerticalAlignment: Center);
+          Anchor: (Width: 200);
+        }
+
+        Group { FlexWeight: 1; }
+
+        TextButton #CreateBtn {
+          Text: "Set Spawn Here";
+          Style: $S.@GoldButtonStyle;
+          Anchor: (Width: 130, Height: 26);
+        }
+      }
+
+      // Divider
+      Group {
+        Anchor: (Height: 1, Bottom: 8);
+        Background: (Color: #FFAA00);
+      }
+
+      // Scrollable spawn list
+      Group #SpawnListContainer {
+        LayoutMode: TopScrolling;
+        ScrollbarStyle: $C.@DefaultScrollbarStyle;
+        FlexWeight: 1;
+
+        Group #SpawnList {
+          LayoutMode: Top;
+        }
+      }
+
+      // Pagination footer
+      Group #PaginationRow {
+        Anchor: (Height: 28, Top: 6);
+        LayoutMode: Left;
+
+        Group { FlexWeight: 1; }
+
+        TextButton #PrevBtn {
+          Text: "Prev";
+          Style: $S.@ButtonStyle;
+          Anchor: (Width: 60, Height: 24);
+        }
+
+        Group { Anchor: (Width: 8); }
+
+        Label #PageInfo {
+          Text: "Page 1 / 1";
+          Style: (FontSize: 11, TextColor: #7c8b99, HorizontalAlignment: Center, VerticalAlignment: Center);
+          Anchor: (Width: 80);
+        }
+
+        Group { Anchor: (Width: 8); }
+
+        TextButton #NextBtn {
+          Text: "Next";
+          Style: $S.@ButtonStyle;
+          Anchor: (Width: 60, Height: 24);
+        }
+
+        Group { FlexWeight: 1; }
+      }
+    }
+  }
+}
+
+$C.@BackButton {}

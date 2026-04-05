@@ -2,9 +2,12 @@ $C = "../../Common.ui";
 $S = "styles.ui";
 
 Group {
-    TextButton #NavActionButton {
-        Text: "Button";
-        Anchor: (Height: 28);
-        Style: $C.@DefaultTextButtonStyle;
-    };
-};
+  Anchor: (Right: 5);
+
+  TextButton #NavBtn {
+    Text: "Nav";
+    Anchor: (Height: 28, Width: 85);
+    Padding: (Left: 8, Right: 8, Top: 5, Bottom: 5);
+    Style: $S.@GoldButtonStyle;
+  }
+}

@@ -1,0 +1,21 @@
+$C = "../../Common.ui";
+$S = "styles.ui";
+
+Group {
+    LayoutMode: Left;
+    Anchor: (Height: 22, Bottom: 2);
+    Padding: (Horizontal: 4);
+
+    Label #StatLabel {
+        Text: "Label";
+        Anchor: (Width: 140, Height: 22);
+        Style: (FontSize: 10, TextColor: #666666, VerticalAlignment: Center);
+    }
+
+    Label #StatValue {
+        Text: "Value";
+        FlexWeight: 1;
+        Anchor: (Height: 22);
+        Style: (FontSize: 11, TextColor: #CCCCCC, VerticalAlignment: Center);
+    }
+}

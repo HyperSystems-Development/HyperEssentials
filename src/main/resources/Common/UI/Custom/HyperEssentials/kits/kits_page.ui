@@ -1,0 +1,55 @@
+$C = "../../Common.ui";
+$S = "../shared/styles.ui";
+$Nav = "../shared/nav_bar.ui";
+
+$C.@PageOverlay {
+  $Nav.@HyperEssentialsNavBar #NavBar {}
+
+  $C.@DecoratedContainer {
+    Anchor: (Width: 560, Height: 420);
+
+    #Title {
+      $C.@Title {
+        @Text = "Kits";
+      }
+    }
+
+    #Content {
+      LayoutMode: Top;
+      Padding: (Left: 15, Right: 15, Top: 10, Bottom: 10);
+
+      // Header with count
+      Group {
+        Anchor: (Height: 28, Bottom: 6);
+        LayoutMode: Left;
+
+        Label #KitCount {
+          Text: "0 kits available";
+          Style: (FontSize: 13, TextColor: #7c8b99, VerticalAlignment: Center);
+          Anchor: (Width: 200);
+        }
+
+        Group { FlexWeight: 1; }
+      }
+
+      // Divider
+      Group {
+        Anchor: (Height: 1, Bottom: 8);
+        Background: (Color: #FFAA00);
+      }
+
+      // Scrollable kit list
+      Group #KitListContainer {
+        LayoutMode: TopScrolling;
+        ScrollbarStyle: $C.@DefaultScrollbarStyle;
+        FlexWeight: 1;
+
+        Group #KitList {
+          LayoutMode: Top;
+        }
+      }
+    }
+  }
+}
+
+$C.@BackButton {}

@@ -1,0 +1,43 @@
+$C = "../../Common.ui";
+$S = "../shared/styles.ui";
+
+Group {
+  LayoutMode: Left;
+  Anchor: (Height: 48, Bottom: 4);
+  Background: (Color: #1a2a3a);
+  Padding: (Left: 12, Right: 12, Top: 6, Bottom: 6);
+
+  // Label and world
+  Group {
+    Anchor: (Width: 120);
+    LayoutMode: Top;
+
+    Label #BackLabel {
+      Text: "Most Recent";
+      Style: (FontSize: 13, TextColor: #FFAA00, RenderBold: true, VerticalAlignment: Center);
+      Anchor: (Height: 20);
+    }
+
+    Label #BackWorld {
+      Text: "World";
+      Style: (FontSize: 10, TextColor: #7c8b99, VerticalAlignment: Center);
+      Anchor: (Height: 16);
+    }
+  }
+
+  // Coordinates
+  Label #BackCoords {
+    Text: "0, 0, 0";
+    Style: (FontSize: 11, TextColor: #AAAAAA, VerticalAlignment: Center);
+    Anchor: (Width: 160);
+  }
+
+  Group { FlexWeight: 1; }
+
+  // Teleport button
+  TextButton #TeleportBtn {
+    Text: "TELEPORT";
+    Anchor: (Width: 100, Height: 28);
+    Style: $S.@GreenButtonStyle;
+  }
+}

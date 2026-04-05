@@ -1,0 +1,50 @@
+$S = "../shared/styles.ui";
+
+Group {
+  Anchor: (Height: 48, Bottom: 4);
+  Background: (Color: #141c26);
+  LayoutMode: Left;
+  Padding: (Left: 10, Right: 6);
+
+  // Event type + badge
+  Group {
+    Anchor: (Width: 80);
+    LayoutMode: Top;
+    Padding: (Top: 6);
+
+    Label #EventType {
+      Text: "";
+      Style: (FontSize: 11, TextColor: #FFAA00, VerticalAlignment: Center);
+      Anchor: (Height: 16);
+    }
+
+    Label #TypeBadge {
+      Text: "CHAT";
+      Style: (FontSize: 9, TextColor: #55FFFF, VerticalAlignment: Center);
+      Anchor: (Height: 14);
+    }
+  }
+
+  // Message text
+  Group {
+    FlexWeight: 1;
+    Padding: (Left: 4, Top: 8, Bottom: 8);
+
+    Label #EvtMsg {
+      Text: "";
+      Style: (FontSize: 10, TextColor: #e0e8f0, VerticalAlignment: Center);
+    }
+  }
+
+  // Toggle button
+  Group {
+    Anchor: (Width: 50);
+    Padding: (Top: 12);
+
+    TextButton #EvtToggle {
+      Text: "OFF";
+      Style: $S.@ButtonStyle;
+      Anchor: (Width: 44, Height: 22);
+    }
+  }
+}

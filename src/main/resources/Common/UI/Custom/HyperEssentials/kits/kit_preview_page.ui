@@ -1,0 +1,80 @@
+$C = "../../Common.ui";
+$S = "../shared/styles.ui";
+
+$C.@PageOverlay {
+  $C.@DecoratedContainer {
+    Anchor: (Width: 480, Height: 420);
+
+    #Title {
+      $C.@Title {
+        @Text = "Kit Preview";
+      }
+    }
+
+    #Content {
+      LayoutMode: Top;
+      Padding: (Left: 15, Right: 15, Top: 10, Bottom: 10);
+
+      // Kit name header
+      Label #KitTitle {
+        Text: "Kit";
+        Style: (FontSize: 16, TextColor: #FFFFFF, RenderBold: true);
+        Anchor: (Height: 24, Bottom: 4);
+      }
+
+      // Description / item count
+      Label #KitDescription {
+        Text: "";
+        Style: (FontSize: 11, TextColor: #7c8b99);
+        Anchor: (Height: 16, Bottom: 6);
+      }
+
+      // Divider
+      Group {
+        Anchor: (Height: 1, Bottom: 8);
+        Background: (Color: #44cc44);
+      }
+
+      // Scrollable item list
+      Group #ItemListContainer {
+        LayoutMode: TopScrolling;
+        ScrollbarStyle: $C.@DefaultScrollbarStyle;
+        FlexWeight: 1;
+
+        Group #ItemList {
+          LayoutMode: Top;
+        }
+      }
+
+      // Divider
+      Group {
+        Anchor: (Height: 1, Top: 8, Bottom: 8);
+        Background: (Color: #2a3a4a);
+      }
+
+      // Bottom buttons
+      Group {
+        Anchor: (Height: 32);
+        LayoutMode: Left;
+
+        Group { FlexWeight: 1; }
+
+        TextButton #ClaimBtn {
+          Text: "CLAIM";
+          Anchor: (Width: 100, Height: 28);
+          Style: $S.@GreenButtonStyle;
+        }
+
+        Group { Anchor: (Width: 8); }
+
+        TextButton #BackBtn {
+          Text: "BACK";
+          Anchor: (Width: 80, Height: 28);
+          Style: $S.@ButtonStyle;
+        }
+
+        Group { FlexWeight: 1; }
+      }
+    }
+  }
+}

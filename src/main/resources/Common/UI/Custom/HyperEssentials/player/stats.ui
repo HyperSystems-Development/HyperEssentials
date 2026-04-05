@@ -1,0 +1,48 @@
+$C = "../../Common.ui";
+$S = "../shared/styles.ui";
+$Nav = "../shared/nav_bar.ui";
+
+$C.@PageOverlay {
+  $Nav.@HyperEssentialsNavBar #NavBar {}
+
+  $C.@DecoratedContainer {
+    Anchor: (Width: 480, Height: 380);
+
+    #Title {
+      $C.@Title {
+        @Text = "Stats";
+      }
+    }
+
+    #Content {
+      LayoutMode: Top;
+      Padding: (Left: 15, Right: 15, Top: 10, Bottom: 10);
+
+      // Player name header
+      Label #PlayerName {
+        Text: "Player";
+        Style: (FontSize: 16, TextColor: #FFFFFF, RenderBold: true);
+        Anchor: (Height: 28, Bottom: 6);
+      }
+
+      // Divider
+      Group {
+        Anchor: (Height: 1, Bottom: 10);
+        Background: (Color: #FFAA00);
+      }
+
+      // Stats section
+      Group #StatsList {
+        LayoutMode: Top;
+      }
+
+      // Hidden status section (kept for compatibility)
+      Group #StatusList {
+        LayoutMode: Top;
+        Anchor: (Height: 0);
+      }
+    }
+  }
+}
+
+$C.@BackButton {}

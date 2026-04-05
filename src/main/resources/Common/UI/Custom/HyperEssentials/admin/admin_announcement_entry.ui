@@ -1,0 +1,92 @@
+$S = "../shared/styles.ui";
+
+Group {
+  Anchor: (Height: 44, Bottom: 3);
+  Background: (Color: #1a2a3a);
+  LayoutMode: Left;
+
+  // Indicator bar
+  Group #IndicatorBar {
+    Anchor: (Width: 3, Top: 4, Bottom: 4);
+    Background: (Color: #FFAA00);
+  }
+
+  // Number indicator
+  Group {
+    Anchor: (Width: 28);
+    Padding: (Left: 4);
+
+    Label #EntryNumber {
+      Text: "#1";
+      Style: (FontSize: 11, TextColor: #FFAA00, VerticalAlignment: Center);
+    }
+  }
+
+  // Type badge
+  Group {
+    Anchor: (Width: 40);
+
+    Label #TypeBadge {
+      Text: "CHAT";
+      Style: (FontSize: 9, TextColor: #FFAA00, VerticalAlignment: Center, HorizontalAlignment: Center);
+    }
+  }
+
+  // Message text
+  Group {
+    FlexWeight: 1;
+    Padding: (Left: 4, Right: 4, Top: 8, Bottom: 8);
+
+    Label #MessageText {
+      Text: "";
+      Style: (FontSize: 10, TextColor: #e0e8f0, VerticalAlignment: Center);
+    }
+  }
+
+  // Status
+  Group {
+    Anchor: (Width: 28);
+
+    Label #StatusLabel {
+      Text: "ON";
+      Style: (FontSize: 9, TextColor: #55FF55, VerticalAlignment: Center, HorizontalAlignment: Center);
+    }
+  }
+
+  // Action buttons
+  Group {
+    Anchor: (Width: 170);
+    Padding: (Right: 4, Top: 8, Bottom: 8);
+    LayoutMode: Left;
+
+    TextButton #ToggleBtn {
+      Style: $S.@ButtonStyle;
+      Text: "Toggle";
+      Anchor: (Width: 48, Height: 24);
+    }
+
+    Group { Anchor: (Width: 3); }
+
+    TextButton #EditBtn {
+      Style: $S.@CyanButtonStyle;
+      Text: "Edit";
+      Anchor: (Width: 38, Height: 24);
+    }
+
+    Group { Anchor: (Width: 3); }
+
+    TextButton #PreviewBtn {
+      Style: $S.@ButtonStyle;
+      Text: "Test";
+      Anchor: (Width: 38, Height: 24);
+    }
+
+    Group { Anchor: (Width: 3); }
+
+    TextButton #DeleteBtn {
+      Text: "X";
+      Style: $S.@FlatRedButtonStyle;
+      Anchor: (Width: 24, Height: 24);
+    }
+  }
+}

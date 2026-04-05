@@ -8,36 +8,35 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * Vanish module for HyperEssentials.
+ * Vanish functionality is currently handled by ModerationModule.
  */
 public class VanishModule extends AbstractModule {
 
-    @Override
-    @NotNull
-    public String getName() {
-        return "vanish";
-    }
+  @Override
+  @NotNull
+  public String getName() {
+    return "vanish";
+  }
 
-    @Override
-    @NotNull
-    public String getDisplayName() {
-        return "Vanish";
-    }
+  @Override
+  @NotNull
+  public String getDisplayName() {
+    return "Vanish";
+  }
 
-    @Override
-    public void onEnable() {
-        super.onEnable();
-        // TODO: Register commands, listeners, and storage
-    }
+  @Override
+  public void onEnable() {
+    super.onEnable();
+  }
 
-    @Override
-    public void onDisable() {
-        // TODO: Unregister commands, save data, cleanup
-        super.onDisable();
-    }
+  @Override
+  public void onDisable() {
+    super.onDisable();
+  }
 
-    @Override
-    @Nullable
-    public ModuleConfig getModuleConfig() {
-        return ConfigManager.get().vanish();
-    }
+  @Override
+  @Nullable
+  public ModuleConfig getModuleConfig() {
+    return ConfigManager.get().vanish();
+  }
 }

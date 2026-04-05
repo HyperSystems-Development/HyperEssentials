@@ -1,10 +1,26 @@
 plugins {
     id 'java'
+    id 'checkstyle'
     id 'com.gradleup.shadow' version '9.3.1'
+    id 'io.sentry.jvm.gradle' version '6.1.0'
 }
 
 group = 'com.hyperessentials'
 version = '0.1.0'
+
+// ---------------------------------------------------------------------------
+// Hytale Maven version resolution
+// ---------------------------------------------------------------------------
+def resolveHytaleVersion(String channel) {
+    def url = "https://maven.hytale.com/${channel}/com/hypixel/hytale/Server/maven-metadata.xml"
+    def text = new URL(url).text
+    def matcher = text =~ /<release>(.+?)<\/release>/
+    if (!matcher.find()) throw new GradleException("Could not resolve Hytale server version from ${url}")
+    return matcher.group(1)
+}
+
+def hytaleChannel = project.findProperty('hytale_channel') ?: 'release'
+ext.hytaleVersion = resolveHytaleVersion(hytaleChannel)
 
 java {
     toolchain {
@@ -14,6 +30,10 @@ java {
 
 repositories {
     mavenCentral()
+    maven {
+        name = 'hytale'
+        url = "https://maven.hytale.com/${hytaleChannel}"
+    }
 }
 
 dependencies {
@@ -23,8 +43,14 @@ dependencies {
     // HyperPerms integration (soft dependency)
     compileOnly project(':HyperPerms')
 
+    // HyperFactions integration (soft dependency)
+    compileOnly project(':HyperFactions')
+
     // JSON handling
     implementation 'com.google.code.gson:gson:2.11.0'
+
+    // Sentry error tracking (bundled in shadow JAR)
+    implementation 'io.sentry:sentry:8.33.0'
 
     // Null safety annotations
     compileOnly 'org.jetbrains:annotations:24.1.0'
@@ -76,6 +102,7 @@ jar {
 shadowJar {
     archiveClassifier.set('')
     relocate 'com.google.gson', 'com.hyperessentials.lib.gson'
+    relocate 'io.sentry', 'com.hyperessentials.lib.sentry'
 }
 
 test {
@@ -84,14 +111,46 @@ test {
 
 build {
     dependsOn shadowJar
+    finalizedBy tasks.matching { it.name == 'sentryUploadSourceBundleJava' }
 }
 
 tasks.named('compileJava') {
     dependsOn 'generateBuildInfo'
     dependsOn ':HyperPerms:shadowJar'
+    dependsOn ':HyperFactions:shadowJar'
+}
+
+// Sentry tasks use the same generated sources dir as generateBuildInfo — declare dependencies
+tasks.matching { it.name.startsWith('sentry') || it.name.startsWith('generateSentry') }.configureEach {
+    dependsOn 'generateBuildInfo'
 }
 
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
     options.compilerArgs.addAll(['-Xlint:all', '-Xlint:-processing'])
+}
+
+checkstyle {
+    toolVersion = '10.26.1'
+    configFile = file('config/checkstyle/checkstyle.xml')
+    ignoreFailures = true
+}
+
+tasks.withType(Checkstyle).configureEach {
+    reports {
+        xml.required = true
+        html.required = true
+    }
+}
+
+// Sentry source context upload (reads token from .sentry-auth-token file or SENTRY_AUTH_TOKEN env var)
+sentry {
+    includeSourceContext = true
+    org = "hypersystems"
+    projectName = "hyperessentials"
+    authToken = {
+        def tokenFile = file('.sentry-auth-token')
+        if (tokenFile.exists()) return tokenFile.text.trim()
+        return System.getenv("SENTRY_AUTH_TOKEN")
+    }()
 }

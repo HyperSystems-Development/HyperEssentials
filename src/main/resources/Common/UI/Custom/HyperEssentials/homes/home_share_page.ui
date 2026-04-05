@@ -1,0 +1,114 @@
+$C = "../../Common.ui";
+$S = "../shared/styles.ui";
+
+$C.@PageOverlay {
+  $C.@DecoratedContainer {
+    Anchor: (Width: 480, Height: 400);
+
+    #Title {
+      $C.@Title {
+        @Text = "Share Home";
+      }
+    }
+
+    #Content {
+      LayoutMode: Top;
+      Padding: (Left: 15, Right: 15, Top: 10, Bottom: 10);
+
+      // Header with home name
+      Group {
+        Anchor: (Height: 24, Bottom: 4);
+        LayoutMode: Left;
+
+        Label #ShareTitle {
+          Text: "Share: Home";
+          Style: (FontSize: 14, TextColor: #FFAA00, RenderBold: true, VerticalAlignment: Center);
+          FlexWeight: 1;
+        }
+      }
+
+      // Divider
+      Group {
+        Anchor: (Height: 1, Bottom: 8);
+        Background: (Color: #FFAA00);
+      }
+
+      // Search section
+      Group {
+        Anchor: (Height: 28, Bottom: 6);
+        LayoutMode: Left;
+
+        Label {
+          Text: "Search players:";
+          Style: (FontSize: 11, TextColor: #7c8b99, VerticalAlignment: Center);
+          Anchor: (Width: 100);
+        }
+
+        Group {
+          FlexWeight: 1;
+          Background: (Color: #0d1520);
+          Padding: (Left: 6, Right: 6);
+
+          $C.@TextField #SearchField {
+            Anchor: (Height: 26);
+            Style: (FontSize: 12, TextColor: #FFFFFF);
+          }
+        }
+
+        TextButton #SearchBtn {
+          Text: "SEARCH";
+          Anchor: (Width: 70, Height: 26, Left: 6);
+          Style: $S.@CyanButtonStyle;
+        }
+      }
+
+      // Search results area
+      Group #SearchResultsContainer {
+        LayoutMode: TopScrolling;
+        ScrollbarStyle: $C.@DefaultScrollbarStyle;
+        Anchor: (Height: 100, Bottom: 8);
+
+        Group #SearchResults {
+          LayoutMode: Top;
+        }
+      }
+
+      // Currently shared with header
+      Group {
+        Anchor: (Height: 20, Bottom: 4);
+        LayoutMode: Left;
+
+        Label #SharedCount {
+          Text: "Shared with 0 players";
+          Style: (FontSize: 12, TextColor: #7c8b99, VerticalAlignment: Center);
+          FlexWeight: 1;
+        }
+      }
+
+      // Shared players list
+      Group #SharedListContainer {
+        LayoutMode: TopScrolling;
+        ScrollbarStyle: $C.@DefaultScrollbarStyle;
+        FlexWeight: 1;
+
+        Group #SharedList {
+          LayoutMode: Top;
+        }
+      }
+
+      // Back button
+      Group {
+        Anchor: (Height: 36, Top: 6);
+        LayoutMode: Left;
+
+        Group { FlexWeight: 1; }
+
+        TextButton #BackBtn {
+          Text: "BACK";
+          Anchor: (Width: 80, Height: 30);
+          Style: $S.@CyanButtonStyle;
+        }
+      }
+    }
+  }
+}

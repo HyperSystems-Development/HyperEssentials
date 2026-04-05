@@ -1,0 +1,148 @@
+# HyperEssentials - Admin GUI Messages (en-US)
+# Format: key = value
+# Note: Keys are auto-prefixed with "hyperessentials_admin." by Hytale's I18nModule
+
+# === Common Labels ===
+common.on = ON
+common.off = OFF
+common.yes = Yes
+common.no = No
+common.enabled = Enabled
+common.disabled = Disabled
+
+# === Navigation ===
+nav.title = HE Admin
+
+# === Dashboard ===
+dashboard.module_enabled = Enabled
+dashboard.module_disabled = Disabled
+
+# === Players Page ===
+players.empty_title = No Players
+players.empty_message = No players are currently online.
+players.player_info = {0}
+players.detail_uuid = UUID
+players.detail_first_join = First Joined
+players.detail_last_seen = Last Seen
+players.detail_playtime = Playtime
+players.detail_punishments = Punishments
+players.detail_status = Status
+players.detail_status_online = Online
+players.detail_status_banned = Banned
+players.detail_status_muted = Muted
+players.kicked = Player kicked.
+players.muted = Player muted.
+players.banned = Player banned.
+
+# === Warps Page ===
+warps.empty_title = No Warps
+warps.empty_message = Create one at your current location.
+warps.edit_title = Edit Warp
+warps.edit_display_name = Display Name:
+warps.edit_category = Category:
+warps.edit_description = Description:
+warps.edit_permission = Permission:
+warps.edit_world = World:
+warps.edit_coords = Coords:
+warps.name_placeholder = Warp name...
+warps.create_title = Create Warp
+warps.search_placeholder = Search warps...
+
+# === Spawns Page ===
+spawns.empty_title = No Spawns
+spawns.empty_message = Set a spawn at your current location.
+spawns.global_badge = GLOBAL
+spawns.default_badge = (Default)
+spawns.default_coords = World default
+spawns.set_custom = Set Custom
+
+# === Kits Page ===
+kits.empty_title = No Kits
+kits.empty_message = Create one from your current inventory.
+kits.one_time = One-time
+kits.name_placeholder = Kit name...
+kits.edit_title = Edit Kit
+kits.edit_display_name = Display Name:
+kits.edit_cooldown = Cooldown (sec):
+kits.edit_permission = Permission:
+kits.preview_title = Kit Preview
+kits.preview_no_items = No items in this kit.
+kits.create_title = Create Kit
+kits.search_placeholder = Search kits...
+
+# === Moderation Page ===
+mod.empty_active_title = No Active Punishments
+mod.empty_all_title = No Punishments
+mod.empty_message = No punishment records found.
+mod.no_reason = No reason
+mod.permanent = Permanent
+mod.expired = Expired
+mod.revoked = Revoked
+
+# === Announcements Page ===
+announce.interval_label = Interval: {0}
+announce.disabled = Announcements disabled
+announce.mode_random = Mode: Random
+announce.mode_sequential = Mode: Sequential
+announce.edit_title = Edit Announcement
+announce.events_title = Event Announcements
+announce.empty_title = No Announcements
+announce.empty_message = Click "+ New" to create one.
+announce.enabled = Enabled
+
+# === Backups Page ===
+backups.creating = Creating backup...
+backups.created = Backup created: {0}
+backups.create_failed = Failed to create backup.
+backups.restoring = Restoring backup...
+backups.restored = Restored {1} files from {0}. Reload config to apply.
+backups.restore_failed = Failed to restore backup.
+backups.deleting = Deleting...
+backups.deleted = Deleted backup: {0}
+backups.delete_failed = Failed to delete backup.
+backups.detail_type = Type: {0}
+backups.detail_created = Created: {0}
+backups.detail_size = Size: {0}
+backups.restore_warning = This will overwrite current data. Click again to confirm.
+backups.confirm_restore = Confirm Restore
+backups.restore = Restore
+backups.confirm_delete = Confirm Delete
+backups.delete = Delete
+
+# === Config Editor Page ===
+config.saved = Configuration saved to disk.
+config.changed = Changed: {0}
+
+# === Settings Page ===
+settings.data_dir = Data: {0}
+settings.module_enabled = Enabled
+settings.module_disabled = Disabled
+
+# === Permission Quick-Add ===
+perms.title = Manage Permissions
+perms.node_label = Node:
+perms.roles_header = Roles
+perms.add = Add
+perms.remove = Remove
+perms.no_roles = No roles available.
+
+# === Player Moderation Page ===
+playermod.search_placeholder = Search player...
+playermod.search_empty = No Players Found
+playermod.search_hint = Search by name or use the online player list.
+playermod.online_badge = Online
+playermod.offline_badge = Offline
+playermod.detail_uuid = UUID
+playermod.detail_status = Status
+playermod.detail_first_join = First Joined
+playermod.detail_last_seen = Last Seen
+playermod.detail_playtime = Playtime
+playermod.detail_history = Punishment History
+playermod.detail_no_history = No punishments recorded.
+playermod.action_duration = Duration
+playermod.action_reason = Reason
+playermod.action_confirm = Confirm
+playermod.action_cancel = Cancel
+playermod.action_success = Action applied successfully.
+playermod.action_failed = Failed to apply action.
+playermod.player_not_found = Player not found.
