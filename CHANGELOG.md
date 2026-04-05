@@ -9,6 +9,73 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+#### Localization (i18n)
+- Built-in localization system with 10 languages: English, German, Spanish, French, Italian, Dutch, Polish, Portuguese, Russian, Filipino
+- ~500 translation keys covering all commands, GUI labels, admin messages, and error text
+- Player language auto-detection from client locale with per-player override
+- Player Settings page with language selector accessible from GUI nav bar
+- `I18nModule` with HyperFactions-compatible key format (`hyperessentials_` prefix for admin, `hyperessentials.` for player commands)
+- Localized `.lang` files in `Server/Languages/<locale>/` following Hytale conventions
+
+#### Sentry Error Tracking
+- Sentry SDK integration for automated error reporting
+- `ErrorHandler` utility wrapping all async operations with contextual breadcrumbs
+- All modules migrated to use `ErrorHandler` for consistent error capture
+
+#### Data Import System
+- `/essimport` command with adapter pattern for migrating from other essentials plugins
+- Importers for 4 plugins: EliteEssentials, Essentials (nhulston), EssentialsPlus, and HyEssentialsX
+- `AbstractEssentialsImporter` base class with home/warp/spawn/kit import lifecycle
+- `WorldResolver` utility for mapping world names across plugin formats
+- ZIP backup created automatically before import
+
+#### Admin GUI Enhancements
+- **Config Editor** — In-game config editing with tabbed sections for all 13 module configs, boolean toggles, numeric steppers, text inputs, and save/discard
+- **Player Moderation Page** — Per-player punishment actions with type selection and duration input
+- **Updates Page** — Check for plugin updates from within the admin GUI
+- **Player Search** — `PlayerResolver` and `PlayerDBService` for online/offline player lookup across admin pages
+- **Bypass Toggle** — Admin bypass enable/disable system gating all bypass permissions (except home limits)
+- `ConfigSnapshot` tracking for validating config changes before save
+
+#### Player GUI Enhancements
+- **Player Settings Page** — Locale selector with auto-detect language toggle, accessible from nav bar
+- **Kit Edit Modal** — Edit kit display name, cooldown, one-time, permission, and per-item delete with preview
+- **Warp Edit Modal** — Edit warp display name, category, description, and permission
+- **Warp/Kit Name Input** — Name input dialog when creating warps and kits from admin GUI
+
+#### Backup System
+- Automatic ZIP backup on data import and manual backup via admin GUI
+- Backup storage in `backups/` directory with timestamped filenames
+
+#### Chat Delegation
+- `ChatDelegation` coordinator for priority-based chat handling across Werchat, HyperPerms, and built-in formatters
+- Automatic detection of installed chat plugins with graceful fallback
+
+#### HyperFactions 0.12.0 API Integration
+- Direct API methods via `HyperFactionsIntegration.Delegate` for territory queries
+- `ESSENTIALS_BACK` zone flag support for `/back` territory restrictions
+- `PlayerTerritoryChangeEvent` subscription for territory-aware features
+- Bidirectional language preference sync between HyperEssentials and HyperFactions
+
+#### HyperPerms Integration
+- `HyperPermsProviderAdapter` for direct HyperPerms API access
+- Quick-add warp/kit permissions to HyperPerms roles from admin GUI (`admin_permission_add.ui`)
+
+#### Announcements Overhaul
+- `CronScheduler` — 5-field cron expression parser for per-announcement scheduling
+- Event announcements — join, leave, and first-join event handlers with placeholder support
+- Announcement type toggle (CHAT vs NOTIFICATION) with per-announcement configuration
+- Full CRUD for announcements via admin GUI
+
+#### Warn Command
+- `/warn <player> [reason]` — issue warnings with staff notification broadcast
+- WARN punishment type tracked in punishment history
+
+#### /back Territory Restrictions
+- Source tracking for `/back` locations (death, home, warp, spawn, rtp, tpa, factionhome)
+- Faction territory checks on `/back` destination with `ESSENTIALS_BACK` zone flag support
+- `backFactions` config subsection with per-relationship toggles (mirrors homes config)
+
 #### GUI Foundation Infrastructure
 - `GuiColors` — centralized semantic color constants (brand gold, text, status, backgrounds, dividers)
 - `UIPaths` — centralized UI template path constants for all shared, player, and admin pages
@@ -135,6 +202,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+#### Admin GUI Template Overhaul
+- Unified admin and player GUI styling to match HyperFactions quality standards
+- All config module classes now have setters for live in-game editing support
+- Kit data model expanded with `withDisplayName`, `withCooldownSeconds`, `withOneTime`, `withPermission`, `withItems` copy methods
+
+#### i18n Migration
+- All commands, GUI pages, and integration messages migrated from hardcoded strings to i18n keys via `ErrorHandler`
+- Homes, warps, spawns, teleport, kits, moderation, utility, announcements, and GUI pages all localized
+
 #### Ban/Mute Consolidation
 - `/ban <player> [duration] [reason]` — unified syntax with smart duration detection (replaces `/ban` + `/tempban`)
 - `/mute <player> [duration] [reason]` — unified syntax with smart duration detection (replaces `/mute` + `/tempmute`)
@@ -177,8 +253,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `TempBanCommand.java` — merged into `BanCommand`
 - `TempMuteCommand.java` — merged into `MuteCommand`
 
+### Removed
+- `AdminSettingsPage` — replaced by in-game Config Editor with full per-module editing
+
 ### Fixed
 - **Server API 2026.03.26 compatibility** — updated `disconnect()` calls from `disconnect(String)` to `disconnect(Message.raw(String))` in ModerationManager and ModerationListener (API removed String overload)
+- Spawn detection now shows all worlds and ensures global spawn always exists
+- Admin GUI crash from i18n key mismatch (`hyperessentials_admin` vs `hyperessentials.admin` format)
+- Warp and kit creation UX — proper name input dialogs instead of auto-generated names
 - Infinite stamina enforcement now dispatches to world thread via `world.execute()` (fixes `PlayerRef.getComponent() called async` error spam)
 - AFK status now properly clears on player movement (added position polling and mouse motion listener)
 - `/heal` only maximizes health stat instead of all stats (avoids unnecessary regen visual effects)

@@ -1,0 +1,259 @@
+<h2><span style="color: rgb(91, 141, 239);">HyperEssentials</span> - Modular Server Essentials for Hytale</h2>
+<p>Homes. Warps. Kits. Moderation. All in one plugin. <strong>HyperEssentials</strong> is a comprehensive, modular essentials suite built from the ground up for Hytale servers, with <span style="color: #5b8def;">10 independent modules</span>, <span style="color: #5b8def;">50+ commands</span>, and <span style="color: #5b8def;">deep integration</span> with the HyperSystems ecosystem.</p>
+<p>Every module can be independently enabled or disabled. Every feature has an in-game GUI. Every string is localizable.</p>
+<p>&nbsp;</p>
+<h2><span style="color: #f0b232;">Why HyperEssentials?</span></h2>
+<ul>
+    <li><strong><span style="color: #f0b232;">Fully Modular</span></strong> - 10 modules, each independently togglable. Only enable what your server needs.</li>
+    <li><strong><span style="color: #f0b232;">14 Interactive GUI Pages</span></strong> - 6 player pages + 8 admin pages. Browse homes, manage kits, moderate players, edit config &mdash; all from the GUI.</li>
+    <li><strong><span style="color: #f0b232;">10 Languages Built In</span></strong> - English, German, Spanish, French, Italian, Dutch, Polish, Portuguese, Russian, Filipino. Player language auto-detected.</li>
+    <li><strong><span style="color: #f0b232;">Faction-Aware</span></strong> - Territory restrictions on homes, warps, kits, and /back. Zone flag support via HyperFactions.</li>
+    <li><strong><span style="color: #f0b232;">Data Import</span></strong> - Migrating from EliteEssentials, EssentialsPlus, HyEssentialsX, or nhulston Essentials? One command imports your data.</li>
+    <li><strong><span style="color: #f0b232;">Active Development</span></strong> - Regular updates with community-driven features. Open source on GitHub.</li>
+</ul>
+<p>&nbsp;</p>
+<h2><span style="color: #5b8def;">Modules</span></h2>
+<table style="border-collapse: collapse; width: 88%; border-color: #34495E; border-style: solid;" border="1">
+    <thead>
+    <tr>
+        <th style="width: 15%; border-color: rgb(52, 73, 94); padding: 6px 10px;">Module</th>
+        <th style="width: 55%; border-color: rgb(52, 73, 94); padding: 6px 10px;">Features</th>
+        <th style="width: 10%; border-color: rgb(52, 73, 94); padding: 6px 10px;">Default</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td style="border-color: rgb(52, 73, 94); padding: 6px 10px;"><strong>Homes</strong></td>
+        <td style="border-color: rgb(52, 73, 94); padding: 6px 10px;">Home CRUD, sharing, bed sync, faction territory restrictions, per-player limits</td>
+        <td style="border-color: rgb(52, 73, 94); padding: 6px 10px;">Enabled</td>
+    </tr>
+    <tr>
+        <td style="border-color: rgb(52, 73, 94); padding: 6px 10px;"><strong>Warps</strong></td>
+        <td style="border-color: rgb(52, 73, 94); padding: 6px 10px;">Warp CRUD, categories, custom permissions per warp, edit modal</td>
+        <td style="border-color: rgb(52, 73, 94); padding: 6px 10px;">Enabled</td>
+    </tr>
+    <tr>
+        <td style="border-color: rgb(52, 73, 94); padding: 6px 10px;"><strong>Spawns</strong></td>
+        <td style="border-color: rgb(52, 73, 94); padding: 6px 10px;">Per-world spawns, global spawn, auto-import from WorldConfig, respawn teleport</td>
+        <td style="border-color: rgb(52, 73, 94); padding: 6px 10px;">Enabled</td>
+    </tr>
+    <tr>
+        <td style="border-color: rgb(52, 73, 94); padding: 6px 10px;"><strong>Teleport</strong></td>
+        <td style="border-color: rgb(52, 73, 94); padding: 6px 10px;">TPA requests, /back with source tracking, RTP with faction avoidance and cave detection</td>
+        <td style="border-color: rgb(52, 73, 94); padding: 6px 10px;">Enabled</td>
+    </tr>
+    <tr>
+        <td style="border-color: rgb(52, 73, 94); padding: 6px 10px;"><strong>Warmup</strong></td>
+        <td style="border-color: rgb(52, 73, 94); padding: 6px 10px;">Universal warmup/cooldown for all teleport actions, per-module timers, bypass permissions</td>
+        <td style="border-color: rgb(52, 73, 94); padding: 6px 10px;">Enabled</td>
+    </tr>
+    <tr>
+        <td style="border-color: rgb(52, 73, 94); padding: 6px 10px;"><strong>Kits</strong></td>
+        <td style="border-color: rgb(52, 73, 94); padding: 6px 10px;">Create from inventory (4 sections), cooldowns, one-time claims, preview, per-kit permissions</td>
+        <td style="border-color: rgb(52, 73, 94); padding: 6px 10px;">Disabled</td>
+    </tr>
+    <tr>
+        <td style="border-color: rgb(52, 73, 94); padding: 6px 10px;"><strong>Moderation</strong></td>
+        <td style="border-color: rgb(52, 73, 94); padding: 6px 10px;">Ban, mute, kick, warn, IP ban, freeze, vanish, punishment history</td>
+        <td style="border-color: rgb(52, 73, 94); padding: 6px 10px;">Disabled</td>
+    </tr>
+    <tr>
+        <td style="border-color: rgb(52, 73, 94); padding: 6px 10px;"><strong>Utility</strong></td>
+        <td style="border-color: rgb(52, 73, 94); padding: 6px 10px;">Heal, fly, god, AFK, stamina, repair, clear chat/inventory, near, playtime, and more</td>
+        <td style="border-color: rgb(52, 73, 94); padding: 6px 10px;">Disabled</td>
+    </tr>
+    <tr>
+        <td style="border-color: rgb(52, 73, 94); padding: 6px 10px;"><strong>Announcements</strong></td>
+        <td style="border-color: rgb(52, 73, 94); padding: 6px 10px;">Scheduled broadcasts, cron scheduling, event announcements (join/leave/first-join), CRUD</td>
+        <td style="border-color: rgb(52, 73, 94); padding: 6px 10px;">Disabled</td>
+    </tr>
+    </tbody>
+</table>
+<p>&nbsp;</p>
+<h2><span style="color: #5b8def;">Commands</span></h2>
+<h3>Homes</h3>
+<ul>
+    <li><code>/sethome [name]</code> &mdash; Set a home (faction territory restrictions apply)</li>
+    <li><code>/home [name]</code> &mdash; Teleport to a home with warmup</li>
+    <li><code>/delhome &lt;name&gt;</code> &mdash; Delete a home</li>
+    <li><code>/homes</code> &mdash; List homes or open Homes GUI</li>
+</ul>
+<h3>Warps &amp; Spawns</h3>
+<ul>
+    <li><code>/warp &lt;name&gt;</code>, <code>/setwarp</code>, <code>/delwarp</code>, <code>/warps</code>, <code>/warpinfo</code></li>
+    <li><code>/spawn [name]</code>, <code>/setspawn</code>, <code>/delspawn</code>, <code>/spawns</code>, <code>/spawninfo</code></li>
+</ul>
+<h3>Teleport</h3>
+<ul>
+    <li><code>/tpa &lt;player&gt;</code>, <code>/tpahere</code>, <code>/tpaccept</code>, <code>/tpdeny</code>, <code>/tpcancel</code>, <code>/tptoggle</code></li>
+    <li><code>/back</code> &mdash; Return to last location (with source tracking and territory checks)</li>
+    <li><code>/rtp</code> &mdash; Random teleport with faction avoidance and cave detection</li>
+</ul>
+<h3>Kits</h3>
+<ul>
+    <li><code>/kit &lt;name&gt;</code>, <code>/kits</code>, <code>/createkit</code>, <code>/deletekit</code>, <code>/previewkit</code></li>
+</ul>
+<h3>Moderation</h3>
+<ul>
+    <li><code>/ban</code>, <code>/unban</code>, <code>/mute</code>, <code>/unmute</code>, <code>/kick</code>, <code>/warn</code> &mdash; Smart duration detection (e.g., <code>/ban player 7d griefing</code>)</li>
+    <li><code>/ipban</code>, <code>/ipunban</code> &mdash; IP-based bans with connect-time enforcement</li>
+    <li><code>/freeze</code>, <code>/vanish</code>, <code>/punishments</code></li>
+</ul>
+<h3>Utility</h3>
+<ul>
+    <li><code>/heal</code>, <code>/fly</code>, <code>/god</code>, <code>/repair</code>, <code>/repairmax</code>, <code>/durability</code></li>
+    <li><code>/afk</code> &mdash; Manual toggle + auto-AFK with idle timeout</li>
+    <li><code>/stamina</code> &mdash; Infinite stamina toggle with periodic enforcement</li>
+    <li><code>/clearchat</code>, <code>/clearinventory</code>, <code>/near</code>, <code>/maxstack</code></li>
+    <li><code>/motd</code>, <code>/rules</code>, <code>/discord</code>, <code>/list</code>, <code>/playtime</code>, <code>/joindate</code></li>
+    <li><code>/sleeppercentage</code> &mdash; View/set sleep skip threshold</li>
+</ul>
+<h3>Announcements &amp; Admin</h3>
+<ul>
+    <li><code>/broadcast</code>, <code>/announce list|add|remove|reload</code></li>
+    <li><code>/he reload|version</code> &mdash; Admin commands</li>
+    <li><code>/he admin</code> &mdash; Open admin GUI</li>
+    <li><code>/essimport &lt;plugin&gt;</code> &mdash; Import data from other essentials plugins</li>
+</ul>
+<p>&nbsp;</p>
+<h2><span style="color: #c678dd;">GUI System</span></h2>
+<h3>Player GUI (<code>/he</code>)</h3>
+<ul>
+    <li><strong>Dashboard</strong> &mdash; Stat cards (homes, online players, TPA requests), quick actions, playtime</li>
+    <li><strong>Homes</strong> &mdash; Browse, teleport, delete with count/limit header</li>
+    <li><strong>Warps</strong> &mdash; Browse by category with headers, teleport with warmup</li>
+    <li><strong>Kits</strong> &mdash; Browse available kits, claim with cooldown display, preview items</li>
+    <li><strong>TPA</strong> &mdash; Incoming requests with per-entry accept/deny, toggle TPA on/off</li>
+    <li><strong>Stats</strong> &mdash; First joined, playtime, session time, status indicators (AFK, Fly, God)</li>
+    <li><strong>Settings</strong> &mdash; Language selector with auto-detect toggle</li>
+</ul>
+<h3>Admin GUI (<code>/he admin</code>)</h3>
+<ul>
+    <li><strong>Dashboard</strong> &mdash; Online count, warp/spawn/kit stats, module status grid</li>
+    <li><strong>Warps</strong> &mdash; Full CRUD, sorted by category, create at current location</li>
+    <li><strong>Spawns</strong> &mdash; Full CRUD with default badge, create at current location</li>
+    <li><strong>Kits</strong> &mdash; Full CRUD with item count, cooldown, permissions, edit modal</li>
+    <li><strong>Players</strong> &mdash; Online player list with search, sort, and quick actions</li>
+    <li><strong>Moderation</strong> &mdash; Punishment list with active/all filter, revoke, type-colored badges</li>
+    <li><strong>Announcements</strong> &mdash; View messages, interval, sequential/random mode</li>
+    <li><strong>Config Editor</strong> &mdash; Edit all module configs in-game with validation and save/discard</li>
+</ul>
+<p>&nbsp;</p>
+<h2><span style="color: #98c379;">Faction-Aware Features</span></h2>
+<p>When <a href="https://www.curseforge.com/hytale/mods/hyperfactions" rel="nofollow">HyperFactions</a> is installed, HyperEssentials adds territory-aware restrictions:</p>
+<ul>
+    <li><strong>Home placement</strong> &mdash; Per-relationship toggles: own territory, ally, enemy, neutral, wilderness</li>
+    <li><strong>Home teleport</strong> &mdash; Destination territory check before teleporting</li>
+    <li><strong>/back restrictions</strong> &mdash; Territory checks on back destinations with <code>ESSENTIALS_BACK</code> zone flag</li>
+    <li><strong>RTP avoidance</strong> &mdash; Random teleport avoids claimed chunks with configurable buffer radius</li>
+    <li><strong>Zone flags</strong> &mdash; HyperFactions zone flags for homes, warps, kits, and back</li>
+    <li><strong>Language sync</strong> &mdash; Bidirectional locale preference sync with HyperFactions</li>
+</ul>
+<p>&nbsp;</p>
+<h2><span style="color: #61afef;">Localization</span></h2>
+<ul>
+    <li><strong>10 languages</strong> built in: English, German, Spanish, French, Italian, Dutch, Polish, Portuguese, Russian, Filipino</li>
+    <li><strong>Player language auto-detection</strong> from client locale with per-player override via Settings GUI</li>
+    <li><strong>~500 translation keys</strong> covering all commands, GUI labels, admin messages, and error text</li>
+</ul>
+<p>&nbsp;</p>
+<h2><span style="color: #56b6c2;">Admin Tools</span></h2>
+<ul>
+    <li><strong>Full admin GUI</strong> with 8 dedicated pages and navigation</li>
+    <li><strong>In-game config editor</strong> &mdash; Edit all 13 module configs with toggles, steppers, and text inputs</li>
+    <li><strong>Admin bypass toggle</strong> &mdash; Enable/disable bypass permissions for staff members</li>
+    <li><strong>Data import</strong> &mdash; Migrate from 4 other essentials plugins with automatic backup</li>
+    <li><strong>Config hot-reload</strong> &mdash; <code>/he reload</code> reloads all configuration without restart</li>
+    <li><strong>Debug system</strong> &mdash; 12 debug categories individually togglable for targeted troubleshooting</li>
+    <li><strong>Sentry integration</strong> &mdash; Automated error tracking and reporting</li>
+</ul>
+<p>&nbsp;</p>
+<h2><span style="color: #d19a66;">Data Import</span></h2>
+<table style="border-collapse: collapse; width: 60%; border-color: #34495E; border-style: solid;" border="1">
+    <thead>
+    <tr>
+        <th style="width: 30%; border-color: rgb(52, 73, 94); padding: 6px 10px;">Source Plugin</th>
+        <th style="width: 70%; border-color: rgb(52, 73, 94); padding: 6px 10px;">What&rsquo;s Imported</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td style="border-color: rgb(52, 73, 94); padding: 6px 10px;"><strong>EliteEssentials</strong></td>
+        <td style="border-color: rgb(52, 73, 94); padding: 6px 10px;">Homes, warps, spawns, kits</td>
+    </tr>
+    <tr>
+        <td style="border-color: rgb(52, 73, 94); padding: 6px 10px;"><strong>Essentials (nhulston)</strong></td>
+        <td style="border-color: rgb(52, 73, 94); padding: 6px 10px;">Homes, warps, spawns</td>
+    </tr>
+    <tr>
+        <td style="border-color: rgb(52, 73, 94); padding: 6px 10px;"><strong>EssentialsPlus</strong></td>
+        <td style="border-color: rgb(52, 73, 94); padding: 6px 10px;">Homes, warps, spawns, kits</td>
+    </tr>
+    <tr>
+        <td style="border-color: rgb(52, 73, 94); padding: 6px 10px;"><strong>HyEssentialsX</strong></td>
+        <td style="border-color: rgb(52, 73, 94); padding: 6px 10px;">Homes, warps, spawns, kits</td>
+    </tr>
+    </tbody>
+</table>
+<p>&nbsp;</p>
+<h2><span style="color: #61afef;">Integrations</span></h2>
+<p>All integrations use automatic detection and fail-open design. <span style="color: #b96ad9;">= Recommended</span></p>
+<table style="border-collapse: collapse; width: 88%; border-color: #34495E; border-style: solid;" border="1">
+    <thead>
+    <tr>
+        <th style="width: 17%; border-color: rgb(52, 73, 94); padding: 6px 10px;">Mod</th>
+        <th style="width: 12%; border-color: rgb(52, 73, 94); padding: 6px 10px;">Category</th>
+        <th style="width: 71%; border-color: rgb(52, 73, 94); padding: 6px 10px;">Description</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td style="border-color: rgb(52, 73, 94); padding: 6px 10px;"><strong><a href="https://www.curseforge.com/hytale/mods/hyperperms" rel="nofollow">HyperPerms</a></strong></td>
+        <td style="border-color: rgb(52, 73, 94); padding: 6px 10px;">Permissions</td>
+        <td style="border-color: rgb(52, 73, 94); padding: 6px 10px;">Permission resolution, quick-add warp/kit permissions to roles from admin GUI</td>
+    </tr>
+    <tr>
+        <td style="border-color: rgb(52, 73, 94); padding: 6px 10px;"><strong><a href="https://www.curseforge.com/hytale/mods/hyperfactions" rel="nofollow">HyperFactions</a></strong></td>
+        <td style="border-color: rgb(52, 73, 94); padding: 6px 10px;">Territory</td>
+        <td style="border-color: rgb(52, 73, 94); padding: 6px 10px;">Home/warp/back territory restrictions, zone flags, faction home teleport, language sync</td>
+    </tr>
+    <tr>
+        <td style="border-color: rgb(52, 73, 94); padding: 6px 10px;"><strong><a href="https://www.curseforge.com/hytale/mods/vaultunlocked" rel="nofollow">VaultUnlocked</a></strong></td>
+        <td style="border-color: rgb(52, 73, 94); padding: 6px 10px;">Economy</td>
+        <td style="border-color: rgb(52, 73, 94); padding: 6px 10px;">Economy integration via standard VaultUnlocked API</td>
+    </tr>
+    <tr>
+        <td style="border-color: rgb(52, 73, 94); padding: 6px 10px;"><strong><a href="https://www.curseforge.com/hytale/mods/luckperms" rel="nofollow">LuckPerms</a></strong></td>
+        <td style="border-color: rgb(52, 73, 94); padding: 6px 10px;">Permissions</td>
+        <td style="border-color: rgb(52, 73, 94); padding: 6px 10px;">Permission provider fallback when HyperPerms is not installed</td>
+    </tr>
+    <tr>
+        <td style="border-color: rgb(52, 73, 94); padding: 6px 10px;"><strong><a href="https://www.curseforge.com/hytale/mods/werchat" rel="nofollow">Werchat</a></strong></td>
+        <td style="border-color: rgb(52, 73, 94); padding: 6px 10px;">Chat</td>
+        <td style="border-color: rgb(52, 73, 94); padding: 6px 10px;">Chat delegation with priority-based handler detection</td>
+    </tr>
+    </tbody>
+</table>
+<p>&nbsp;</p>
+<h2><span style="color: #56b6c2;">Configuration</span></h2>
+<p>Split configuration with per-module config files &mdash; or edit everything in-game via the Config Editor GUI:</p>
+<ul>
+    <li><code>config.json</code> &mdash; Core settings (prefix, colors, admin, storage)</li>
+    <li><code>config/homes.json</code> &mdash; Home limits, bed sync, faction restrictions</li>
+    <li><code>config/warps.json</code> &mdash; Warp categories and defaults</li>
+    <li><code>config/spawns.json</code> &mdash; Default spawn, join/respawn teleport</li>
+    <li><code>config/teleport.json</code> &mdash; TPA, /back, RTP settings</li>
+    <li><code>config/warmup.json</code> &mdash; Per-module warmup/cooldown timers</li>
+    <li><code>config/kits.json</code> &mdash; Default cooldown, one-time claims</li>
+    <li><code>config/moderation.json</code> &mdash; Default reasons, broadcasts, freeze, history</li>
+    <li><code>config/utility.json</code> &mdash; Per-command enable toggles, radius limits</li>
+    <li><code>config/announcements.json</code> &mdash; Interval, cron, event triggers, messages</li>
+</ul>
+<p>&nbsp;</p>
+<h2><span style="color: #98c379;">Requirements</span></h2>
+<ul>
+    <li>Hytale Server (latest release)</li>
+    <li>Java 25+</li>
+</ul>
+<p>&nbsp;</p>
+<p><a href="https://discord.com/invite/aZaa5vcFYh" rel="nofollow">Join our Discord</a> | <a href="https://www.hypersystems.dev/plugins/hyperessentials/wiki" rel="nofollow">Documentation &amp; Wiki</a> | <a href="https://github.com/HyperSystems-Development/HyperEssentials" rel="nofollow">GitHub</a></p>
