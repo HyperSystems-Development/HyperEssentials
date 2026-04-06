@@ -222,19 +222,21 @@ public class HyperEssentialsPlugin extends JavaPlugin {
     PlayerRef playerRef = event.getPlayerRef();
     trackedPlayers.put(playerRef.getUuid(), playerRef);
 
-    // Notify connect handlers
-    hyperEssentials.onPlayerConnect(playerRef.getUuid(), playerRef.getUsername());
-
     // Load home data
     HomesModule homesModule = hyperEssentials.getHomesModule();
     if (homesModule != null && homesModule.isEnabled() && homesModule.getHomeManager() != null) {
       homesModule.getHomeManager().loadPlayer(playerRef.getUuid(), playerRef.getUsername());
     }
 
-    // Load teleport data
+    // Load teleport data (must complete before connect handlers so PlayerData is cached)
     TeleportModule tm = hyperEssentials.getTeleportModule();
     if (tm != null && tm.isEnabled() && tm.getTpaManager() != null) {
-      tm.getTpaManager().loadPlayer(playerRef.getUuid(), playerRef.getUsername());
+      tm.getTpaManager().loadPlayer(playerRef.getUuid(), playerRef.getUsername())
+          .thenRun(() -> hyperEssentials.onPlayerConnect(
+              playerRef.getUuid(), playerRef.getUsername()));
+    } else {
+      // No teleport module — run connect handlers immediately
+      hyperEssentials.onPlayerConnect(playerRef.getUuid(), playerRef.getUsername());
     }
 
     Logger.debug("Player connected: %s", playerRef.getUsername());

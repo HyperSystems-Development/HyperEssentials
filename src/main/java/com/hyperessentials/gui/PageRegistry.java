@@ -7,6 +7,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.BooleanSupplier;
 
 /**
  * Registry for GUI pages. Modules register their pages here.
@@ -24,6 +25,7 @@ public class PageRegistry {
    * @param supplier     Function to create the page instance
    * @param showsInNavBar Whether this page appears in the navigation bar
    * @param order        Display order in navigation (lower = first)
+   * @param enabledCheck Optional supplier checked at display time (null = always enabled)
    */
   public record Entry(
       @NotNull String id,
@@ -32,8 +34,17 @@ public class PageRegistry {
       @Nullable String permission,
       @NotNull PageSupplier supplier,
       boolean showsInNavBar,
-      int order
+      int order,
+      @Nullable BooleanSupplier enabledCheck
   ) implements Comparable<Entry> {
+
+    /** Convenience constructor for core pages that are always enabled. */
+    public Entry(@NotNull String id, @NotNull String displayName, @NotNull String module,
+        @Nullable String permission, @NotNull PageSupplier supplier,
+        boolean showsInNavBar, int order) {
+      this(id, displayName, module, permission, supplier, showsInNavBar, order, null);
+    }
+
     @Override
     public int compareTo(@NotNull Entry other) {
       return Integer.compare(this.order, other.order);
@@ -93,6 +104,7 @@ public class PageRegistry {
   public List<Entry> getAccessibleNavBarEntries(@NotNull PlayerRef playerRef) {
     return orderedEntries.stream()
         .filter(Entry::showsInNavBar)
+        .filter(entry -> entry.enabledCheck() == null || entry.enabledCheck().getAsBoolean())
         .filter(entry -> {
           if (entry.permission() == null) return true;
           return PermissionManager.get().hasPermission(playerRef.getUuid(), entry.permission());

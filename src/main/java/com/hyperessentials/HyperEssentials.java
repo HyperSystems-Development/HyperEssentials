@@ -271,61 +271,60 @@ public class HyperEssentials {
 
     // Homes page
     HomesModule homes = getHomesModule();
-    if (homes != null && homes.isEnabled() && homes.getHomeManager() != null) {
+    if (homes != null && homes.getHomeManager() != null) {
       playerReg.registerEntry(new PageRegistry.Entry(
           "homes", "Homes", "homes", Permissions.HOME_LIST,
           (player, ref, store, playerRef, gm) ->
               new HomesPage(player, playerRef, homes.getHomeManager(), warmupManager, gm),
-          true, 10
+          true, 10, homes::isEnabled
       ));
     }
 
     // Warps page
     WarpsModule warps = getWarpsModule();
-    if (warps != null && warps.isEnabled() && warps.getWarpManager() != null) {
+    if (warps != null && warps.getWarpManager() != null) {
       playerReg.registerEntry(new PageRegistry.Entry(
           "warps", "Warps", "warps", Permissions.WARP_LIST,
           (player, ref, store, playerRef, gm) ->
               new WarpsPage(player, playerRef, warps.getWarpManager(), warmupManager, gm),
-          true, 20
+          true, 20, warps::isEnabled
       ));
     }
 
     // Kits page
     KitsModule kitsModule = moduleRegistry.getModule(KitsModule.class);
-    if (kitsModule != null && kitsModule.isEnabled()) {
+    if (kitsModule != null) {
       playerReg.registerEntry(new PageRegistry.Entry(
           "kits", "Kits", "kits", Permissions.KIT_LIST,
           (player, ref, store, playerRef, gm) ->
               new KitsPage(player, playerRef, kitsModule.getKitManager(), gm),
-          true, 30
+          true, 30, kitsModule::isEnabled
       ));
     }
 
     // TPA page
     TeleportModule teleport = getTeleportModule();
-    if (teleport != null && teleport.isEnabled() && teleport.getTpaManager() != null) {
+    if (teleport != null && teleport.getTpaManager() != null) {
       playerReg.registerEntry(new PageRegistry.Entry(
           "tpa", "TPA", "teleport", Permissions.TPA,
           (player, ref, store, playerRef, gm) ->
               new TpaPage(player, playerRef, teleport.getTpaManager(), gm),
-          true, 40
+          true, 40, teleport::isEnabled
       ));
     }
 
     // Stats page
     UtilityModule utilityModule = moduleRegistry.getModule(UtilityModule.class);
-    UtilityManager utilMgr = utilityModule != null && utilityModule.isEnabled()
-        ? utilityModule.getUtilityManager() : null;
+    UtilityManager utilMgr = utilityModule != null ? utilityModule.getUtilityManager() : null;
 
     playerReg.registerEntry(new PageRegistry.Entry(
-        "stats", "Stats", "core", null,
+        "stats", "Stats", "utility", null,
         (player, ref, store, playerRef, gm) ->
             new StatsPage(player, playerRef, gm, utilMgr),
-        true, 50
+        true, 50, utilityModule != null ? utilityModule::isEnabled : null
     ));
 
-    // Dashboard (registered last since it references other module managers)
+    // Dashboard (always shown)
     HomesModule homesForDash = getHomesModule();
     playerReg.registerEntry(new PageRegistry.Entry(
         "dashboard", "Dashboard", "core", null,
@@ -362,37 +361,37 @@ public class HyperEssentials {
     ));
 
     // Admin Warps
-    if (warps != null && warps.isEnabled() && warps.getWarpManager() != null) {
+    if (warps != null && warps.getWarpManager() != null) {
       adminReg.registerEntry(new PageRegistry.Entry(
           "warps", "Warps", "warps", Permissions.WARP_SET,
           (player, ref, store, playerRef, gm) ->
               new AdminWarpsPage(player, playerRef, warps.getWarpManager(), gm),
-          true, 20
+          true, 20, warps::isEnabled
       ));
     }
 
     // Admin Spawns
     SpawnsModule spawnsForAdmin = getSpawnsModule();
-    if (spawnsForAdmin != null && spawnsForAdmin.isEnabled() && spawnsForAdmin.getSpawnManager() != null) {
+    if (spawnsForAdmin != null && spawnsForAdmin.getSpawnManager() != null) {
       adminReg.registerEntry(new PageRegistry.Entry(
           "spawns", "Spawns", "spawns", Permissions.SPAWN_SET,
           (player, ref, store, playerRef, gm) ->
               new AdminSpawnsPage(player, playerRef, spawnsForAdmin.getSpawnManager(), gm),
-          true, 30
+          true, 30, spawnsForAdmin::isEnabled
       ));
     }
 
     // Admin Kits
-    if (kitsModule != null && kitsModule.isEnabled() && kitsModule.getKitManager() != null) {
+    if (kitsModule != null && kitsModule.getKitManager() != null) {
       adminReg.registerEntry(new PageRegistry.Entry(
           "kits", "Kits", "kits", Permissions.KIT_CREATE,
           (player, ref, store, playerRef, gm) ->
               new AdminKitsPage(player, playerRef, ref, store, kitsModule.getKitManager(), gm),
-          true, 40
+          true, 40, kitsModule::isEnabled
       ));
     }
 
-    // Admin Players
+    // Admin Players (always shown)
     adminReg.registerEntry(new PageRegistry.Entry(
         "players", "Players", "core", Permissions.ADMIN_GUI,
         (player, ref, store, playerRef, gm) ->
@@ -402,23 +401,23 @@ public class HyperEssentials {
 
     // Admin Moderation
     ModerationModule modModule = moduleRegistry.getModule(ModerationModule.class);
-    if (modModule != null && modModule.isEnabled() && modModule.getModerationManager() != null) {
+    if (modModule != null && modModule.getModerationManager() != null) {
       adminReg.registerEntry(new PageRegistry.Entry(
           "moderation", "Moderation", "moderation", Permissions.ADMIN_GUI,
           (player, ref, store, playerRef, gm) ->
               new AdminModerationPage(player, playerRef, modModule.getModerationManager(), gm),
-          true, 50
+          true, 50, modModule::isEnabled
       ));
     }
 
     // Admin Announcements
     AnnouncementsModule annModule = moduleRegistry.getModule(AnnouncementsModule.class);
-    if (annModule != null && annModule.isEnabled()) {
+    if (annModule != null) {
       adminReg.registerEntry(new PageRegistry.Entry(
           "announcements", "Announcements", "announcements", Permissions.ADMIN_GUI,
           (player, ref, store, playerRef, gm) ->
               new AdminAnnouncementsPage(player, playerRef, gm, annModule.getScheduler()),
-          true, 60
+          true, 60, annModule::isEnabled
       ));
     }
 
