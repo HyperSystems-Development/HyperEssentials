@@ -18,7 +18,7 @@ common.cannot_self = You cannot do that to yourself.
 # === Home Commands ===
 cmd.home.no_permission = You don't have permission to use homes.
 cmd.home.no_homes = You don't have any homes. Use /sethome to create one.
-cmd.home.no_default = No default home set. Specify a name: /home <name>
+cmd.home.no_default = No default home set. Use /home <name> to teleport, or set a default from the Homes GUI.
 cmd.home.your_homes = Your homes: {0}
 cmd.home.not_found = Home '{0}' not found.
 cmd.home.teleported = Teleported to home '{0}'!

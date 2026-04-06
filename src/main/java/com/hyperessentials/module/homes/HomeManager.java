@@ -243,15 +243,10 @@ public class HomeManager {
     if (defaultName != null) {
       Home home = playerHomes.getHome(defaultName);
       if (home != null) return home;
+      // Default home was deleted — clear the stale reference
       playerHomes.setDefaultHome(null);
       savePlayer(uuid);
     }
-
-    Home namedHome = playerHomes.getHome("home");
-    if (namedHome != null) return namedHome;
-
-    Collection<Home> all = playerHomes.getHomes();
-    if (all.size() == 1) return all.iterator().next();
 
     return null;
   }
