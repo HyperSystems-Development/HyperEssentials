@@ -7,7 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-*No changes yet*
+### Changed
+
+- `/home` (no args) no longer falls back to a home named "home" or auto-selects when only one home exists — players must explicitly set a default via the Homes GUI
+
+### Fixed
+
+- `lastJoin` value now updates on reconnect (connect handler was running before player data loaded into cache)
+- Disabled modules no longer show GUI tabs in player or admin navigation — pages dynamically check module enabled status at display time
 
 ## [0.1.0] - 2026-04-05
 
