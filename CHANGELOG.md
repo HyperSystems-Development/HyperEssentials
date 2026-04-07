@@ -7,9 +7,42 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+#### Cancellable Event System
+- `Cancellable` interface with cancel reason support for pre-event interception
+- `EventBus.publishCancellable()` for pre-event firing with early cancellation
+- 58 event classes (29 PreEvent + 29 PostEvent) across 7 modules:
+  - **Homes**: set, delete, teleport, share, unshare, setDefault
+  - **Warps**: set, delete, teleport
+  - **Spawns**: set, delete, teleport
+  - **Kits**: claim, create, delete
+  - **Moderation**: ban, unban, mute, unmute, kick, warn
+  - **Teleport**: TPA send/accept/deny, back, RTP
+  - **Utility**: fly, god, AFK toggle
+- All managers fire PreEvent before action (cancellable) and PostEvent after success
+
+#### Expanded Public API
+- `HyperEssentialsAPI` expanded from 12 to 80+ methods covering all modules
+- Home API: getHomes, setHome, deleteHome, getHomeCount, getHomeLimit, shareHome, unshareHome, and more
+- Kit API: getKit, getAllKits, getAvailableKits, cooldown queries, one-time claim checks
+- Moderation API: isBanned, isMuted, getActiveBan, getPunishmentHistory, isIpBanned
+- Utility API: isFlying, isGod, isAfk, isInfiniteStamina, playtime and session queries
+- EventBus access: `registerEventListener()` / `unregisterEventListener()` for external plugins
+- Manager accessors for advanced plugin use (getHomeManager, getKitManager, etc.)
+
+#### PlaceholderAPI Support (~37 placeholders)
+- `HyperEssentialsExpansion` for PlaceholderAPI (`%essentials_*%`)
+- `WiFlowExpansion` for WiFlow PlaceholderAPI (`{essentials_*}`)
+- Placeholder categories: homes (4), kits (3+), moderation (8), utility (13), warps/spawns/TPA (5)
+- Bridge classes with runtime detection and reflection-based registration
+- Conditional WiFlow compilation (excluded when WiFlow JAR not present)
+
 ### Changed
 
 - `/home` (no args) no longer falls back to a home named "home" or auto-selects when only one home exists — players must explicitly set a default via the Homes GUI
+- `EventBus.fire()` renamed to `EventBus.publish()` for consistency with HyperFactions
+- `EventBus` internals switched from `CopyOnWriteArrayList` to `Collections.synchronizedList`
 
 ### Fixed
 

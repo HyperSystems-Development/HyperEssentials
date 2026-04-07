@@ -1,6 +1,8 @@
 package com.hyperessentials.module.teleport;
 
 import com.hyperessentials.Permissions;
+import com.hyperessentials.api.events.EventBus;
+import com.hyperessentials.api.events.teleport.*;
 import com.hyperessentials.config.modules.TeleportConfig;
 import com.hyperessentials.data.PlayerData;
 import com.hyperessentials.data.TeleportRequest;
@@ -127,6 +129,10 @@ public class TpaManager {
       }
     }
 
+    if (EventBus.publishCancellable(new TpaSendPreEvent(requesterUuid, targetUuid, type == TeleportRequest.Type.TPAHERE))) {
+      return null;
+    }
+
     cancelOutgoingRequest(requesterUuid);
 
     List<TeleportRequest> targetIncoming = incomingRequests.computeIfAbsent(targetUuid, k -> new ArrayList<>());
@@ -158,6 +164,8 @@ public class TpaManager {
     fireTpaChanged(requesterUuid);
     fireTpaChanged(targetUuid);
     Logger.debug("TPA request created: %s -> %s (%s)", requesterUuid, targetUuid, type);
+
+    EventBus.publish(new TpaSendEvent(requesterUuid, targetUuid, type == TeleportRequest.Type.TPAHERE));
     return request;
   }
 
@@ -209,18 +217,32 @@ public class TpaManager {
     return request;
   }
 
-  public void acceptRequest(@NotNull TeleportRequest request) {
+  public boolean acceptRequest(@NotNull TeleportRequest request) {
+    if (EventBus.publishCancellable(new TpaAcceptPreEvent(request.target(), request.requester()))) {
+      return false;
+    }
+
     removeRequest(request);
     fireTpaChanged(request.requester());
     fireTpaChanged(request.target());
     Logger.debug("TPA request accepted: %s -> %s", request.requester(), request.target());
+
+    EventBus.publish(new TpaAcceptEvent(request.target(), request.requester()));
+    return true;
   }
 
-  public void denyRequest(@NotNull TeleportRequest request) {
+  public boolean denyRequest(@NotNull TeleportRequest request) {
+    if (EventBus.publishCancellable(new TpaDenyPreEvent(request.target(), request.requester()))) {
+      return false;
+    }
+
     removeRequest(request);
     fireTpaChanged(request.requester());
     fireTpaChanged(request.target());
     Logger.debug("TPA request denied: %s -> %s", request.requester(), request.target());
+
+    EventBus.publish(new TpaDenyEvent(request.target(), request.requester()));
+    return true;
   }
 
   @Nullable

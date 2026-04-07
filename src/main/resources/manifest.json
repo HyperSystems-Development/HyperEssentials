@@ -7,5 +7,9 @@
   "Main": "com.hyperessentials.platform.HyperEssentialsPlugin",
   "ServerVersion": "${serverVersion}",
   "SoftDependencies": ["HyperPerms", "VaultUnlocked", "LuckPerms", "HyperFactions"],
+  "OptionalDependencies": {
+    "HelpChat:PlaceholderAPI": ">= 1.0.2",
+    "com.wiflow:WiFlowPlaceholderAPI": ">= 1.0.3"
+  },
   "IncludesAssetPack": true
 }

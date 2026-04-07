@@ -1,5 +1,7 @@
 package com.hyperessentials.module.warps;
 
+import com.hyperessentials.api.events.EventBus;
+import com.hyperessentials.api.events.warps.*;
 import com.hyperessentials.data.Warp;
 import com.hyperessentials.integration.PermissionManager;
 import com.hyperessentials.storage.WarpStorage;
@@ -51,6 +53,15 @@ public class WarpManager {
   public boolean setWarp(@NotNull Warp warp) {
     boolean isNew = !warps.containsKey(warp.name());
 
+    if (warp.createdBy() != null) {
+      try {
+        UUID actorUuid = UUID.fromString(warp.createdBy());
+        if (EventBus.publishCancellable(new WarpSetPreEvent(warp.name(), actorUuid))) {
+          return false;
+        }
+      } catch (IllegalArgumentException ignored) {}
+    }
+
     // If updating an existing warp with a different name (shouldn't happen), remove the old
     Warp existing = warps.get(warp.name());
     if (existing != null && !existing.uuid().equals(warp.uuid())) {
@@ -62,6 +73,13 @@ public class WarpManager {
     storage.saveWarp(warp);
     fireWarpChanged();
     Logger.info("[Warps] Warp '%s' %s", warp.name(), isNew ? "created" : "updated");
+
+    if (warp.createdBy() != null) {
+      try {
+        UUID actorUuid = UUID.fromString(warp.createdBy());
+        EventBus.publish(new WarpSetEvent(warp.name(), actorUuid));
+      } catch (IllegalArgumentException ignored) {}
+    }
     return isNew;
   }
 
@@ -71,11 +89,30 @@ public class WarpManager {
   }
 
   public boolean deleteWarp(@NotNull String name) {
+    Warp warp = warps.get(name.toLowerCase());
+    if (warp == null) return false;
+
+    if (warp.createdBy() != null) {
+      try {
+        UUID actorUuid = UUID.fromString(warp.createdBy());
+        if (EventBus.publishCancellable(new WarpDeletePreEvent(warp.name(), actorUuid))) {
+          return false;
+        }
+      } catch (IllegalArgumentException ignored) {}
+    }
+
     Warp removed = warps.remove(name.toLowerCase());
     if (removed != null) {
       storage.deleteWarp(removed.uuid());
       fireWarpChanged();
       Logger.info("[Warps] Warp '%s' deleted", name);
+
+      if (removed.createdBy() != null) {
+        try {
+          UUID actorUuid = UUID.fromString(removed.createdBy());
+          EventBus.publish(new WarpDeleteEvent(removed.name(), actorUuid));
+        } catch (IllegalArgumentException ignored) {}
+      }
       return true;
     }
     return false;

@@ -1,6 +1,8 @@
 package com.hyperessentials.module.moderation;
 
 import com.hyperessentials.Permissions;
+import com.hyperessentials.api.events.EventBus;
+import com.hyperessentials.api.events.moderation.*;
 import com.hyperessentials.command.util.CommandUtil;
 import com.hyperessentials.config.ConfigManager;
 import com.hyperessentials.data.PlayerData;
@@ -194,10 +196,18 @@ public class ModerationManager {
 
   // === Ban Operations ===
 
-  @NotNull
+  @Nullable
   public Punishment ban(@NotNull UUID playerUuid, @NotNull String playerName,
               @Nullable UUID issuerUuid, @NotNull String issuerName,
               @Nullable String reason, @Nullable Long durationMs) {
+    String effectiveReason = reason != null ? reason
+      : ConfigManager.get().moderation().getDefaultBanReason();
+
+    if (issuerUuid != null && EventBus.publishCancellable(
+        new PlayerBanPreEvent(playerUuid, issuerUuid, effectiveReason, durationMs))) {
+      return null;
+    }
+
     PlayerData data = getOrCreatePlayerData(playerUuid, playerName);
 
     // Revoke any existing active ban first
@@ -205,9 +215,6 @@ public class ModerationManager {
     if (existing != null) {
       data.revokePunishment(existing.id(), issuerUuid, issuerName);
     }
-
-    String effectiveReason = reason != null ? reason
-      : ConfigManager.get().moderation().getDefaultBanReason();
 
     Instant expiresAt = durationMs != null ? Instant.now().plusMillis(durationMs) : null;
 
@@ -231,6 +238,9 @@ public class ModerationManager {
     notifyStaff(Permissions.NOTIFY_BAN,
       issuerName + " banned " + playerName + (punishment.isPermanent() ? " permanently" : " for " + DurationParser.formatHuman(durationMs)));
 
+    if (issuerUuid != null) {
+      EventBus.publish(new PlayerBanEvent(playerUuid, issuerUuid, effectiveReason, durationMs));
+    }
     return punishment;
   }
 
@@ -241,10 +251,18 @@ public class ModerationManager {
     Punishment ban = data.getActiveBan();
     if (ban == null) return false;
 
+    if (revokerUuid != null && EventBus.publishCancellable(new PlayerUnbanPreEvent(playerUuid, revokerUuid))) {
+      return false;
+    }
+
     data.revokePunishment(ban.id(), revokerUuid, revokerName);
     savePlayerData(playerUuid, data);
 
     notifyStaff(Permissions.NOTIFY_BAN, revokerName + " unbanned " + ban.playerName());
+
+    if (revokerUuid != null) {
+      EventBus.publish(new PlayerUnbanEvent(playerUuid, revokerUuid));
+    }
     return true;
   }
 
@@ -269,19 +287,24 @@ public class ModerationManager {
 
   // === Mute Operations ===
 
-  @NotNull
+  @Nullable
   public Punishment mute(@NotNull UUID playerUuid, @NotNull String playerName,
                @Nullable UUID issuerUuid, @NotNull String issuerName,
                @Nullable String reason, @Nullable Long durationMs) {
+    String effectiveReason = reason != null ? reason
+      : ConfigManager.get().moderation().getDefaultMuteReason();
+
+    if (issuerUuid != null && EventBus.publishCancellable(
+        new PlayerMutePreEvent(playerUuid, issuerUuid, effectiveReason, durationMs))) {
+      return null;
+    }
+
     PlayerData data = getOrCreatePlayerData(playerUuid, playerName);
 
     Punishment existing = data.getActiveMute();
     if (existing != null) {
       data.revokePunishment(existing.id(), issuerUuid, issuerName);
     }
-
-    String effectiveReason = reason != null ? reason
-      : ConfigManager.get().moderation().getDefaultMuteReason();
 
     Instant expiresAt = durationMs != null ? Instant.now().plusMillis(durationMs) : null;
 
@@ -308,6 +331,9 @@ public class ModerationManager {
     notifyStaff(Permissions.NOTIFY_MUTE,
       issuerName + " muted " + playerName + (punishment.isPermanent() ? " permanently" : " for " + DurationParser.formatHuman(durationMs)));
 
+    if (issuerUuid != null) {
+      EventBus.publish(new PlayerMuteEvent(playerUuid, issuerUuid, effectiveReason, durationMs));
+    }
     return punishment;
   }
 
@@ -318,6 +344,10 @@ public class ModerationManager {
     Punishment mute = data.getActiveMute();
     if (mute == null) return false;
 
+    if (revokerUuid != null && EventBus.publishCancellable(new PlayerUnmutePreEvent(playerUuid, revokerUuid))) {
+      return false;
+    }
+
     data.revokePunishment(mute.id(), revokerUuid, revokerName);
     savePlayerData(playerUuid, data);
 
@@ -327,6 +357,10 @@ public class ModerationManager {
     }
 
     notifyStaff(Permissions.NOTIFY_MUTE, revokerName + " unmuted " + mute.playerName());
+
+    if (revokerUuid != null) {
+      EventBus.publish(new PlayerUnmuteEvent(playerUuid, revokerUuid));
+    }
     return true;
   }
 
@@ -345,12 +379,17 @@ public class ModerationManager {
 
   // === Kick Operations ===
 
-  @NotNull
+  @Nullable
   public Punishment kick(@NotNull UUID playerUuid, @NotNull String playerName,
                @Nullable UUID issuerUuid, @NotNull String issuerName,
                @Nullable String reason) {
     String effectiveReason = reason != null ? reason
       : ConfigManager.get().moderation().getDefaultKickReason();
+
+    if (issuerUuid != null && EventBus.publishCancellable(
+        new PlayerKickPreEvent(playerUuid, issuerUuid, effectiveReason))) {
+      return null;
+    }
 
     Punishment punishment = new Punishment(
       UUID.randomUUID(), PunishmentType.KICK, playerUuid, playerName,
@@ -370,17 +409,25 @@ public class ModerationManager {
     }
     notifyStaff(Permissions.NOTIFY_KICK, issuerName + " kicked " + playerName);
 
+    if (issuerUuid != null) {
+      EventBus.publish(new PlayerKickEvent(playerUuid, issuerUuid, effectiveReason));
+    }
     return punishment;
   }
 
   // === Warn Operations ===
 
-  @NotNull
+  @Nullable
   public Punishment warn(@NotNull UUID playerUuid, @NotNull String playerName,
                @Nullable UUID issuerUuid, @NotNull String issuerName,
                @Nullable String reason) {
     String effectiveReason = reason != null ? reason
       : ConfigManager.get().moderation().getDefaultWarnReason();
+
+    if (issuerUuid != null && EventBus.publishCancellable(
+        new PlayerWarnPreEvent(playerUuid, issuerUuid, effectiveReason))) {
+      return null;
+    }
 
     Punishment punishment = new Punishment(
       UUID.randomUUID(), PunishmentType.WARN, playerUuid, playerName,
@@ -415,6 +462,9 @@ public class ModerationManager {
     }
     notifyStaff(Permissions.NOTIFY_WARN, issuerName + " warned " + playerName);
 
+    if (issuerUuid != null) {
+      EventBus.publish(new PlayerWarnEvent(playerUuid, issuerUuid, effectiveReason));
+    }
     return punishment;
   }
 

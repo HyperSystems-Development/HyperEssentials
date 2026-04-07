@@ -28,12 +28,16 @@ java {
     }
 }
 
+// WiFlow PlaceholderAPI lib detection (conditional compilation)
+def hasWiFlowLib = file('libs').listFiles()?.any { it.name.contains('WiFlow') } ?: false
+
 repositories {
     mavenCentral()
     maven {
         name = 'hytale'
         url = "https://maven.hytale.com/${hytaleChannel}"
     }
+    maven { url = 'https://repo.helpch.at/releases/' }
 }
 
 dependencies {
@@ -51,6 +55,12 @@ dependencies {
 
     // Sentry error tracking (bundled in shadow JAR)
     implementation 'io.sentry:sentry:8.33.0'
+
+    // PlaceholderAPI Hytale (soft dependency - compileOnly)
+    compileOnly 'at.helpch:placeholderapi-hytale:1.0.4'
+
+    // Optional local soft dependencies (WiFlowPlaceholderAPI)
+    compileOnly fileTree('libs') { include '*.jar' }
 
     // Null safety annotations
     compileOnly 'org.jetbrains:annotations:24.1.0'
@@ -112,6 +122,13 @@ test {
 build {
     dependsOn shadowJar
     finalizedBy tasks.matching { it.name == 'sentryUploadSourceBundleJava' }
+}
+
+// WiFlowExpansion extends PlaceholderExpansion (from WiFlowPlaceholderAPI) directly.
+// When WiFlow isn't on the classpath (JitPack / CI), exclude it from compilation.
+// The bridge class (WiFlowPlaceholderIntegration) loads it reflectively at runtime.
+if (!hasWiFlowLib) {
+    sourceSets.main.java.exclude '**/WiFlowExpansion.java'
 }
 
 tasks.named('compileJava') {

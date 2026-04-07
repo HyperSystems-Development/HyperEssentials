@@ -1,6 +1,8 @@
 package com.hyperessentials.module.kits;
 
 import com.hyperessentials.Permissions;
+import com.hyperessentials.api.events.EventBus;
+import com.hyperessentials.api.events.kits.*;
 import com.hyperessentials.command.util.CommandUtil;
 import com.hyperessentials.config.ConfigManager;
 import com.hyperessentials.module.kits.data.Kit;
@@ -106,6 +108,10 @@ public class KitManager {
                 @NotNull Kit kit) {
     if (!canUseKit(playerUuid, kit)) return ClaimResult.NO_PERMISSION;
 
+    if (EventBus.publishCancellable(new KitClaimPreEvent(playerUuid, kit.name()))) {
+      return ClaimResult.NO_PERMISSION;
+    }
+
     if (kit.oneTime()) {
       String key = playerUuid + ":" + kit.name();
       if (oneTimeClaims.contains(key)) return ClaimResult.ALREADY_CLAIMED;
@@ -135,6 +141,8 @@ public class KitManager {
     }
 
     fireKitClaimed(playerUuid);
+
+    EventBus.publish(new KitClaimEvent(playerUuid, kit.name()));
     return ClaimResult.SUCCESS;
   }
 
@@ -209,9 +217,24 @@ public class KitManager {
   }
 
   public boolean deleteKit(@NotNull String name) {
+    return deleteKit(name, null);
+  }
+
+  public boolean deleteKit(@NotNull String name, @Nullable UUID actorUuid) {
+    Kit kit = kits.get(name.toLowerCase());
+    if (kit == null) return false;
+
+    if (actorUuid != null && EventBus.publishCancellable(new KitDeletePreEvent(kit.name(), actorUuid))) {
+      return false;
+    }
+
     Kit removed = kits.remove(name.toLowerCase());
     if (removed != null) {
       storage.deleteKit(removed.uuid());
+
+      if (actorUuid != null) {
+        EventBus.publish(new KitDeleteEvent(removed.name(), actorUuid));
+      }
       return true;
     }
     return false;

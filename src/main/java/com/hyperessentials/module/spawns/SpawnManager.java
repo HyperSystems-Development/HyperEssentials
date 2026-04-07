@@ -1,5 +1,7 @@
 package com.hyperessentials.module.spawns;
 
+import com.hyperessentials.api.events.EventBus;
+import com.hyperessentials.api.events.spawns.*;
 import com.hyperessentials.data.Spawn;
 import com.hyperessentials.storage.SpawnStorage;
 import com.hyperessentials.util.ErrorHandler;
@@ -195,6 +197,15 @@ public class SpawnManager {
    * Sets/updates a spawn for a world.
    */
   public void setSpawn(@NotNull Spawn spawn) {
+    if (spawn.createdBy() != null) {
+      try {
+        UUID actorUuid = UUID.fromString(spawn.createdBy());
+        if (EventBus.publishCancellable(new SpawnSetPreEvent(spawn.worldUuid(), actorUuid))) {
+          return;
+        }
+      } catch (IllegalArgumentException ignored) {}
+    }
+
     if (spawn.isGlobal()) {
       // Clear old global
       for (Map.Entry<String, Spawn> entry : spawns.entrySet()) {
@@ -209,16 +220,42 @@ public class SpawnManager {
     spawns.put(spawn.worldUuid(), spawn);
     storage.saveSpawn(spawn);
     Logger.info("[Spawns] Spawn set for world '%s'%s", spawn.worldName(), spawn.isGlobal() ? " (global)" : "");
+
+    if (spawn.createdBy() != null) {
+      try {
+        UUID actorUuid = UUID.fromString(spawn.createdBy());
+        EventBus.publish(new SpawnSetEvent(spawn.worldUuid(), actorUuid));
+      } catch (IllegalArgumentException ignored) {}
+    }
   }
 
   /**
    * Deletes the spawn for a world.
    */
   public boolean deleteSpawn(@NotNull String worldUuid) {
+    Spawn spawn = spawns.get(worldUuid);
+    if (spawn == null) return false;
+
+    if (spawn.createdBy() != null) {
+      try {
+        UUID actorUuid = UUID.fromString(spawn.createdBy());
+        if (EventBus.publishCancellable(new SpawnDeletePreEvent(worldUuid, actorUuid))) {
+          return false;
+        }
+      } catch (IllegalArgumentException ignored) {}
+    }
+
     Spawn removed = spawns.remove(worldUuid);
     if (removed != null) {
       storage.deleteSpawn(worldUuid);
       Logger.info("[Spawns] Spawn deleted for world '%s'", removed.worldName());
+
+      if (removed.createdBy() != null) {
+        try {
+          UUID actorUuid = UUID.fromString(removed.createdBy());
+          EventBus.publish(new SpawnDeleteEvent(worldUuid, actorUuid));
+        } catch (IllegalArgumentException ignored) {}
+      }
       return true;
     }
     return false;

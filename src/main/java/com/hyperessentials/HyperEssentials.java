@@ -168,6 +168,17 @@ public class HyperEssentials {
     // Register GUI pages (post-init, modules + managers must be ready)
     registerPages();
 
+    // Initialize PlaceholderAPI integration (after all managers are ready)
+    com.hyperessentials.integration.placeholder.PlaceholderAPIIntegration.init(this);
+
+    // Initialize WiFlow PlaceholderAPI integration (guard before class loading)
+    try {
+      Class.forName("com.wiflow.placeholderapi.WiFlowPlaceholderAPI");
+      com.hyperessentials.integration.placeholder.WiFlowPlaceholderIntegration.init(this);
+    } catch (ClassNotFoundException e) {
+      Logger.debug("WiFlow PlaceholderAPI not found — WiFlow placeholders disabled");
+    }
+
     Logger.info("HyperEssentials enabled with %d modules", moduleRegistry.getEnabledModules().size());
   }
 
@@ -175,6 +186,16 @@ public class HyperEssentials {
    * Disables HyperEssentials - disables modules, shuts down storage, saves config.
    */
   public void disable() {
+    // Unregister PlaceholderAPI expansions
+    try {
+      Class.forName("com.wiflow.placeholderapi.WiFlowPlaceholderAPI");
+      com.hyperessentials.integration.placeholder.WiFlowPlaceholderIntegration.shutdown();
+    } catch (ClassNotFoundException ignored) {}
+    com.hyperessentials.integration.placeholder.PlaceholderAPIIntegration.shutdown();
+
+    // Clear event bus listeners
+    com.hyperessentials.api.events.EventBus.clearAll();
+
     // Disable modules in reverse order
     if (moduleRegistry != null) {
       moduleRegistry.disableAll();
@@ -506,6 +527,14 @@ public class HyperEssentials {
   public HomesModule getHomesModule() { return moduleRegistry.getModule(HomesModule.class); }
   @Nullable
   public TeleportModule getTeleportModule() { return moduleRegistry.getModule(TeleportModule.class); }
+  @Nullable
+  public KitsModule getKitsModule() { return moduleRegistry.getModule(KitsModule.class); }
+  @Nullable
+  public ModerationModule getModerationModule() { return moduleRegistry.getModule(ModerationModule.class); }
+  @Nullable
+  public UtilityModule getUtilityModule() { return moduleRegistry.getModule(UtilityModule.class); }
+  @Nullable
+  public AnnouncementsModule getAnnouncementsModule() { return moduleRegistry.getModule(AnnouncementsModule.class); }
 
   // Getters
 

@@ -1,5 +1,7 @@
 package com.hyperessentials.module.utility;
 
+import com.hyperessentials.api.events.EventBus;
+import com.hyperessentials.api.events.utility.*;
 import com.hyperessentials.command.util.CommandUtil;
 import com.hyperessentials.config.ConfigManager;
 import com.hyperessentials.config.modules.UtilityConfig;
@@ -118,13 +120,20 @@ public class UtilityManager {
   }
 
   public boolean toggleFly(@NotNull UUID uuid) {
-    if (flyingPlayers.contains(uuid)) {
-      flyingPlayers.remove(uuid);
-      return false;
-    } else {
-      flyingPlayers.add(uuid);
-      return true;
+    boolean newState = !flyingPlayers.contains(uuid);
+
+    if (EventBus.publishCancellable(new FlyTogglePreEvent(uuid, newState))) {
+      return !newState; // return current state unchanged
     }
+
+    if (newState) {
+      flyingPlayers.add(uuid);
+    } else {
+      flyingPlayers.remove(uuid);
+    }
+
+    EventBus.publish(new FlyToggleEvent(uuid, newState));
+    return newState;
   }
 
   public void setFlying(@NotNull UUID uuid, boolean flying) {
@@ -139,13 +148,20 @@ public class UtilityManager {
   }
 
   public boolean toggleGod(@NotNull UUID uuid) {
-    if (godPlayers.contains(uuid)) {
-      godPlayers.remove(uuid);
-      return false;
-    } else {
-      godPlayers.add(uuid);
-      return true;
+    boolean newState = !godPlayers.contains(uuid);
+
+    if (EventBus.publishCancellable(new GodTogglePreEvent(uuid, newState))) {
+      return !newState; // return current state unchanged
     }
+
+    if (newState) {
+      godPlayers.add(uuid);
+    } else {
+      godPlayers.remove(uuid);
+    }
+
+    EventBus.publish(new GodToggleEvent(uuid, newState));
+    return newState;
   }
 
   public void setGod(@NotNull UUID uuid, boolean god) {
@@ -160,13 +176,20 @@ public class UtilityManager {
   }
 
   public boolean toggleAfk(@NotNull UUID uuid) {
-    if (afkPlayers.contains(uuid)) {
-      afkPlayers.remove(uuid);
-      return false;
-    } else {
-      afkPlayers.add(uuid);
-      return true;
+    boolean newState = !afkPlayers.contains(uuid);
+
+    if (EventBus.publishCancellable(new AfkTogglePreEvent(uuid, newState))) {
+      return !newState; // return current state unchanged
     }
+
+    if (newState) {
+      afkPlayers.add(uuid);
+    } else {
+      afkPlayers.remove(uuid);
+    }
+
+    EventBus.publish(new AfkToggleEvent(uuid, newState));
+    return newState;
   }
 
   /**
