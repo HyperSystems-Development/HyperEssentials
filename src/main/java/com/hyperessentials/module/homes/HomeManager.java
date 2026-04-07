@@ -1,6 +1,8 @@
 package com.hyperessentials.module.homes;
 
 import com.hyperessentials.Permissions;
+import com.hyperessentials.api.events.EventBus;
+import com.hyperessentials.api.events.homes.*;
 import com.hyperessentials.command.util.CommandUtil;
 import com.hyperessentials.config.ConfigManager;
 import com.hyperessentials.config.modules.HomesConfig;
@@ -144,16 +146,26 @@ public class HomeManager {
       if (isAtLimit(uuid)) return false;
     }
 
+    if (EventBus.publishCancellable(new HomeSetPreEvent(uuid, home.name(), home.world(), home.x(), home.y(), home.z()))) {
+      return false;
+    }
+
     homes.setHome(home);
     savePlayer(uuid);
     fireHomeChanged(uuid);
     Logger.debug("[Homes] Set home '%s' for %s", home.name(), uuid);
+
+    EventBus.publish(new HomeSetEvent(uuid, home.name(), home.world(), home.x(), home.y(), home.z()));
     return true;
   }
 
   public boolean deleteHome(@NotNull UUID uuid, @NotNull String name) {
     PlayerHomes homes = cache.get(uuid);
     if (homes == null) return false;
+
+    if (EventBus.publishCancellable(new HomeDeletePreEvent(uuid, name))) {
+      return false;
+    }
 
     // Get shares before removing (for reverse index cleanup)
     Set<UUID> sharedWith = homes.getShares(name);
@@ -177,6 +189,8 @@ public class HomeManager {
       savePlayer(uuid);
       fireHomeChanged(uuid);
       Logger.debug("[Homes] Deleted home '%s' for %s", name, uuid);
+
+      EventBus.publish(new HomeDeleteEvent(uuid, name));
     }
     return removed;
   }
@@ -228,10 +242,19 @@ public class HomeManager {
   public void setDefaultHome(@NotNull UUID uuid, @Nullable String name) {
     PlayerHomes homes = cache.get(uuid);
     if (homes == null) return;
+
+    if (name != null && EventBus.publishCancellable(new HomeDefaultSetPreEvent(uuid, name))) {
+      return;
+    }
+
     homes.setDefaultHome(name);
     savePlayer(uuid);
     fireHomeChanged(uuid);
     Logger.debug("[Homes] Set default home to '%s' for %s", name, uuid);
+
+    if (name != null) {
+      EventBus.publish(new HomeDefaultSetEvent(uuid, name));
+    }
   }
 
   @Nullable
@@ -275,6 +298,10 @@ public class HomeManager {
     PlayerHomes homes = cache.get(ownerUuid);
     if (homes == null) return;
 
+    if (EventBus.publishCancellable(new HomeSharePreEvent(ownerUuid, homeName, targetUuid))) {
+      return;
+    }
+
     homes.addShare(homeName, targetUuid);
     reverseShareIndex.computeIfAbsent(targetUuid, k -> new ArrayList<>())
         .add(new SharedHomeRef(ownerUuid, homeName.toLowerCase()));
@@ -283,11 +310,17 @@ public class HomeManager {
     fireHomeChanged(ownerUuid);
     fireHomeChanged(targetUuid);
     Logger.debug("[Homes] %s shared home '%s' with %s", ownerUuid, homeName, targetUuid);
+
+    EventBus.publish(new HomeShareEvent(ownerUuid, homeName, targetUuid));
   }
 
   public void unshareHome(@NotNull UUID ownerUuid, @NotNull String homeName, @NotNull UUID targetUuid) {
     PlayerHomes homes = cache.get(ownerUuid);
     if (homes == null) return;
+
+    if (EventBus.publishCancellable(new HomeUnsharePreEvent(ownerUuid, homeName, targetUuid))) {
+      return;
+    }
 
     homes.removeShare(homeName, targetUuid);
 
@@ -301,6 +334,8 @@ public class HomeManager {
     fireHomeChanged(ownerUuid);
     fireHomeChanged(targetUuid);
     Logger.debug("[Homes] %s unshared home '%s' from %s", ownerUuid, homeName, targetUuid);
+
+    EventBus.publish(new HomeUnshareEvent(ownerUuid, homeName, targetUuid));
   }
 
   @NotNull
